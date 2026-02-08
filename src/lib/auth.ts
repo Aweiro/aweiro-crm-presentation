@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken'
-import { Role } from '@prisma/client'
 
 const SECRET = process.env.JWT_SECRET!
 
-export function signJWT(payload: { userId: number; role: Role }) {
+export type AppRole = 'ADMIN' | 'USER'
+
+export function signJWT(payload: { userId: number; role: AppRole }) {
 	return jwt.sign(payload, SECRET, { expiresIn: '1d' })
 }
 export type JWTPayload = {
 	userId: number
-	role: 'ADMIN' | 'USER'
+	role: AppRole
 }
 
 export function verifyJWT(token: string): JWTPayload {
