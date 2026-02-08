@@ -57,7 +57,6 @@ export default function CashierPage() {
 								</p>
 							</div>
 						</Link>
-						<LogoutButton />
 					</div>
 
 					<div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-5 sm:p-8 text-center shadow-md">
