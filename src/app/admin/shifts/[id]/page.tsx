@@ -50,7 +50,7 @@ export default function ShiftDetailsPage() {
 		const expenses: Expense[] = data.expenses ?? []
 
 		const cashIncome = transactions
-			.filter((t) => t.paymentMethod === 'CASH')
+			.filter((t: any) => t.paymentMethod === 'CASH')
 			.reduce((sum, t) => sum + t.amount, 0)
 
 		const cardIncome = transactions

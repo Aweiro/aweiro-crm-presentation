@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Transaction } from '@prisma/client'
 
 export const runtime = 'nodejs'
 
@@ -18,7 +19,7 @@ export async function GET() {
 			})
 		}
 
-		const transactions = await prisma.transaction.findMany({
+		const transactions: Transaction[] = await prisma.transaction.findMany({
 			where: { shiftId: shift.id },
 			include: { user: true },
 			orderBy: { createdAt: 'desc' }
@@ -31,7 +32,7 @@ export async function GET() {
 		})
 
 		const cashIncome = transactions
-			.filter((t) => t.paymentMethod === 'CASH')
+			.filter((t: any) => t.paymentMethod === 'CASH')
 			.reduce((s, t) => s + t.amount, 0)
 
 		const cardIncome = transactions

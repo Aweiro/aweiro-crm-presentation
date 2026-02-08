@@ -71,7 +71,7 @@ function getCashiersSalesList(monthTransactions: TxWithUser[], dayTransactions: 
 
 function getStats(transactions: Tx[]) {
 	const cash = transactions
-		.filter((t) => t.paymentMethod === 'CASH')
+		.filter((t: any) => t.paymentMethod === 'CASH')
 		.reduce((sum, t) => sum + t.amount, 0)
 	const card = transactions
 		.filter((t) => t.paymentMethod === 'CARD')
