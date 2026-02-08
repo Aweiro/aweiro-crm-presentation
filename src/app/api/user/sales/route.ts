@@ -9,6 +9,10 @@ type Tx = {
 	createdAt: Date
 }
 
+type UserTx = Tx & {
+	id: number
+}
+
 type TxWithUser = Tx & {
 	userId: number
 	user: {
@@ -21,7 +25,7 @@ type TxWithUser = Tx & {
 function getCashierAggregate(transactions: TxWithUser[]) {
 	const salesMap = new Map<number, { userId: number; name: string; total: number; count: number }>()
 
-	transactions.forEach((t) => {
+	transactions.forEach((t: TxWithUser) => {
 		const entry = salesMap.get(t.userId) ?? {
 			userId: t.userId,
 			name: t.user.name || t.user.login,
@@ -36,7 +40,12 @@ function getCashierAggregate(transactions: TxWithUser[]) {
 	return {
 		cashiersCount: salesMap.size,
 		top: Array.from(salesMap.values())
-			.sort((a, b) => b.total - a.total)
+			.sort(
+				(
+					a: { userId: number; name: string; total: number; count: number },
+					b: { userId: number; name: string; total: number; count: number }
+				) => b.total - a.total
+			)
 			.slice(0, 3)
 	}
 }
@@ -45,7 +54,7 @@ function getCashiersSalesList(monthTransactions: TxWithUser[], dayTransactions: 
 	const monthMap = new Map<number, { userId: number; name: string; totalMonth: number }>()
 	const dayMap = new Map<number, number>()
 
-	monthTransactions.forEach((t) => {
+	monthTransactions.forEach((t: TxWithUser) => {
 		const existing = monthMap.get(t.userId) ?? {
 			userId: t.userId,
 			name: t.user.name || t.user.login,
@@ -55,27 +64,30 @@ function getCashiersSalesList(monthTransactions: TxWithUser[], dayTransactions: 
 		monthMap.set(t.userId, existing)
 	})
 
-	dayTransactions.forEach((t) => {
+	dayTransactions.forEach((t: TxWithUser) => {
 		dayMap.set(t.userId, (dayMap.get(t.userId) ?? 0) + t.amount)
 	})
 
 	return Array.from(monthMap.values())
-		.map((u) => ({
+		.map((u: { userId: number; name: string; totalMonth: number }) => ({
 			userId: u.userId,
 			name: u.name,
 			dayTotal: dayMap.get(u.userId) ?? 0,
 			totalMonth: u.totalMonth
 		}))
-		.sort((a, b) => b.totalMonth - a.totalMonth)
+		.sort(
+			(a: { totalMonth: number }, b: { totalMonth: number }) =>
+				b.totalMonth - a.totalMonth
+		)
 }
 
 function getStats(transactions: Tx[]) {
 	const cash = transactions
-		.filter((t: any) => t.paymentMethod === 'CASH')
-		.reduce((sum, t) => sum + t.amount, 0)
+		.filter((t: Tx) => t.paymentMethod === 'CASH')
+		.reduce((sum: number, t: Tx) => sum + t.amount, 0)
 	const card = transactions
-		.filter((t) => t.paymentMethod === 'CARD')
-		.reduce((sum, t) => sum + t.amount, 0)
+		.filter((t: Tx) => t.paymentMethod === 'CARD')
+		.reduce((sum: number, t: Tx) => sum + t.amount, 0)
 
 	return {
 		count: transactions.length,
@@ -119,7 +131,7 @@ export async function GET() {
 		const dayStart = new Date(now)
 		dayStart.setHours(0, 0, 0, 0)
 
-		const monthTransactions = await prisma.transaction.findMany({
+		const monthTransactions: UserTx[] = await prisma.transaction.findMany({
 			where: {
 				userId: user.id,
 				createdAt: { gte: monthStart }
@@ -134,10 +146,10 @@ export async function GET() {
 		})
 
 		const dayTransactions = monthTransactions.filter(
-			(t) => new Date(t.createdAt).getTime() >= dayStart.getTime()
+			(t: UserTx) => new Date(t.createdAt).getTime() >= dayStart.getTime()
 		)
 
-		const monthAllTransactions = await prisma.transaction.findMany({
+		const monthAllTransactions: TxWithUser[] = await prisma.transaction.findMany({
 			where: {
 				createdAt: { gte: monthStart }
 			},
@@ -158,7 +170,7 @@ export async function GET() {
 		})
 
 		const dayAllTransactions = monthAllTransactions.filter(
-			(t) => new Date(t.createdAt).getTime() >= dayStart.getTime()
+			(t: TxWithUser) => new Date(t.createdAt).getTime() >= dayStart.getTime()
 		)
 		const dayAggregate = getCashierAggregate(dayAllTransactions)
 		const monthAggregate = getCashierAggregate(monthAllTransactions)
