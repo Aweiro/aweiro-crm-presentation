@@ -71,7 +71,7 @@ export default function HomePage() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-purple-50">
-			<div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+			<div className="page-container py-8 sm:py-12 lg:py-16">
 				<div className="mb-8 sm:mb-12">
 					<h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Ласкаво просимо! 👋</h2>
 					<p className="text-base sm:text-xl text-slate-600">Система управління касою та змінами</p>
@@ -137,7 +137,7 @@ export default function HomePage() {
 			</div>
 
 			<footer className="bg-slate-900 text-white mt-12 sm:mt-20 py-8 border-t border-slate-800">
-				<div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+				<div className="page-container">
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
 						<div>
 							<h4 className="font-bold mb-2">🌟 Sirius</h4>

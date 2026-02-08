@@ -209,7 +209,7 @@ export default function ShiftsArchivePage() {
 	if (isLoading) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-				<div className="max-w-7xl mx-auto">
+				<div className="w-full">
 					<div className="flex items-center justify-center py-20">
 						<div className="text-center">
 							<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -225,7 +225,7 @@ export default function ShiftsArchivePage() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-			<div className="max-w-7xl mx-auto">
+			<div className="w-full">
 				<div className="mb-6 sm:mb-8">
 					<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">📋 Архів змін</h1>
 					<p className="text-slate-600 mt-2 text-base sm:text-lg">

@@ -15,6 +15,7 @@ export async function POST(req: Request) {
 		const body = await req.json()
 
 		const { login, password, name, role } = body
+		const normalizedRole = role === 'ADMIN' ? 'ADMIN' : 'USER'
 
 		if (!login || !password || !name) {
 			return NextResponse.json(
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
 				login,
 				passwordHash,
 				name,
-				role: role ?? 'USER',
+				role: normalizedRole,
 			}
 		})
 

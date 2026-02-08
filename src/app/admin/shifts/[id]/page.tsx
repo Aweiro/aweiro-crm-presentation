@@ -119,7 +119,7 @@ export default function ShiftDetailsPage() {
 	if (error) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-				<div className="max-w-4xl mx-auto">
+				<div className="w-full">
 					<button
 						onClick={() => router.back()}
 						className="mb-6 px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors font-semibold"
@@ -137,7 +137,7 @@ export default function ShiftDetailsPage() {
 	if (!summary) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-				<div className="max-w-4xl mx-auto flex items-center justify-center py-20">
+				<div className="w-full flex items-center justify-center py-20">
 					<div className="text-center">
 						<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
 						<p className="text-slate-600 text-lg">Завантаження деталей зміни…</p>
@@ -149,7 +149,7 @@ export default function ShiftDetailsPage() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-			<div className="max-w-4xl mx-auto">
+			<div className="w-full">
 				<button
 					onClick={() => router.back()}
 					className="mb-6 px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors font-semibold"

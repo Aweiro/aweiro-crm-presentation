@@ -44,7 +44,7 @@ export default function CashierPage() {
 	if (shift === null) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-8">
-				<div className="max-w-2xl mx-auto">
+				<div className="page-container">
 					<div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
 						<Link href="/" className="flex items-center gap-3 no-underline">
 							<div className="text-4xl">💰</div>
@@ -75,7 +75,7 @@ export default function CashierPage() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-8">
-			<div className="max-w-5xl mx-auto">
+			<div className="page-container">
 				<div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
 					<div className="flex items-center gap-3 no-underline">
 						<div className="text-4xl">💰</div>

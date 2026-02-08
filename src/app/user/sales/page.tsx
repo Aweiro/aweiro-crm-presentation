@@ -70,7 +70,7 @@ export default function UserSalesPage() {
 	if (loading) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-8">
-				<div className="max-w-5xl mx-auto flex items-center justify-center py-20">
+				<div className="page-container flex items-center justify-center py-20">
 					<div className="text-center">
 						<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto mb-4" />
 						<p className="text-slate-600">Завантаження статистики…</p>
@@ -83,7 +83,7 @@ export default function UserSalesPage() {
 	if (error || !data) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-8">
-				<div className="max-w-5xl mx-auto">
+				<div className="page-container">
 					<div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6">
 						<p className="text-red-800 font-semibold">❌ {error || 'Немає даних'}</p>
 					</div>
@@ -94,7 +94,7 @@ export default function UserSalesPage() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-8">
-			<div className="max-w-5xl mx-auto space-y-6">
+			<div className="page-container space-y-6">
 				<div>
 					<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Мої продажі</h1>
 					<p className="text-slate-600 text-sm sm:text-base mt-2">

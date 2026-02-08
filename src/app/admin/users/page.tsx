@@ -11,6 +11,7 @@ export default function UsersAdminPage() {
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
 	const [name, setName] = useState('')
+	const [role, setRole] = useState<'USER' | 'ADMIN'>('USER')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [successMessage, setSuccessMessage] = useState('')
 
@@ -32,7 +33,7 @@ export default function UsersAdminPage() {
 					login,
 					password,
 					name,
-					role: 'USER'
+					role
 				})
 			})
 
@@ -40,6 +41,7 @@ export default function UsersAdminPage() {
 				setLogin('')
 				setPassword('')
 				setName('')
+				setRole('USER')
 				setSuccessMessage('✅ Користувач успішно створений!')
 				setTimeout(() => setSuccessMessage(''), 3000)
 				mutate('/api/admin/users')
@@ -72,7 +74,7 @@ export default function UsersAdminPage() {
 	if (isLoading) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
-				<div className="max-w-6xl mx-auto">
+				<div className="w-full">
 					<div className="flex items-center justify-center py-20">
 						<div className="text-center">
 							<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
@@ -88,7 +90,7 @@ export default function UsersAdminPage() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
-			<div className="max-w-6xl mx-auto">
+			<div className="w-full">
 				<div className="mb-8">
 					<h1 className="text-4xl font-bold text-slate-900">👥 Управління користувачами</h1>
 					<p className="text-slate-600 mt-2 text-lg">
@@ -107,7 +109,7 @@ export default function UsersAdminPage() {
 					<h2 className="text-2xl font-bold text-slate-900 mb-6">➕ Додати нового користувача</h2>
 
 					<form onSubmit={create} className="space-y-4">
-						<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 							<div>
 								<label className="block text-sm font-semibold text-slate-700 mb-2">
 									👤 Імʼя
@@ -145,6 +147,43 @@ export default function UsersAdminPage() {
 									onChange={(e) => setPassword(e.target.value)}
 									className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-colors"
 								/>
+							</div>
+
+						</div>
+
+						<div>
+							<p className="block text-sm font-semibold text-slate-700 mb-2">
+								🛡️ Роль
+							</p>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+								<button
+									type="button"
+									onClick={() => setRole('USER')}
+									className={`text-left rounded-xl border-2 p-4 transition-all ${
+										role === 'USER'
+											? 'border-blue-500 bg-blue-50 shadow-sm'
+											: 'border-slate-200 bg-white hover:border-slate-300'
+									}`}
+								>
+									<p className="font-semibold text-slate-900">🧑 Касир</p>
+									<p className="text-xs text-slate-600 mt-1">
+										Доступ до каси та власної статистики
+									</p>
+								</button>
+								<button
+									type="button"
+									onClick={() => setRole('ADMIN')}
+									className={`text-left rounded-xl border-2 p-4 transition-all ${
+										role === 'ADMIN'
+											? 'border-purple-500 bg-purple-50 shadow-sm'
+											: 'border-slate-200 bg-white hover:border-slate-300'
+									}`}
+								>
+									<p className="font-semibold text-slate-900">👑 Адміністратор</p>
+									<p className="text-xs text-slate-600 mt-1">
+										Повний доступ до керування системою
+									</p>
+								</button>
 							</div>
 						</div>
 
