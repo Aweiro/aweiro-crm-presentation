@@ -1,0 +1,996 @@
+[00:00:01.163] Server  WARN    ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[00:00:01.246] Server  LOG     ✓ Ready in 1027ms
+[00:00:01.354] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:02.145] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:03.000] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:03.200] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:04.892] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:05.865] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:07.152] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:07.218] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:09.247] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:00:09.251] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:10.544] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:10.588] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:12.976] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:00:12.981] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:13.695] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:00:13.706] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:14.104] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:00:14.108] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:19.761] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:20.289] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:30.119] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:30.162] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:38.758] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:00:38.770] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:47.195] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:48.383] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:48.863] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:00:49.966] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:00:50.341] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:01:07.809] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:01:09.469] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:01:09.904] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:01:20.704] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:01:21.125] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:01:49.282] Server  LOG     ✓ Compiled in 777ms
+[00:01:59.947] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:02:00.831] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/cashier" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="uk" suppressHydrationWarning={true}>
+                          <body
+-                           data-new-gr-c-s-check-loaded="14.1270.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+
+[00:02:01.406] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:02.322] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:02:02.752] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:06.015] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:06.271] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:02:07.297] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:07.350] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:08.370] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:08.423] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:26.824] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:02:26.836] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:02:29.470] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:02:29.536] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:05:18.215] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:05:18.297] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:06:28.572] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.580] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.588] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.594] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.598] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.602] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.606] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.608] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.612] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.616] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.619] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.622] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.624] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.626] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.629] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.631] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.633] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.635] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:28.641] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:28.644] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:06:29.671] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.674] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.677] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.681] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.684] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.687] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.690] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.693] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.696] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.710] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.717] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.725] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.731] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.736] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.740] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.744] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.747] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.750] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:29.753] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:06:29.755] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:06:35.172] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:06:35.242] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:06:38.268] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:06:44.498] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:07:08.167] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:07:08.199] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:07:12.672] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:07:12.677] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:07:19.134] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:07:19.146] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:07:19.585] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:07:21.613] Server  LOG     ✓ Compiled in 220ms
+[00:07:44.332] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:07:44.720] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:07:45.586] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:07:45.969] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:07:45.975] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:07:47.015] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:07:58.319] Server  LOG     LOGIN RESULT: {}
+[00:07:58.399] Server  LOG     LOGIN: "arsen"
+[00:07:58.399] Server  LOG     PASSWORD: "arsen"
+[00:07:58.399] Server  LOG     HASH: "$2b$10$b6JyDys5OFGq7YsyOb2ojeYyjJLT27dj7xvBDplpteD/GhBv9QCxy"
+[00:07:58.463] Server  LOG     BCRYPT RESULT: true
+[00:07:58.488] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:08:03.045] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:08:42.834] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:08:47.853] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:12.813] Server  LOG     ✓ Compiled in 264ms
+[00:09:41.399] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:42.084] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:42.843] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:43.392] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:43.883] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:44.186] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:44.415] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:44.619] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:44.970] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:45.180] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:45.444] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:45.803] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:46.130] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:46.571] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:46.966] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:47.314] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:47.688] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:48.152] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:48.451] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:48.902] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:49.265] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:49.698] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:09:50.004] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:10:43.979] Server  LOG     ✓ Compiled in 94ms
+[00:11:09.613] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:10.687] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:11.197] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:11.797] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:12.757] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:14.001] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:17.021] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:21.103] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:33.308] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:34.072] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:34.562] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:35.265] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:35.746] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:35.992] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:37.367] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:38.605] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:11:39.587] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:07.326] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.338] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.342] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.350] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.356] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.359] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.363] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.370] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.375] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.378] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.380] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.383] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.386] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.388] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.391] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.393] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.395] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.410] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:07.417] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:07.424] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:31.906] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/amount" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="uk" suppressHydrationWarning={true}>
+                          <body
+-                           data-new-gr-c-s-check-loaded="14.1270.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+
+[00:12:37.824] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:38.055] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:38.688] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:39.244] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:40.447] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:41.431] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:42.697] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:12:45.618] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:12:51.305] Server  LOG     LOGIN RESULT: {}
+[00:12:51.386] Server  LOG     LOGIN: "admin"
+[00:12:51.386] Server  LOG     PASSWORD: "admin123"
+[00:12:51.386] Server  LOG     HASH: "$2b$10$heAJeZfRd7VN.BHa7L78FuCEgr8uXBbJtzLiVy3bxPjSi9A36fhM6"
+[00:12:51.450] Server  LOG     BCRYPT RESULT: true
+[00:12:51.490] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:51.893] Server  LOG     ➡️ GET /api/admin/shift called
+[00:12:51.895] Server  LOG     ✅ shift: {}
+[00:12:52.438] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:12:52.607] Server  LOG     ➡️ GET /api/admin/shift called
+[00:12:52.608] Server  LOG     ✅ shift: {}
+[00:12:59.694] Server  LOG     ➡️ GET /api/admin/shift called
+[00:12:59.699] Server  LOG     ✅ shift: {}
+[00:13:03.971] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:13:11.196] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:13:11.282] Server  LOG     ➡️ GET /api/admin/shift called
+[00:13:11.289] Server  LOG     ✅ shift: {}
+[00:13:17.563] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:13:17.855] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:13:17.855] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:13:18.018] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:13:18.018] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:13:18.018] Browser LOG     Is array? true
+[00:13:18.018] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:13:18.018] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:13:18.018] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:13:18.018] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:13:18.018] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:13:18.018] Browser LOG     Is array? true
+[00:13:18.018] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:13:18.018] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:13:18.018] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:13:24.334] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/2
+[00:13:34.675] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:14:33.672] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:14:44.635] Server  LOG     ✓ Compiled in 154ms
+[00:14:49.093] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:15:01.660] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:15:01.730] Server  ERROR   auth/me error TokenExpiredError: jwt expired
+[00:15:06.838] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:15:12.389] Server  LOG     ✓ Compiled in 132ms
+[00:15:17.219] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:15:22.310] Server  LOG     LOGIN RESULT: {}
+[00:15:22.399] Server  LOG     LOGIN: "admin"
+[00:15:22.400] Server  LOG     PASSWORD: "admin123"
+[00:15:22.400] Server  LOG     HASH: "$2b$10$heAJeZfRd7VN.BHa7L78FuCEgr8uXBbJtzLiVy3bxPjSi9A36fhM6"
+[00:15:22.463] Server  LOG     BCRYPT RESULT: true
+[00:15:22.502] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:15:22.866] Server  LOG     ➡️ GET /api/admin/shift called
+[00:15:22.867] Server  LOG     ✅ shift: {}
+[00:15:31.645] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:15:32.539] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:15:32.593] Server  LOG     ➡️ GET /api/admin/shift called
+[00:15:32.597] Server  LOG     ✅ shift: {}
+[00:15:33.562] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:15:33.835] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:15:33.835] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:15:33.835] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:15:33.835] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:33.835] Browser LOG     Is array? true
+[00:15:33.835] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:33.835] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:33.835] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:33.835] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:15:33.835] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:33.835] Browser LOG     Is array? true
+[00:15:33.835] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:33.835] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:33.835] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:34.980] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:15:36.558] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:15:36.737] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:15:36.738] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:15:36.738] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:15:36.738] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:36.738] Browser LOG     Is array? true
+[00:15:36.738] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:36.738] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:36.738] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:36.738] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:15:36.738] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:36.738] Browser LOG     Is array? true
+[00:15:36.738] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:15:36.738] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:36.738] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:15:37.279] Server  LOG     ✓ Compiled in 115ms
+[00:15:42.544] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:16:34.549] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:16:43.732] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:16:43.754] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:16:48.987] Server  LOG     LOGIN RESULT: {}
+[00:16:49.067] Server  LOG     LOGIN: "admin"
+[00:16:49.067] Server  LOG     PASSWORD: "admin123"
+[00:16:49.067] Server  LOG     HASH: "$2b$10$heAJeZfRd7VN.BHa7L78FuCEgr8uXBbJtzLiVy3bxPjSi9A36fhM6"
+[00:16:49.131] Server  LOG     BCRYPT RESULT: true
+[00:16:49.170] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:16:53.159] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:17:04.826] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:17:22.907] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:17:25.383] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:17:25.595] Server  LOG     ➡️ GET /api/admin/shift called
+[00:17:25.597] Server  LOG     ✅ shift: {}
+[00:17:27.848] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:17:28.027] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:17:28.027] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:17:28.189] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:17:28.189] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:17:28.189] Browser LOG     Is array? true
+[00:17:28.189] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:17:28.189] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:17:28.189] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:17:28.189] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:17:28.189] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:17:28.189] Browser LOG     Is array? true
+[00:17:28.189] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:17:28.189] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:17:28.189] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:19:08.162] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:08.280] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:19:08.866] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:19:08.866] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:19:08.866] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:19:08.866] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:19:08.866] Browser LOG     Is array? true
+[00:19:08.866] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:19:08.866] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:19:08.866] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:19:17.735] Server  LOG     ✓ Compiled in 262ms
+[00:19:26.698] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:26.702] Server  LOG     ✓ Compiled in 143ms
+[00:19:26.871] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:26.948] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:27.008] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:28.049] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:19:28.050] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:19:39.304] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:39.443] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:19:39.866] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:19:39.866] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:19:40.138] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:19:40.138] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:19:40.138] Browser LOG     Is array? true
+[00:19:40.138] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:19:40.138] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:19:40.138] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:19:52.380] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:19:52.448] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:19:52.982] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:19:52.982] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:19:52.982] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:19:52.982] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:19:52.982] Browser LOG     Is array? true
+[00:19:52.982] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:19:52.982] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:19:52.982] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:20:07.282] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:20:07.335] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:20:07.831] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:20:07.831] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:20:07.939] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:20:07.939] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:20:07.939] Browser LOG     Is array? true
+[00:20:07.939] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:20:07.939] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:20:07.939] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:21:14.224] Server  LOG     ✓ Compiled in 58ms
+[00:21:15.123] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:21:15.334] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:21:15.886] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:21:15.886] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:21:15.993] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:21:15.993] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:21:15.993] Browser LOG     Is array? true
+[00:21:15.993] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:21:15.993] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:21:15.993] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:21:22.255] Server  LOG     ✓ Compiled in 43ms
+[00:21:23.374] Server  LOG     ✓ Compiled in 25ms
+[00:21:24.455] Server  LOG     ✓ Compiled in 28ms
+[00:21:26.641] Server  LOG     ✓ Compiled in 38ms
+[00:21:46.888] Server  LOG     ✓ Compiled in 29ms
+[00:21:47.469] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:21:47.706] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:21:48.133] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:21:48.133] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:21:48.548] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:21:48.548] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:21:48.548] Browser LOG     Is array? true
+[00:21:48.548] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:21:48.548] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:21:48.548] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:22:17.065] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:22:19.467] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:22:19.729] Server  LOG     ➡️ GET /api/admin/shift called
+[00:22:19.733] Server  LOG     ✅ shift: {}
+[00:22:41.867] Server  LOG     ➡️ GET /api/admin/shift called
+[00:22:41.886] Server  LOG     ✅ shift: {}
+[00:22:47.658] Server  LOG     ➡️ GET /api/admin/shift called
+[00:22:47.660] Server  LOG     ✅ shift: {}
+[00:22:53.922] Server  LOG     ➡️ GET /api/admin/shift called
+[00:22:53.927] Server  LOG     ✅ shift: {}
+[00:23:22.741] Server  LOG     ➡️ GET /api/admin/shift called
+[00:23:22.763] Server  LOG     ✅ shift: {}
+[00:23:35.413] Server  LOG     ➡️ GET /api/admin/shift called
+[00:23:35.439] Server  LOG     ✅ shift: {}
+[00:23:45.118] Server  LOG     ➡️ GET /api/admin/shift called
+[00:23:45.120] Server  LOG     ✅ shift: {}
+[00:23:46.766] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:23:46.942] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:23:46.942] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:23:47.124] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:23:47.124] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:23:47.124] Browser LOG     Is array? true
+[00:23:47.124] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:23:47.124] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:23:47.124] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:23:47.124] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:23:47.124] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:23:47.124] Browser LOG     Is array? true
+[00:23:47.124] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:23:47.124] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:23:47.124] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:24:47.322] Server  LOG     🧱 MIDDLEWARE RUN: /admin/users
+[00:24:56.663] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:24:56.820] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:24:56.820] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:24:56.944] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:24:56.944] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:24:56.944] Browser LOG     Is array? true
+[00:24:56.944] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:24:56.944] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:24:56.944] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:24:56.944] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:24:56.944] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:24:56.944] Browser LOG     Is array? true
+[00:24:56.944] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:24:56.944] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:24:56.944] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:24:59.091] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/3
+[00:24:59.857] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/admin/shi..." notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="uk" suppressHydrationWarning={true}>
+                          <body
+-                           data-new-gr-c-s-check-loaded="14.1271.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+
+[00:27:01.982] Server  LOG     ✓ Compiled in 280ms
+[00:27:19.029] Server  LOG     ✓ Compiled in 166ms
+[00:27:45.817] Server  LOG     ✓ Compiled in 160ms
+[00:28:20.830] Server  LOG     ✓ Compiled in 191ms
+[00:30:50.921] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/3
+[00:31:16.145] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:31:16.378] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:31:16.785] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:31:16.785] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:31:16.921] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:31:16.921] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:31:16.921] Browser LOG     Is array? true
+[00:31:16.921] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:31:16.921] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:31:16.921] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:31:27.867] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:31:28.220] Server  LOG     ➡️ GET /api/admin/shift called
+[00:31:28.222] Server  LOG     ✅ shift: {}
+[00:31:35.334] Server  LOG     ➡️ GET /api/admin/shift called
+[00:31:35.337] Server  LOG     ✅ shift: {}
+[00:34:39.400] Server  LOG     ➡️ GET /api/admin/shift called
+[00:34:39.455] Server  LOG     ✅ shift: {}
+[00:39:26.325] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:39:26.610] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:39:26.610] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:39:26.610] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:39:26.610] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:39:26.610] Browser LOG     Is array? true
+[00:39:26.610] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:39:26.610] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:39:26.610] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:39:26.610] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:39:26.610] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:39:26.610] Browser LOG     Is array? true
+[00:39:26.610] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:39:26.610] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:39:26.610] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:39:29.376] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/3
+[00:39:37.121] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:39:37.162] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:39:37.281] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:39:37.281] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:39:37.398] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:39:37.398] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:39:37.398] Browser LOG     Is array? true
+[00:39:37.398] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:39:37.398] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:39:37.398] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:39:39.329] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:39:39.449] Server  LOG     ➡️ GET /api/admin/shift called
+[00:39:39.451] Server  LOG     ✅ shift: {}
+[00:42:12.314] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:42:16.539] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:42:16.628] Server  LOG     ➡️ GET /api/admin/shift called
+[00:42:16.638] Server  LOG     ✅ shift: {}
+[00:42:19.211] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:42:19.280] Server  LOG     ➡️ GET /api/admin/shift called
+[00:42:19.288] Server  LOG     ✅ shift: {}
+[00:45:57.593] Server  LOG     ➡️ GET /api/admin/shift called
+[00:45:57.622] Server  LOG     ✅ shift: {}
+[00:46:13.041] Server  LOG     ✓ Compiled in 170ms
+[00:46:13.080] Server  LOG     ➡️ GET /api/admin/shift called
+[00:46:13.122] Server  LOG     ✅ shift: {}
+[00:46:22.935] Server  LOG     ✓ Compiled in 36ms
+[00:46:35.272] Server  LOG     ➡️ GET /api/admin/shift called
+[00:46:35.302] Server  LOG     ✅ shift: {}
+[00:46:35.324] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:46:35.835] Server  LOG     ➡️ GET /api/admin/shift called
+[00:46:35.838] Server  LOG     ✅ shift: {}
+[00:46:48.559] Server  LOG     ➡️ GET /api/admin/shift called
+[00:46:48.614] Server  LOG     ✅ shift: {}
+[00:46:54.379] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:46:54.392] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:46:55.383] Server  LOG     ➡️ GET /api/admin/shift called
+[00:46:55.399] Server  LOG     ✅ shift: {}
+[00:46:57.020] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:46:57.472] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:46:57.472] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:46:57.636] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:46:57.636] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:46:57.636] Browser LOG     Is array? true
+[00:46:57.636] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:46:57.636] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:46:57.636] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:46:57.636] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:46:57.636] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:46:57.636] Browser LOG     Is array? true
+[00:46:57.636] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:46:57.636] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:46:57.636] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:47:11.875] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/3
+[00:48:30.788] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:48:47.137] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:48:47.472] Server  LOG     ➡️ GET /api/admin/shift called
+[00:48:47.475] Server  LOG     ✅ shift: {}
+[00:49:15.541] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:49:15.844] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:49:15.844] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:49:15.844] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:49:15.844] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:49:15.844] Browser LOG     Is array? true
+[00:49:15.844] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:49:15.844] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:49:15.844] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:49:15.844] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:49:15.844] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:49:15.844] Browser LOG     Is array? true
+[00:49:15.844] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:49:15.844] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:49:15.844] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:49:21.588] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/1
+[00:49:31.430] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:49:31.487] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:49:31.859] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:49:31.860] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:49:32.014] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:49:32.014] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:49:32.014] Browser LOG     Is array? true
+[00:49:32.014] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:49:32.014] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:49:32.014] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:49:37.497] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:50:20.159] Server  LOG     ✓ Compiled in 244ms
+[00:50:20.271] Browser ERROR   ./src/app/cashier/page.tsx:123:10
+Parsing ecmascript source code failed
+  121 | 								employee={emp}
+  122 | 								disabled={!shift.isOpen}
+> 123 | 							/>л
+      | 							  ^^
+  124 | 						))}
+  125 | 					</div>
+  126 | 				)}
+
+Expected '</', got 'ident'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/cashier/page.tsx [Client Component Browser]
+    ./src/app/cashier/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/cashier/page.tsx [Client Component SSR]
+    ./src/app/cashier/page.tsx [Server Component]
+[00:50:21.044] Browser ERROR   ./src/app/cashier/page.tsx:123:10
+Parsing ecmascript source code failed
+  121 | 								employee={emp}
+  122 | 								disabled={!shift.isOpen}
+> 123 | 							/>л
+      | 							  ^^
+  124 | 						))}
+  125 | 					</div>
+  126 | 				)}
+
+Expected '</', got 'ident'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/cashier/page.tsx [Client Component Browser]
+    ./src/app/cashier/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/cashier/page.tsx [Client Component SSR]
+    ./src/app/cashier/page.tsx [Server Component]
+[00:50:21.046] Browser ERROR   ./src/app/cashier/page.tsx:123:10
+Parsing ecmascript source code failed
+  121 | 								employee={emp}
+  122 | 								disabled={!shift.isOpen}
+> 123 | 							/>л
+      | 							  ^^
+  124 | 						))}
+  125 | 					</div>
+  126 | 				)}
+
+Expected '</', got 'ident'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/cashier/page.tsx [Client Component Browser]
+    ./src/app/cashier/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/cashier/page.tsx [Client Component SSR]
+    ./src/app/cashier/page.tsx [Server Component]
+[00:50:22.460] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:50:22.465] Server  LOG     ✓ Compiled in 48ms
+[00:50:22.470] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:52:12.771] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:52:24.588] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:52:24.918] Server  LOG     ➡️ GET /api/admin/shift called
+[00:52:24.920] Server  LOG     ✅ shift: {}
+[00:52:25.901] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:52:26.078] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:52:26.078] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:52:26.236] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:52:26.236] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:52:26.236] Browser LOG     Is array? true
+[00:52:26.236] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:52:26.236] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:52:26.236] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:52:26.236] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:52:26.236] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:52:26.236] Browser LOG     Is array? true
+[00:52:26.236] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:52:26.236] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:52:26.236] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:52:29.251] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:52:29.350] Server  LOG     ➡️ GET /api/admin/shift called
+[00:52:29.363] Server  LOG     ✅ shift: {}
+[00:53:02.504] Server  LOG     ➡️ GET /api/admin/shift called
+[00:53:02.532] Server  LOG     ✅ shift: {}
+[00:53:21.187] Server  LOG     ➡️ GET /api/admin/shift called
+[00:53:21.230] Server  LOG     ✅ shift: {}
+[00:53:24.229] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:53:34.331] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:53:39.660] Server  LOG     ➡️ GET /api/admin/shift called
+[00:53:39.675] Server  LOG     ✅ shift: {}
+[00:53:41.554] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[00:53:41.870] Server  LOG     ➡️ GET /api/admin/shift called
+[00:53:41.876] Server  LOG     ✅ shift: {}
+[00:53:51.694] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:53:51.967] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:53:51.967] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:53:51.967] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:53:51.967] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:53:51.967] Browser LOG     Is array? true
+[00:53:51.967] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:53:51.967] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:53:51.967] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:53:51.967] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:53:51.967] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:53:51.967] Browser LOG     Is array? true
+[00:53:51.967] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:53:51.967] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:53:51.967] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:53:56.778] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/1
+[00:53:58.089] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:53:58.122] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:53:58.365] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:53:58.365] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:53:58.365] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:53:58.365] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:53:58.365] Browser LOG     Is array? true
+[00:53:58.365] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:53:58.365] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:53:58.365] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:54:00.615] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts/3
+[00:54:08.161] Server  LOG     🧱 MIDDLEWARE RUN: /admin/shifts
+[00:54:08.222] Server  LOG     RENDER: shifts.length=0, months.length=0
+[00:54:08.535] Browser LOG     RENDER: shifts.length=0, months.length=0
+[00:54:08.535] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=0, months.length=0
+[00:54:08.535] Browser LOG     Raw Shifts Data: {"data":[{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]}
+[00:54:08.535] Browser LOG     Shifts.data: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:54:08.535] Browser LOG     Is array? true
+[00:54:08.535] Browser LOG     Sorted shifts: [{"cashEnd":2097,"cashStart":0,"closedAt":"2026-02-06T22:54:33.062Z","id":3,"isOpen":false,"openedAt":"2026-02-06T20:49:25.780Z"},{"cashEnd":3054,"cashStart":1000,"closedAt":"2026-02-04T19:55:28.450Z","id":2,"isOpen":false,"openedAt":"2026-02-04T18:28:13.627Z"},{"cashEnd":0,"cashStart":null,"closedAt":"2026-02-04T18:27:25.431Z","id":1,"isOpen":false,"openedAt":"2026-02-04T18:27:23.851Z"}]
+[00:54:08.535] Browser LOG     RENDER: shifts.length=3, months.length=1
+[00:54:08.535] Browser LOG     [2;38;2;124;124;124m%s[0m RENDER: shifts.length=3, months.length=1
+[00:55:36.470] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[00:55:42.252] Server  LOG     LOGIN RESULT: {}
+[00:55:42.327] Server  LOG     LOGIN: "arsen"
+[00:55:42.327] Server  LOG     PASSWORD: "arsen"
+[00:55:42.327] Server  LOG     HASH: "$2b$10$b6JyDys5OFGq7YsyOb2ojeYyjJLT27dj7xvBDplpteD/GhBv9QCxy"
+[00:55:42.391] Server  LOG     BCRYPT RESULT: true
+[00:55:42.419] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.123] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.442] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.478] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.494] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.527] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.577] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.602] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.640] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.678] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.702] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.723] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.745] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.787] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.851] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.908] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.922] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.948] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:10.976] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.001] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.027] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.084] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.114] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.143] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.185] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.222] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.246] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.262] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.294] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.312] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.334] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.354] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.377] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.404] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.441] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.473] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.497] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.523] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.544] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.567] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.588] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.609] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.632] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.660] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.680] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.700] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.719] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.742] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.769] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.786] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.808] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.845] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.864] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.883] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.905] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.923] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.945] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.964] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:11.992] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:12.019] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:12.046] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:40.984] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.268] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.305] Server  LOG     ✓ Compiled in 0ms
+[00:56:41.338] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.459] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.525] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.560] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.581] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.602] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.627] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.649] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.672] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.697] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.719] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.745] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.765] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.800] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.828] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.851] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.878] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.896] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.918] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.939] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.969] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:41.986] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.013] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.030] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.085] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.105] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.127] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.145] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.171] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.184] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.217] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.250] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.274] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.293] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.311] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.345] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.363] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.381] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.397] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.428] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.479] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.548] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.569] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.606] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.629] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.651] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.670] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.691] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.710] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.729] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.752] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.771] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.842] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.863] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.894] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.912] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.937] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.958] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:42.985] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:43.060] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:56:48.288] Server  LOG     ✓ Compiled in 459ms
+[00:56:56.698] Server  LOG     ✓ Compiled in 79ms
+[00:57:04.519] Server  LOG     ✓ Compiled in 125ms
+[00:57:17.137] Server  LOG     ✓ Compiled in 39ms
+[00:57:43.396] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[00:58:06.784] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:58:10.954] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[00:58:12.904] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:00:44.797] Server  LOG     ✓ Compiled in 236ms
+[01:00:45.156] Browser ERROR   uncaughtError: TypeError: Cannot read properties of undefined (reading 'day')
+[01:01:10.232] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:07:11.232] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:07:15.605] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:07:17.232] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:07:18.205] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:07:28.570] Server  LOG     ✓ Compiled in 59ms
+[01:07:37.588] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:07:40.970] Server  LOG     ✓ Compiled in 33ms
+[01:07:48.565] Server  LOG     ✓ Compiled in 22ms
+[01:07:50.888] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:08:43.510] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:08:50.629] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:09:58.301] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:13:00.127] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:13:07.834] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:13:15.093] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:13:18.522] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:13:20.413] Server  LOG     ✓ Compiled in 89ms
+[01:13:45.664] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:13:52.114] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:14:42.650] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:05.509] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:16:06.825] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[01:16:11.615] Server  LOG     ✓ Compiled in 251ms
+[01:16:12.695] Server  LOG     LOGIN RESULT: {}
+[01:16:12.771] Server  LOG     LOGIN: "admin"
+[01:16:12.771] Server  LOG     PASSWORD: "admin123"
+[01:16:12.771] Server  LOG     HASH: "$2b$10$heAJeZfRd7VN.BHa7L78FuCEgr8uXBbJtzLiVy3bxPjSi9A36fhM6"
+[01:16:12.841] Server  LOG     BCRYPT RESULT: true
+[01:16:12.863] Server  LOG     🧱 MIDDLEWARE RUN: /admin/day
+[01:16:13.318] Server  LOG     ➡️ GET /api/admin/shift called
+[01:16:13.319] Server  LOG     ✅ shift: {}
+[01:16:16.965] Server  LOG     ✓ Compiled in 149ms
+[01:16:19.010] Server  LOG     🧱 MIDDLEWARE RUN: /login
+[01:16:27.489] Server  LOG     LOGIN RESULT: {}
+[01:16:30.969] Server  LOG     LOGIN RESULT: {}
+[01:16:35.543] Server  LOG     LOGIN RESULT: {}
+[01:16:35.619] Server  LOG     LOGIN: "arsen"
+[01:16:35.619] Server  LOG     PASSWORD: "arsen"
+[01:16:35.619] Server  LOG     HASH: "$2b$10$b6JyDys5OFGq7YsyOb2ojeYyjJLT27dj7xvBDplpteD/GhBv9QCxy"
+[01:16:35.690] Server  LOG     BCRYPT RESULT: true
+[01:16:35.711] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:38.337] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:16:44.931] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:45.463] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:51.368] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:51.838] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:52.371] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:52.575] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:52.738] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:53.460] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:16:53.603] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:16:53.854] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:16:55.710] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:16:56.587] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:17:21.936] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:17:22.310] Server  LOG     ✓ Compiled in 117ms
+[01:17:30.872] Server  LOG     ✓ Compiled in 91ms
+[01:17:33.552] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:17:34.224] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:17:34.229] Server  LOG     🧱 MIDDLEWARE RUN: /cashier
+[01:17:49.339] Server  LOG     🧱 MIDDLEWARE RUN: /user/sales
+[01:17:52.627] Server  LOG     🧱 MIDDLEWARE RUN: /cashier

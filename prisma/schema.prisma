@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  login        String   @unique
+  passwordHash String
+  role         Role
+  name         String   // 👈 ОБОВʼЯЗКОВЕ
+  createdAt    DateTime @default(now())
+	isActive     Boolean  @default(true)
+  transactions Transaction[]
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Shift {
+  id        Int      @id @default(autoincrement())
+  isOpen    Boolean
+  cashStart Int?
+  cashEnd   Int?
+  openedAt  DateTime
+  closedAt  DateTime?
+  transactions Transaction[]
+  expenses     Expense[]
+}
+
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  amount        Int
+  paymentMethod String
+  createdAt     DateTime
+  userId        Int
+  shiftId       Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  shift Shift @relation(fields: [shiftId], references: [id])
+}
+
+model Expense {
+  id        Int      @id @default(autoincrement())
+  amount    Int
+  comment   String?
+  createdAt DateTime
+  shiftId   Int
+
+  shift Shift @relation(fields: [shiftId], references: [id])
+}

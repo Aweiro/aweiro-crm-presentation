@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+main.min-h-screen {
+	min-height: calc(100svh - var(--app-header-height, 64px));
+}
