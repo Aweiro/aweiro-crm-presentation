@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
-export default function AmountPage() {
+function AmountPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const userId = searchParams.get('user')
@@ -102,5 +102,13 @@ export default function AmountPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function AmountPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8" />}>
+      <AmountPageContent />
+    </Suspense>
   )
 }

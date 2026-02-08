@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
+import { Suspense, useEffect, useState, useMemo } from 'react'
 
-export default function PaymentPage() {
+function PaymentPageContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 
@@ -145,5 +145,13 @@ export default function PaymentPage() {
 				</div>
 			</div>
 		</main>
+	)
+}
+
+export default function PaymentPage() {
+	return (
+		<Suspense fallback={<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8" />}>
+			<PaymentPageContent />
+		</Suspense>
 	)
 }

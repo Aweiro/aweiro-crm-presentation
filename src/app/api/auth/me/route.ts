@@ -16,7 +16,7 @@ function clearAuthCookieResponse() {
 		expires: new Date(0),
 		path: '/',
 		sameSite: 'lax',
-		secure: process.env.NODE_ENV === 'production',
+		secure: process.env.NODE_ENV === 'production'
 	})
 	return res
 }
@@ -37,8 +37,8 @@ export async function GET() {
 				id: true,
 				login: true,
 				name: true,
-				role: true,
-			},
+				role: true
+			}
 		})
 
 		if (!user) {
