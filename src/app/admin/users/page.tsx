@@ -71,7 +71,7 @@ export default function UsersAdminPage() {
 
 	if (isLoading) {
 		return (
-			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-8">
+			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
 				<div className="max-w-6xl mx-auto">
 					<div className="flex items-center justify-center py-20">
 						<div className="text-center">
@@ -87,7 +87,7 @@ export default function UsersAdminPage() {
 	const users = data.data
 
 	return (
-		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-8">
+		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
 			<div className="max-w-6xl mx-auto">
 				<div className="mb-8">
 					<h1 className="text-4xl font-bold text-slate-900">👥 Управління користувачами</h1>
