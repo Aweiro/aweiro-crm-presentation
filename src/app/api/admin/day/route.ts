@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
 
 export const runtime = 'nodejs'
 
-type DayTransaction = Prisma.TransactionGetPayload<{
-	include: { user: true }
-}>
+type DayTransaction = {
+	id: number
+	amount: number
+	paymentMethod: string
+	createdAt: Date
+	user: {
+		id: number
+		name: string
+		login: string
+	}
+}
 
 export async function GET() {
 	try {
@@ -25,7 +32,19 @@ export async function GET() {
 
 		const transactions: DayTransaction[] = await prisma.transaction.findMany({
 			where: { shiftId: shift.id },
-			include: { user: true },
+			select: {
+				id: true,
+				amount: true,
+				paymentMethod: true,
+				createdAt: true,
+				user: {
+					select: {
+						id: true,
+						name: true,
+						login: true
+					}
+				}
+			},
 			orderBy: { createdAt: 'desc' }
 		})
 
