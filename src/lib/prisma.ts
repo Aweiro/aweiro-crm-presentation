@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 const pool = new Pool({
-  connectionString: 'postgresql://postgres@localhost:5432/sirius',
+  connectionString: process.env.DATABASE_URL,
 })
 
 export const prisma =
