@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Transaction } from '@prisma/client'
 
 export const runtime = 'nodejs'
 
 export async function GET() {
 	try {
-		const transactions: Transaction[] = await prisma.transaction.findMany({
+		const transactions = await prisma.transaction.findMany({
 			include: { user: true },
 			orderBy: { createdAt: 'desc' }
 		})
