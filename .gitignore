@@ -3,3 +3,22 @@ node_modules
 .env
 
 /generated/prisma
+
+# dependencies
+
+# next
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.production
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

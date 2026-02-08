@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///Users/arsenbogak/projects/Commercial_Projects/sirius/src/app/api/auth/logout/route.ts"],"sourcesContent":["import { NextResponse } from 'next/server'\n\nexport async function POST() {\n\tconst res = NextResponse.json({ ok: true })\n\n\t// 🔥 видаляємо токен\n\tres.cookies.set('auth_token', '', {\n\t\thttpOnly: true,\n\t\texpires: new Date(0),\n\t\tpath: '/',\n\t})\n\n\treturn res\n}"],"names":[],"mappings":";;;;AAAA;;AAEO,eAAe;IACrB,MAAM,MAAM,gJAAY,CAAC,IAAI,CAAC;QAAE,IAAI;IAAK;IAEzC,qBAAqB;IACrB,IAAI,OAAO,CAAC,GAAG,CAAC,cAAc,IAAI;QACjC,UAAU;QACV,SAAS,IAAI,KAAK;QAClB,MAAM;IACP;IAEA,OAAO;AACR"}}]
-}
