@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { login } from '@/lib/api'
 
-export default function LoginPage() {
+function LoginPageContent() {
 	const searchParams = useSearchParams()
 
 	const [loginValue, setLoginValue] = useState('')
@@ -150,5 +150,13 @@ export default function LoginPage() {
 			<div className="fixed top-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10 animate-blob animation-delay-2s"></div>
 			<div className="fixed -bottom-8 left-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10 animate-blob animation-delay-4s"></div>
 		</main>
+	)
+}
+
+export default function LoginPage() {
+	return (
+		<Suspense fallback={<main className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 p-4" />}>
+			<LoginPageContent />
+		</Suspense>
 	)
 }
