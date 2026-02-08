@@ -29,7 +29,6 @@ export async function GET() {
 			orderBy: { createdAt: 'desc' }
 		})
 
-
 		const expenses = await prisma.expense.findMany({
 			where: { shiftId: shift.id },
 			orderBy: { createdAt: 'desc' }
