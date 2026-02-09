@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useUser } from '@/lib/useUser'
 import LogoutButton from './LogoutButton'
+import Image from 'next/image'
 
 type Role = 'ADMIN' | 'USER'
 
@@ -70,16 +71,20 @@ export default function Header() {
 	return (
 		<header
 			ref={headerRef}
-			className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm"
+			className="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm"
 		>
-			<div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3">
+			<div className="relative mx-auto max-w-7xl px-3 py-2.5 sm:px-6 md:py-2.5">
 				<div className="flex items-center justify-between gap-3 md:hidden">
-					<div className="flex items-center gap-3">
-						<span className="text-3xl">🌟</span>
-						<div>
-							<h1 className="text-lg font-bold text-slate-900">Sirius</h1>
-						</div>
-					</div>
+					<Link href="/" className="flex items-center h-10 shrink-0">
+						<Image
+							src="/logo.png"
+							alt="Sirius"
+							width={180}
+							height={48}
+							priority
+							className="h-full w-auto object-contain"
+						/>
+					</Link>
 					<button
 						type="button"
 						aria-label={menuOpen ? 'Закрити меню' : 'Відкрити меню'}
@@ -91,20 +96,19 @@ export default function Header() {
 					</button>
 				</div>
 
-				<div className="hidden md:flex md:flex-col gap-3 md:flex-row md:items-center md:justify-between">
-					<div className="flex items-center gap-3">
-						<span className="text-3xl">🌟</span>
-						<div>
-							<h1 className="text-lg sm:text-xl font-bold text-slate-900">
-								Sirius
-							</h1>
-							<p className="text-slate-600 text-xs hidden sm:block">
-								Каса та управління змінами
-							</p>
-						</div>
-					</div>
+				<div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4">
+					<Link href="/" className="flex items-center h-11 w-[200px] shrink-0">
+						<Image
+							src="/logo.png"
+							alt="Sirius"
+							width={200}
+							height={52}
+							priority
+							className="h-full w-auto object-contain"
+						/>
+					</Link>
 
-					<nav className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 -mx-1 px-1 md:flex-wrap md:overflow-visible md:whitespace-normal md:pb-0 md:mx-0 md:px-0">
+					<nav className="flex items-center justify-center gap-2 overflow-x-auto whitespace-nowrap pb-1 -mx-1 px-1 md:overflow-visible md:whitespace-normal md:pb-0 md:mx-0 md:px-0">
 						{visibleLinks.map((link) => {
 							const isActive =
 								link.href === '/'
@@ -126,37 +130,51 @@ export default function Header() {
 						})}
 					</nav>
 
-					<div className="flex items-center gap-3">
+					<div className="flex min-w-[220px] items-center justify-end gap-3">
 						{loading ? (
 							<div className="h-9 w-24 rounded-lg bg-slate-100 animate-pulse" />
 						) : user ? (
-							<div className="flex items-center gap-3">
-								<div className="text-right hidden sm:block">
-									<p className="font-semibold text-slate-900 text-sm">
-										{user.name || user.login}
-									</p>
-									<p className="text-xs text-slate-500">
-										{user.role === 'ADMIN' ? '👨‍💼 Адміністратор' : '👤 Касир'}
-									</p>
+							<div className="flex items-center">
+								<div className="flex items-center gap-3 pr-3">
+									<div className="text-right hidden sm:block">
+										<p className="font-semibold text-slate-900 text-sm">
+											{user.name || user.login}
+										</p>
+										<p className="text-xs text-slate-500">
+											{user.role === 'ADMIN' ? '👨‍💼 Адміністратор' : '👤 Касир'}
+										</p>
+									</div>
+									<div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold">
+										{(user.name || user.login)[0].toUpperCase()}
+									</div>
 								</div>
-								<div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold">
-									{(user.name || user.login)[0].toUpperCase()}
-								</div>
+								<div className="mx-3 h-7 w-px bg-slate-200" />
 								<LogoutButton />
 							</div>
 						) : (
 							<Link
 								href="/login"
-								className="px-3 sm:px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition text-xs sm:text-sm"
+								className="inline-flex h-9 items-center gap-2 rounded-lg border border-blue-200 bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:border-blue-300 hover:bg-blue-700"
 							>
-								🔐 Логін
+								<svg
+									aria-hidden="true"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.8"
+									className="h-4 w-4"
+								>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
+									<path strokeLinecap="round" strokeLinejoin="round" d="M18 12H9.75m0 0l2.25-2.25M9.75 12l2.25 2.25" />
+								</svg>
+								<span>Логін</span>
 							</Link>
 						)}
 					</div>
 				</div>
 
 				{menuOpen && (
-					<div className="md:hidden mt-3 border-t border-slate-200 pt-3">
+					<div className="absolute inset-x-3 top-full z-50 mt-2 rounded-xl border border-slate-200 bg-white p-3 shadow-lg md:hidden">
 						<nav className="flex flex-col text-center gap-2">
 							{visibleLinks.map((link) => {
 								const isActive =
@@ -182,7 +200,7 @@ export default function Header() {
 						{loading ? (
 							<div className="h-9 w-full rounded-lg bg-slate-100 animate-pulse mt-3" />
 						) : user ? (
-							<div className="flex items-center justify-between gap-3 mt-3">
+							<div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
 								<div className="text-left">
 									<p className="font-semibold text-slate-900 text-sm leading-tight">
 										{user.name || user.login}
@@ -191,14 +209,28 @@ export default function Header() {
 										{user.role === 'ADMIN' ? '👨‍💼 Адміністратор' : '👤 Касир'}
 									</p>
 								</div>
-								<LogoutButton />
+								<div className="my-3 h-px bg-slate-200" />
+								<div className="flex justify-end">
+									<LogoutButton />
+								</div>
 							</div>
 						) : (
 							<Link
 								href="/login"
-								className="mt-3 inline-flex w-full justify-center px-3 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition text-sm"
+								className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-600 px-3 text-sm font-semibold text-white transition-colors hover:border-blue-300 hover:bg-blue-700"
 							>
-								🔐 Логін
+								<svg
+									aria-hidden="true"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="1.8"
+									className="h-4 w-4"
+								>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
+									<path strokeLinecap="round" strokeLinejoin="round" d="M18 12H9.75m0 0l2.25-2.25M9.75 12l2.25 2.25" />
+								</svg>
+								<span>Логін</span>
 							</Link>
 						)}
 					</div>

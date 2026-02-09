@@ -58,7 +58,7 @@ function AmountPageContent() {
               </p>
               <div className="text-5xl font-bold text-blue-700">
                 {formatDisplay(amount)}
-                <span className="text-2xl ml-2">грн</span>
+                <span className="text-2xl ml-2">zł</span>
               </div>
             </div>
 

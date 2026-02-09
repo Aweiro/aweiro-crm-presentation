@@ -1,11 +1,13 @@
 'use client'
 
 import { mutate } from 'swr'
+import { formatCurrency } from '@/lib/currency'
 
 type Tx = {
   id: number
   amount: number
   paymentMethod: 'CASH' | 'CARD'
+  createdAt: string | Date
   user: {
     id: number
     name: string
@@ -33,6 +35,12 @@ export default function AdminTable({ transactions = [], isLoading = false }: Pro
     mutate('/api/admin/day')
   }
 
+  const formatTime = (value: string | Date) =>
+    new Date(value).toLocaleTimeString('uk-UA', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
   return (
     <>
       <div className="md:hidden space-y-3">
@@ -42,6 +50,7 @@ export default function AdminTable({ transactions = [], isLoading = false }: Pro
               <div className="min-w-0">
                 <p className="text-xs text-slate-500">Працівник</p>
                 <p className="font-medium text-slate-900 break-words">{t.user?.name ?? '—'}</p>
+                <p className="mt-1 text-xs text-slate-500">🕒 {formatTime(t.createdAt)}</p>
               </div>
               <span
                 className={`shrink-0 px-2 py-1 rounded-full text-xs font-semibold ${
@@ -55,7 +64,7 @@ export default function AdminTable({ transactions = [], isLoading = false }: Pro
             </div>
 
             <div className="mt-3 flex items-center justify-between gap-3">
-              <p className="font-semibold text-slate-900 text-base break-all">{t.amount} грн</p>
+              <p className="font-semibold text-slate-900 text-base break-all">{formatCurrency(t.amount)}</p>
               <button
                 onClick={() => remove(t.id)}
                 className="px-3 py-1.5 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-lg transition-all text-sm font-semibold"
@@ -73,6 +82,7 @@ export default function AdminTable({ transactions = [], isLoading = false }: Pro
           <thead>
             <tr className="bg-slate-100 border-b border-slate-300">
               <th className="px-4 py-3 text-left font-semibold text-slate-900">Працівник</th>
+              <th className="px-4 py-3 text-left font-semibold text-slate-900">Час</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-900">Метод</th>
               <th className="px-4 py-3 text-right font-semibold text-slate-900">Сума</th>
               <th className="px-4 py-3 text-center font-semibold text-slate-900">Дія</th>
@@ -85,6 +95,7 @@ export default function AdminTable({ transactions = [], isLoading = false }: Pro
                 className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}
               >
                 <td className="px-4 py-3 text-slate-900 font-medium">{t.user?.name ?? '—'}</td>
+                <td className="px-4 py-3 text-slate-700 font-medium">{formatTime(t.createdAt)}</td>
                 <td className="px-4 py-3">
                   <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                     t.paymentMethod === 'CASH'
@@ -94,7 +105,7 @@ export default function AdminTable({ transactions = [], isLoading = false }: Pro
                     {t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-slate-900">{t.amount} грн</td>
+                <td className="px-4 py-3 text-right font-semibold text-slate-900">{formatCurrency(t.amount)}</td>
                 <td className="px-4 py-3 text-center">
                   <button
                     onClick={() => remove(t.id)}

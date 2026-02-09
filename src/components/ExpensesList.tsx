@@ -1,6 +1,7 @@
 'use client'
 
 import { mutate } from 'swr'
+import { formatCurrency } from '@/lib/currency'
 
 type Expense = {
 	id: number
@@ -42,7 +43,7 @@ export default function ExpensesList({ expenses = [], isLoading = false }: Props
 				>
 					<div className="flex-1">
 						<p className="font-semibold text-slate-900">
-							-{e.amount} грн
+							-{formatCurrency(e.amount)}
 						</p>
 						{e.comment && (
 							<p className="text-sm text-slate-600 mt-1">{e.comment}</p>

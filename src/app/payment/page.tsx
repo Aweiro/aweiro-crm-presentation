@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState, useMemo } from 'react'
+import { formatCurrency } from '@/lib/currency'
 
 function PaymentPageContent() {
 	const router = useRouter()
@@ -55,14 +56,6 @@ function PaymentPageContent() {
 			setError(e.message)
 			setLoading(false)
 		}
-	}
-
-	const formatCurrency = (value: number) => {
-		return new Intl.NumberFormat('uk-UA', {
-			style: 'currency',
-			currency: 'UAH',
-			minimumFractionDigits: 2
-		}).format(value)
 	}
 
 	return (

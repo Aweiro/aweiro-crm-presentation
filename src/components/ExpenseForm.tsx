@@ -39,7 +39,7 @@ export default function ExpenseForm({ onAdded }: Props) {
 		<div className="space-y-4">
 			<div>
 				<label className="block text-sm font-semibold text-slate-700 mb-2">
-					Сума (грн)
+					Сума (zł)
 				</label>
 				<input
 					type="number"

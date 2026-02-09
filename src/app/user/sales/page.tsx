@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { formatCurrency } from '@/lib/currency'
 
 type Stats = {
 	count: number
@@ -54,13 +55,6 @@ export default function UserSalesPage() {
 			.catch((err: Error) => setError(err.message))
 			.finally(() => setLoading(false))
 	}, [])
-
-	const formatCurrency = (value: number) =>
-		new Intl.NumberFormat('uk-UA', {
-			style: 'currency',
-			currency: 'UAH',
-			minimumFractionDigits: 2
-		}).format(value)
 
 	const monthLabel = useMemo(
 		() => new Date().toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' }),

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { formatCurrency } from '@/lib/currency'
 
 type Shift = {
 	id: number
@@ -112,13 +113,9 @@ export default function ShiftsArchivePage() {
 		})
 	}
 
-	const formatCurrency = (value: number | null) => {
+	const formatMoney = (value: number | null) => {
 		if (value === null) return '—'
-		return new Intl.NumberFormat('uk-UA', {
-			style: 'currency',
-			currency: 'UAH',
-			minimumFractionDigits: 2
-		}).format(value)
+		return formatCurrency(value)
 	}
 
 	const calculateDifference = (
@@ -370,12 +367,12 @@ export default function ShiftsArchivePage() {
 															</td>
 															<td className="px-6 py-4 text-right text-sm">
 																<span className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-semibold">
-																	{formatCurrency(shift.cashStart)}
+																	{formatMoney(shift.cashStart)}
 																</span>
 															</td>
 															<td className="px-6 py-4 text-right text-sm">
 																<span className="inline-block bg-slate-100 text-slate-700 px-3 py-1 rounded-lg font-semibold">
-																	{formatCurrency(shift.cashEnd)}
+																	{formatMoney(shift.cashEnd)}
 																</span>
 															</td>
 															<td className="px-6 py-4 text-right text-sm">
@@ -388,7 +385,7 @@ export default function ShiftsArchivePage() {
 																		}`}
 																	>
 																		{isProfit ? '+' : ''}
-																		{formatCurrency(difference)}
+																		{formatMoney(difference)}
 																	</span>
 																)}
 															</td>
@@ -434,7 +431,7 @@ export default function ShiftsArchivePage() {
 													Загальний дохід
 												</p>
 												<p className="text-xl sm:text-3xl font-bold text-green-600 mt-2 break-all leading-tight">
-													{formatCurrency(getMonthStats()!.totalIncome)}
+													{formatMoney(getMonthStats()!.totalIncome)}
 												</p>
 												<p className="text-xs text-slate-400 mt-2">
 													{getMonthStats()!.transactions} операцій
@@ -446,7 +443,7 @@ export default function ShiftsArchivePage() {
 													Готівка
 												</p>
 												<p className="text-xl sm:text-3xl font-bold text-blue-600 mt-2 break-all leading-tight">
-													{formatCurrency(getMonthStats()!.totalCashIncome)}
+													{formatMoney(getMonthStats()!.totalCashIncome)}
 												</p>
 												<p className="text-xs text-slate-400 mt-2">
 													{getMonthStats()!.totalCashIncome > 0 ? '💵' : ''}
@@ -458,7 +455,7 @@ export default function ShiftsArchivePage() {
 													Карта
 												</p>
 												<p className="text-xl sm:text-3xl font-bold text-purple-600 mt-2 break-all leading-tight">
-													{formatCurrency(getMonthStats()!.totalCardIncome)}
+													{formatMoney(getMonthStats()!.totalCardIncome)}
 												</p>
 												<p className="text-xs text-slate-400 mt-2">
 													{getMonthStats()!.totalCardIncome > 0 ? '💳' : ''}
@@ -470,7 +467,7 @@ export default function ShiftsArchivePage() {
 													Витрати
 												</p>
 												<p className="text-xl sm:text-3xl font-bold text-red-600 mt-2 break-all leading-tight">
-													{formatCurrency(getMonthStats()!.totalExpenses)}
+													{formatMoney(getMonthStats()!.totalExpenses)}
 												</p>
 												<p className="text-xs text-slate-400 mt-2">
 													Усього видатків
@@ -484,12 +481,12 @@ export default function ShiftsArchivePage() {
 												📈 Чистий прибуток
 											</h4>
 											<p className="text-3xl sm:text-5xl font-bold text-green-600 break-all leading-tight">
-												{formatCurrency(getMonthStats()!.profit)}
+												{formatMoney(getMonthStats()!.profit)}
 											</p>
 											<p className="text-sm text-green-700 mt-3">
-												Дохід: {formatCurrency(getMonthStats()!.totalIncome)} -
+												Дохід: {formatMoney(getMonthStats()!.totalIncome)} -
 												Витрати:{' '}
-												{formatCurrency(getMonthStats()!.totalExpenses)}
+												{formatMoney(getMonthStats()!.totalExpenses)}
 											</p>
 										</div>
 
@@ -521,7 +518,7 @@ export default function ShiftsArchivePage() {
 															</div>
 															<div className="text-right min-w-0">
 																<p className="font-bold text-sm sm:text-lg text-slate-900 break-all leading-tight">
-																	{formatCurrency(user.amount)}
+																	{formatMoney(user.amount)}
 																</p>
 															</div>
 														</div>
@@ -573,7 +570,7 @@ export default function ShiftsArchivePage() {
 										Загальна сума кас
 									</p>
 									<p className="text-sm sm:text-lg font-bold text-green-400 break-all leading-tight">
-										{formatCurrency(getDaysCount())}
+										{formatMoney(getDaysCount())}
 									</p>
 								</div>
 								<div className="text-center">
@@ -581,7 +578,7 @@ export default function ShiftsArchivePage() {
 										Середня каса
 									</p>
 									<p className="text-sm sm:text-lg font-bold text-purple-400 break-all leading-tight">
-										{formatCurrency(getAverageCash())}
+										{formatMoney(getAverageCash())}
 									</p>
 								</div>
 							</div>

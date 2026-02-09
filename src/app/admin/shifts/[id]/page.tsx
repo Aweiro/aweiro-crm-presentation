@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { formatCurrency } from '@/lib/currency'
 
 type Transaction = {
 	amount: number
 	paymentMethod: 'CASH' | 'CARD'
+	createdAt: string
 	user: {
 		id: number
 		name: string
@@ -96,14 +98,6 @@ export default function ShiftDetailsPage() {
 		return Array.from(salesMap.values()).sort((a, b) => b.total - a.total)
 	}, [data?.transactions])
 
-	const formatCurrency = (value: number) => {
-		return new Intl.NumberFormat('uk-UA', {
-			style: 'currency',
-			currency: 'UAH',
-			minimumFractionDigits: 2
-		}).format(value)
-	}
-
 	const formatDate = (dateString: string | null) => {
 		if (!dateString) return '—'
 		const date = new Date(dateString)
@@ -111,6 +105,13 @@ export default function ShiftDetailsPage() {
 			day: '2-digit',
 			month: '2-digit',
 			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		})
+	}
+
+	const formatTime = (dateString: string) => {
+		return new Date(dateString).toLocaleTimeString('uk-UA', {
 			hour: '2-digit',
 			minute: '2-digit'
 		})
@@ -189,6 +190,7 @@ export default function ShiftDetailsPage() {
 								<thead className="bg-slate-50 border-b border-slate-200">
 									<tr>
 										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">Працівник</th>
+										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">Час</th>
 										<th className="px-3 sm:px-6 py-3 text-center font-bold text-slate-700">Спосіб</th>
 										<th className="px-3 sm:px-6 py-3 text-right font-bold text-slate-700">Сума</th>
 									</tr>
@@ -201,6 +203,9 @@ export default function ShiftDetailsPage() {
 										>
 											<td className="px-3 sm:px-6 py-3 font-medium text-slate-900 break-words">
 												👤 {t.user?.name ?? '—'}
+											</td>
+											<td className="px-3 sm:px-6 py-3 text-slate-700">
+												{formatTime(t.createdAt)}
 											</td>
 											<td className="px-3 sm:px-6 py-3 text-center">
 												<span

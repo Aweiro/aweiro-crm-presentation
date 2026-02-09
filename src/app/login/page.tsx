@@ -3,6 +3,8 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { login } from '@/lib/api'
+import Image from 'next/image'
+import { Send } from 'lucide-react'
 
 function LoginPageContent() {
 	const searchParams = useSearchParams()
@@ -39,123 +41,108 @@ function LoginPageContent() {
 	}
 
 	return (
-		<main className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 flex items-center justify-center p-4">
-			<div className="w-full max-w-md">
-				{/* Card */}
-				<div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
-					{/* Logo/Header */}
-					<div className="text-center mb-8">
-						<div className="text-6xl mb-4">💰</div>
-						<h1 className="text-3xl font-bold text-slate-900">SIRIUS</h1>
-						<p className="text-slate-600 text-sm mt-2 font-medium">
-							Система управління касою
+		<main className="min-h-screen overflow-hidden bg-slate-100">
+			<div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(59,130,246,0.22),transparent_38%),radial-gradient(circle_at_85%_10%,rgba(14,116,144,0.22),transparent_42%),radial-gradient(circle_at_50%_100%,rgba(2,132,199,0.18),transparent_45%)]" />
+			<div className="mx-auto flex min-h-full w-full max-w-md items-center p-4 sm:p-6">
+				<div className="w-full rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-xl backdrop-blur sm:p-8">
+					<div className="mb-7 text-center">
+						<div className="mx-auto mb-4 flex h-14 items-center justify-center">
+							<Image
+								src="/logo.png"
+								alt="Sirius"
+								width={180}
+								height={50}
+								priority
+								className="h-full w-auto object-contain"
+							/>
+						</div>
+						<h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+							Вхід до системи
+						</h1>
+						<p className="mt-2 text-sm text-slate-500">
+							Каса та управління змінами
 						</p>
 					</div>
 
-					{/* Error Message */}
 					{error && (
-						<div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
-							<p className="text-red-900 font-semibold">⚠️ {error}</p>
-							<p className="text-red-700 text-sm mt-1">
-								Перевірте логін та пароль
-							</p>
+						<div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3">
+							<p className="text-sm font-semibold text-red-800">{error}</p>
 						</div>
 					)}
 
-					{/* Form */}
-					<form onSubmit={handleSubmit} className="space-y-5">
-						{/* Login Field */}
+					<form onSubmit={handleSubmit} className="space-y-4">
 						<div>
-							<label className="block text-sm font-bold text-slate-700 mb-2">
-								🔑 Логін
+							<label className="mb-2 block text-sm font-semibold text-slate-700">
+								Логін
 							</label>
 							<input
 								type="text"
-								placeholder="Введіть ваш логін"
+								placeholder="Введіть логін"
 								value={loginValue}
 								onChange={(e) => setLoginValue(e.target.value)}
 								disabled={isLoading}
-								className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors disabled:bg-slate-100 disabled:cursor-not-allowed font-medium"
+								className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
 								required
 								autoFocus
 							/>
 						</div>
 
-						{/* Password Field */}
 						<div>
-							<label className="block text-sm font-bold text-slate-700 mb-2">
-								🔐 Пароль
+							<label className="mb-2 block text-sm font-semibold text-slate-700">
+								Пароль
 							</label>
 							<input
 								type="password"
-								placeholder="Введіть ваш пароль"
+								placeholder="Введіть пароль"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								disabled={isLoading}
-								className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors disabled:bg-slate-100 disabled:cursor-not-allowed font-medium"
+								className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
 								required
 							/>
 						</div>
 
-						{/* Submit Button */}
 						<button
 							type="submit"
 							disabled={isLoading}
-							className={`w-full py-3 px-4 rounded-lg font-bold text-lg transition-all mt-6 ${
-								isLoading
-									? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-									: 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl active:shadow-md'
-							}`}
+							className="mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:border-blue-300 hover:bg-blue-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-300"
 						>
 							{isLoading ? (
-								<span className="flex items-center justify-center gap-2">
-									<span className="animate-spin">⏳</span>
-									Вхід…
-								</span>
+								<>
+									<span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+									Вхід...
+								</>
 							) : (
-								<span className="flex items-center justify-center gap-2">
-									🚀 Увійти до системи
-								</span>
+								'Увійти'
 							)}
 						</button>
 					</form>
 
-					{/* Footer Info */}
-					<div className="mt-8 pt-6 border-t border-slate-200 text-center">
-						<p className="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-3">
-							🧑‍💼 Касова система для малих бізнесів
+					<div className="mt-6 text-center">
+						<p className="flex justify-center gap-2 text-sm text-slate-500">
+							<Send size={16} className="text-blue-500" />
+
+							<span>Підтримка:</span>
+
+							<a
+								href="https://t.me/sergsxdxv"
+								target="_blank"
+								rel="noreferrer"
+								className="font-semibold text-blue-600 hover:text-blue-700"
+							>
+								@sergsxdxv
+							</a>
 						</p>
-						<div className="flex gap-4 justify-center text-xs text-slate-500">
-							<div className="flex items-center gap-1">
-								<span>📱</span>
-								<span>Адміністратор</span>
-							</div>
-							<span>•</span>
-							<div className="flex items-center gap-1">
-								<span>👥</span>
-								<span>Касир</span>
-							</div>
-						</div>
 					</div>
 				</div>
-
-				{/* Decorative Elements */}
-				<div className="mt-8 text-center text-white/60 text-sm">
-					<p>© 2026 Sirius. Усі права захищені.</p>
-				</div>
 			</div>
-
-			{/* Background Blur Elements */}
-			<div className="fixed top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10 animate-blob"></div>
-			<div className="fixed top-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10 animate-blob animation-delay-2s"></div>
-			<div className="fixed -bottom-8 left-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10 animate-blob animation-delay-4s"></div>
 		</main>
 	)
 }
 
 export default function LoginPage() {
 	return (
-		<Suspense fallback={<main className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 p-4" />}>
+		<Suspense fallback={<main className="min-h-screen bg-slate-100 p-4" />}>
 			<LoginPageContent />
 		</Suspense>
 	)

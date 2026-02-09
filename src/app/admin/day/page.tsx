@@ -8,6 +8,7 @@ import CashSummary from '@/components/CashSummary'
 import ExpenseForm from '@/components/ExpenseForm'
 import ExpensesList from '@/components/ExpensesList'
 import { fetcher } from '@/lib/fetcher'
+import { formatCurrency } from '@/lib/currency'
 
 export default function AdminDayPage() {
 	const { data, isLoading, mutate } = useSWR('/api/admin/day', fetcher)
@@ -136,13 +137,13 @@ export default function AdminDayPage() {
 													{item.count} {item.count === 1 ? 'продаж' : 'продажів'}
 												</p>
 											</div>
-											<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
-												{item.total.toFixed(2)} грн
-											</p>
-										</div>
+												<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
+													{formatCurrency(item.total)}
+												</p>
+											</div>
 										<div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:text-sm">
-											<p className="text-green-700 break-all">💵 {item.cash.toFixed(2)} грн</p>
-											<p className="text-blue-700 break-all text-right">💳 {item.card.toFixed(2)} грн</p>
+											<p className="text-green-700 break-all">💵 {formatCurrency(item.cash)}</p>
+											<p className="text-blue-700 break-all text-right">💳 {formatCurrency(item.card)}</p>
 										</div>
 									</div>
 								))}

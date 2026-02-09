@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { fetcher } from '@/lib/fetcher'
 import { useState } from 'react'
+import { formatCurrency } from '@/lib/currency'
 
 type Shift = {
 	isOpen: boolean
@@ -88,7 +89,7 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 				<div className="p-6 space-y-6">
 					<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
 						<label className="block text-sm font-semibold text-slate-700 mb-2">
-							Каса на початок (грн)
+							Каса на початок (zł)
 						</label>
 						{shift.cashStart === null ? (
 							<div className="flex gap-3">
@@ -108,7 +109,7 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 							</div>
 						) : (
 							<p className="text-sm text-blue-700 mt-2">
-								Поточна каса: <strong>{shift.cashStart} грн</strong>
+								Поточна каса: <strong>{formatCurrency(shift.cashStart)}</strong>
 							</p>
 						)}
 					</div>
