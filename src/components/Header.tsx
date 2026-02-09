@@ -135,7 +135,7 @@ export default function Header() {
 							<div className="h-9 w-24 rounded-lg bg-slate-100 animate-pulse" />
 						) : user ? (
 							<div className="flex items-center">
-								<div className="flex items-center gap-3 pr-3">
+								<div className="flex items-center gap-3">
 									<div className="text-right hidden sm:block">
 										<p className="font-semibold text-slate-900 text-sm">
 											{user.name || user.login}
