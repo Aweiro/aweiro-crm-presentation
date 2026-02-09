@@ -2,6 +2,7 @@
 
 import useSWR, { mutate } from 'swr'
 import { useState } from 'react'
+import ConfirmModal from '@/components/ConfirmModal'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -14,12 +15,16 @@ export default function UsersAdminPage() {
 	const [role, setRole] = useState<'USER' | 'ADMIN'>('USER')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [successMessage, setSuccessMessage] = useState('')
+	const [formError, setFormError] = useState('')
+	const [userToDelete, setUserToDelete] = useState<{ id: number; name: string } | null>(null)
+	const [isDeletingUser, setIsDeletingUser] = useState(false)
 
 	async function create(e: React.FormEvent) {
 		e.preventDefault()
+		setFormError('')
 
 		if (!login || !password || !name) {
-			alert('Заповніть усі поля')
+			setFormError('Заповніть усі поля')
 			return
 		}
 
@@ -48,19 +53,26 @@ export default function UsersAdminPage() {
 			}
 		} catch (error) {
 			console.error(error)
+			setFormError('Не вдалося створити користувача')
 		} finally {
 			setIsSubmitting(false)
 		}
 	}
 
-	async function remove(id: number) {
-		if (!confirm('Ви впевнені, що хочете видалити цього користувача?')) return
+	async function confirmDeleteUser() {
+		if (!userToDelete || isDeletingUser) return
 
-		await fetch(`/api/admin/users/${id}`, {
-			method: 'DELETE'
-		})
+		setIsDeletingUser(true)
+		try {
+			await fetch(`/api/admin/users/${userToDelete.id}`, {
+				method: 'DELETE'
+			})
 
-		mutate('/api/admin/users')
+			mutate('/api/admin/users')
+			setUserToDelete(null)
+		} finally {
+			setIsDeletingUser(false)
+		}
 	}
 
 	async function restore(id: number) {
@@ -101,6 +113,12 @@ export default function UsersAdminPage() {
 				{successMessage && (
 					<div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-4 mb-8 text-green-900 font-semibold">
 						{successMessage}
+					</div>
+				)}
+
+				{formError && (
+					<div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-8 text-red-900 font-semibold">
+						{formError}
 					</div>
 				)}
 
@@ -267,7 +285,12 @@ export default function UsersAdminPage() {
 											<td className="px-6 py-4 text-center">
 												{u.isActive ? (
 													<button
-														onClick={() => remove(u.id)}
+														onClick={() =>
+															setUserToDelete({
+																id: u.id,
+																name: u.name || u.login
+															})
+														}
 														className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-semibold transition-all shadow-sm hover:shadow-md hover:scale-105"
 													>
 														🗑️ Видалити
@@ -301,6 +324,22 @@ export default function UsersAdminPage() {
 					</div>
 				)}
 			</div>
+
+			<ConfirmModal
+				isOpen={Boolean(userToDelete)}
+				title="Підтвердьте видалення користувача"
+				description={
+					userToDelete
+						? `Користувач "${userToDelete.name}" буде деактивований.`
+						: ''
+				}
+				confirmText="Видалити"
+				cancelText="Скасувати"
+				tone="danger"
+				isLoading={isDeletingUser}
+				onClose={() => setUserToDelete(null)}
+				onConfirm={confirmDeleteUser}
+			/>
 		</main>
 	)
 }

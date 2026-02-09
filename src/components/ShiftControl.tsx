@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/fetcher'
 import { useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
+import ConfirmModal from './ConfirmModal'
 
 type Shift = {
 	isOpen: boolean
@@ -13,8 +14,8 @@ type Shift = {
 export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 	const { data, mutate, isLoading } = useSWR('/api/admin/shift', fetcher)
 	const [cashStart, setCashStart] = useState('')
-	const [isConfirmingClose, setIsConfirmingClose] = useState(false)
-	const [isClosing, setIsClosing] = useState(false)
+	const [confirmAction, setConfirmAction] = useState<'open' | 'close' | null>(null)
+	const [isSubmittingAction, setIsSubmittingAction] = useState(false)
 
 	if (isLoading) {
 		return <p>Завантаження зміни…</p>
@@ -22,32 +23,21 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 
 	const shift: Shift | null = data.shift
 
-	async function openShift() {
-		await fetch('/api/admin/shift', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ action: 'open' })
-		})
-
-		onChange?.()
-		mutate() // 🔥 всі оновились
-	}
-
-	async function confirmCloseShift() {
-		if (isClosing) return
-		setIsClosing(true)
+	async function confirmShiftAction() {
+		if (!confirmAction || isSubmittingAction) return
+		setIsSubmittingAction(true)
 		try {
 			await fetch('/api/admin/shift', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ action: 'close' })
+				body: JSON.stringify({ action: confirmAction })
 			})
 
 			onChange?.()
 			mutate()
-			setIsConfirmingClose(false)
+			setConfirmAction(null)
 		} finally {
-			setIsClosing(false)
+			setIsSubmittingAction(false)
 		}
 	}
 
@@ -68,16 +58,30 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 
 	if (!shift) {
 		return (
-			<div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 rounded-lg">
-				<h2 className="text-xl font-bold text-blue-900 mb-4">⏰ Керування змінами</h2>
-				<p className="text-blue-700 mb-4">Зміна ще не відкрита. Відкрий зміну для роботи.</p>
-				<button 
-					onClick={openShift}
-					className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
-				>
-					🟢 Відкрити зміну
-				</button>
-			</div>
+			<>
+				<div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 rounded-lg">
+					<h2 className="text-xl font-bold text-blue-900 mb-4">⏰ Керування змінами</h2>
+					<p className="text-blue-700 mb-4">Зміна ще не відкрита. Відкрий зміну для роботи.</p>
+					<button 
+						onClick={() => setConfirmAction('open')}
+						className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+					>
+						🟢 Відкрити зміну
+					</button>
+				</div>
+
+				<ConfirmModal
+					isOpen={confirmAction === 'open'}
+					title="Підтвердьте відкриття зміни"
+					description="Після підтвердження зміна стане активною."
+					confirmText="Відкрити зміну"
+					cancelText="Скасувати"
+					tone="primary"
+					isLoading={isSubmittingAction}
+					onClose={() => setConfirmAction(null)}
+					onConfirm={confirmShiftAction}
+				/>
+			</>
 		)
 	}
 
@@ -125,7 +129,7 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 						</div>
 
 						<button
-							onClick={() => setIsConfirmingClose(true)}
+							onClick={() => setConfirmAction('close')}
 							className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
 						>
 							🔴 Закрити зміну
@@ -134,40 +138,17 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 				)}
 			</div>
 
-			{isConfirmingClose && (
-				<div
-					className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[1px]"
-					onClick={() => {
-						if (!isClosing) setIsConfirmingClose(false)
-					}}
-				>
-					<div
-						className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<p className="text-base font-bold text-slate-900">Підтвердьте закриття зміни</p>
-						<p className="mt-2 text-sm text-slate-600">
-							Поточна зміна буде завершена і перенесена в архів.
-						</p>
-						<div className="mt-5 flex gap-2">
-							<button
-								onClick={() => setIsConfirmingClose(false)}
-								disabled={isClosing}
-								className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
-							>
-								Скасувати
-							</button>
-							<button
-								onClick={confirmCloseShift}
-								disabled={isClosing}
-								className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-400"
-							>
-								{isClosing ? 'Закриття…' : 'Підтвердити'}
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+			<ConfirmModal
+				isOpen={confirmAction === 'close'}
+				title="Підтвердьте закриття зміни"
+				description="Поточна зміна буде завершена і перенесена в архів."
+				confirmText="Закрити зміну"
+				cancelText="Скасувати"
+				tone="danger"
+				isLoading={isSubmittingAction}
+				onClose={() => setConfirmAction(null)}
+				onConfirm={confirmShiftAction}
+			/>
 		</>
 	)
 }
