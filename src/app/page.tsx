@@ -67,24 +67,38 @@ export default function HomePage() {
 	const { user, loading } = useUser()
 	const visibleSections = loading
 		? []
-		: HOME_SECTIONS.filter(section => (user?.role ? section.roles.includes(user.role) : false))
+		: HOME_SECTIONS.filter((section) =>
+				user?.role ? section.roles.includes(user.role) : false
+			)
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-purple-50">
 			<div className="page-container py-8 sm:py-12 lg:py-16">
 				<div className="mb-8 sm:mb-12">
-					<h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Ласкаво просимо! 👋</h2>
-					<p className="text-base sm:text-xl text-slate-600">Система управління касою та змінами</p>
+					<h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
+						Ласкаво просимо! 👋
+					</h2>
+					<p className="text-base sm:text-xl text-slate-600">
+						Система управління касою та змінами
+					</p>
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-					{visibleSections.map(section => (
+					{visibleSections.map((section) => (
 						<Link key={section.href} href={section.href}>
 							<div className="group h-full bg-white rounded-xl shadow-md p-5 sm:p-8 border border-slate-200 hover:shadow-lg hover:border-blue-300 transition-all sm:hover:scale-105 cursor-pointer">
-								<div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{section.icon}</div>
-								<h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">{section.title}</h3>
-								<p className="text-slate-600 text-sm mb-4">{section.description}</p>
-								<div className={`inline-flex items-center font-semibold text-sm group-hover:gap-2 transition-all ${section.accent}`}>
+								<div className="text-4xl sm:text-5xl mb-3 sm:mb-4">
+									{section.icon}
+								</div>
+								<h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">
+									{section.title}
+								</h3>
+								<p className="text-slate-600 text-sm mb-4">
+									{section.description}
+								</p>
+								<div
+									className={`inline-flex items-center font-semibold text-sm group-hover:gap-2 transition-all ${section.accent}`}
+								>
 									Перейти <span className="ml-2">→</span>
 								</div>
 							</div>
@@ -94,8 +108,12 @@ export default function HomePage() {
 						<Link href="/login">
 							<div className="group h-full bg-white rounded-xl shadow-md p-5 sm:p-8 border border-slate-200 hover:shadow-lg hover:border-indigo-300 transition-all sm:hover:scale-105 cursor-pointer">
 								<div className="text-4xl sm:text-5xl mb-3 sm:mb-4">🔐</div>
-								<h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Логін</h3>
-								<p className="text-slate-600 text-sm mb-4">Увійдіть, щоб побачити доступні розділи</p>
+								<h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">
+									Логін
+								</h3>
+								<p className="text-slate-600 text-sm mb-4">
+									Увійдіть, щоб побачити доступні розділи
+								</p>
 								<div className="inline-flex items-center text-indigo-600 font-semibold text-sm group-hover:gap-2 transition-all">
 									Перейти <span className="ml-2">→</span>
 								</div>
@@ -105,20 +123,37 @@ export default function HomePage() {
 				</div>
 
 				<div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 p-5 sm:p-8 mb-8">
-					<h3 className="text-lg font-bold text-slate-900 mb-3">ℹ️ Про систему</h3>
+					<h3 className="text-lg font-bold text-slate-900 mb-3">
+						ℹ️ Про систему
+					</h3>
 					<ul className="space-y-2 text-sm sm:text-base text-slate-700">
-						<li>✓ <strong>Безпечна авторизація</strong> - контроль доступу за ролями</li>
-						<li>✓ <strong>Управління змінами</strong> - відкриття, закриття, видатки</li>
-						<li>✓ <strong>Аналітика</strong> - детальна статистика доходів та видатків</li>
-						<li>✓ <strong>Касові операції</strong> - готівка та карткові платежі</li>
-						<li>✓ <strong>Управління користувачами</strong> - ролі та дозволи</li>
+						<li>
+							✓ <strong>Безпечна авторизація</strong> - контроль доступу за
+							ролями
+						</li>
+						<li>
+							✓ <strong>Управління змінами</strong> - відкриття, закриття,
+							видатки
+						</li>
+						<li>
+							✓ <strong>Аналітика</strong> - детальна статистика доходів та
+							видатків
+						</li>
+						<li>
+							✓ <strong>Касові операції</strong> - готівка та карткові платежі
+						</li>
+						<li>
+							✓ <strong>Управління користувачами</strong> - ролі та дозволи
+						</li>
 					</ul>
 				</div>
 
 				<div className="bg-white rounded-xl shadow-md p-5 sm:p-8 border border-slate-200">
-					<h3 className="text-lg font-bold text-slate-900 mb-4">⚡ Швидкі посилання</h3>
+					<h3 className="text-lg font-bold text-slate-900 mb-4">
+						⚡ Швидкі посилання
+					</h3>
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-						{visibleSections.map(section => (
+						{visibleSections.map((section) => (
 							<Link
 								key={section.href}
 								href={section.href}
@@ -128,7 +163,10 @@ export default function HomePage() {
 							</Link>
 						))}
 						{!loading && !user && (
-							<Link href="/login" className="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm sm:text-base font-semibold hover:bg-indigo-200 transition">
+							<Link
+								href="/login"
+								className="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm sm:text-base font-semibold hover:bg-indigo-200 transition"
+							>
 								🔐 Логін
 							</Link>
 						)}
@@ -141,14 +179,31 @@ export default function HomePage() {
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
 						<div>
 							<h4 className="font-bold mb-2">🌟 Sirius</h4>
-							<p className="text-slate-400 text-sm">Система управління касою та змінами</p>
+							<p className="text-slate-400 text-sm">
+								Система управління касою та змінами
+							</p>
 						</div>
 						<div>
 							<h4 className="font-bold mb-3">Документація</h4>
 							<ul className="space-y-2 text-slate-400 text-sm">
-								<li><a href="/admin/day" className="hover:text-white transition">Як працювати з днем</a></li>
-								<li><a href="/cashier" className="hover:text-white transition">Касові операції</a></li>
-								<li><a href="/admin/shifts" className="hover:text-white transition">Архів змін</a></li>
+								<li>
+									<a href="/admin/day" className="hover:text-white transition">
+										Як працювати з днем
+									</a>
+								</li>
+								<li>
+									<a href="/cashier" className="hover:text-white transition">
+										Касові операції
+									</a>
+								</li>
+								<li>
+									<a
+										href="/admin/shifts"
+										className="hover:text-white transition"
+									>
+										Архів змін
+									</a>
+								</li>
 							</ul>
 						</div>
 						<div>
@@ -156,12 +211,17 @@ export default function HomePage() {
 							<ul className="space-y-2 text-slate-400 text-sm">
 								<li>Email: support@sirius.local</li>
 								<li>Version: 1.0.0</li>
-								<li className="text-slate-500 text-xs mt-3">© 2026 Sirius System</li>
+								<li className="text-slate-500 text-xs mt-3">
+									© 2026 Sirius System
+								</li>
 							</ul>
 						</div>
 					</div>
 					<div className="border-t border-slate-800 pt-6 text-slate-400 text-sm text-center">
-						<p>Версия {process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'} • Розроблено для покращення роботи</p>
+						<p>
+							Версия {process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'} •
+							Розроблено для покращення роботи
+						</p>
 					</div>
 				</div>
 			</footer>

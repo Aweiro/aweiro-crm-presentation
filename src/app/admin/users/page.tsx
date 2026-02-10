@@ -16,7 +16,10 @@ export default function UsersAdminPage() {
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [successMessage, setSuccessMessage] = useState('')
 	const [formError, setFormError] = useState('')
-	const [userToDelete, setUserToDelete] = useState<{ id: number; name: string } | null>(null)
+	const [userToDelete, setUserToDelete] = useState<{
+		id: number
+		name: string
+	} | null>(null)
 	const [isDeletingUser, setIsDeletingUser] = useState(false)
 
 	async function create(e: React.FormEvent) {
@@ -90,7 +93,9 @@ export default function UsersAdminPage() {
 					<div className="flex items-center justify-center py-20">
 						<div className="text-center">
 							<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
-							<p className="text-slate-600 text-lg">Завантаження користувачів…</p>
+							<p className="text-slate-600 text-lg">
+								Завантаження користувачів…
+							</p>
 						</div>
 					</div>
 				</div>
@@ -104,7 +109,9 @@ export default function UsersAdminPage() {
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
 			<div className="w-full">
 				<div className="mb-8">
-					<h1 className="text-4xl font-bold text-slate-900">👥 Управління користувачами</h1>
+					<h1 className="text-4xl font-bold text-slate-900">
+						👥 Управління користувачами
+					</h1>
 					<p className="text-slate-600 mt-2 text-lg">
 						Створення та видалення облікових записів касирів
 					</p>
@@ -124,7 +131,9 @@ export default function UsersAdminPage() {
 
 				{/* ➕ CREATE FORM */}
 				<div className="bg-white rounded-lg shadow-lg border border-slate-200 p-8 mb-8">
-					<h2 className="text-2xl font-bold text-slate-900 mb-6">➕ Додати нового користувача</h2>
+					<h2 className="text-2xl font-bold text-slate-900 mb-6">
+						➕ Додати нового користувача
+					</h2>
 
 					<form onSubmit={create} className="space-y-4">
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -166,7 +175,6 @@ export default function UsersAdminPage() {
 									className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none transition-colors"
 								/>
 							</div>
-
 						</div>
 
 						<div>
@@ -197,7 +205,9 @@ export default function UsersAdminPage() {
 											: 'border-slate-200 bg-white hover:border-slate-300'
 									}`}
 								>
-									<p className="font-semibold text-slate-900">👑 Адміністратор</p>
+									<p className="font-semibold text-slate-900">
+										👑 Адміністратор
+									</p>
 									<p className="text-xs text-slate-600 mt-1">
 										Повний доступ до керування системою
 									</p>
@@ -223,19 +233,33 @@ export default function UsersAdminPage() {
 				{users && users.length > 0 ? (
 					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
 						<div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4">
-							<h2 className="text-2xl font-bold">👥 Користувачі ({users.length})</h2>
+							<h2 className="text-2xl font-bold">
+								👥 Користувачі ({users.length})
+							</h2>
 						</div>
 
 						<div className="overflow-x-auto">
 							<table className="w-full">
 								<thead className="bg-slate-50 border-b border-slate-200">
 									<tr>
-										<th className="px-6 py-3 text-left font-bold text-slate-700">ID</th>
-										<th className="px-6 py-3 text-left font-bold text-slate-700">Імʼя</th>
-										<th className="px-6 py-3 text-left font-bold text-slate-700">Логін</th>
-										<th className="px-6 py-3 text-center font-bold text-slate-700">Роль</th>
-										<th className="px-6 py-3 text-center font-bold text-slate-700">Статус</th>
-										<th className="px-6 py-3 text-center font-bold text-slate-700">Дія</th>
+										<th className="px-6 py-3 text-left font-bold text-slate-700">
+											ID
+										</th>
+										<th className="px-6 py-3 text-left font-bold text-slate-700">
+											Імʼя
+										</th>
+										<th className="px-6 py-3 text-left font-bold text-slate-700">
+											Логін
+										</th>
+										<th className="px-6 py-3 text-center font-bold text-slate-700">
+											Роль
+										</th>
+										<th className="px-6 py-3 text-center font-bold text-slate-700">
+											Статус
+										</th>
+										<th className="px-6 py-3 text-center font-bold text-slate-700">
+											Дія
+										</th>
 									</tr>
 								</thead>
 
@@ -312,15 +336,21 @@ export default function UsersAdminPage() {
 
 						<div className="bg-slate-50 px-6 py-4 border-t border-slate-200">
 							<p className="text-sm text-slate-600">
-								<span className="font-semibold">{users.length}</span> користувач{users.length % 10 === 1 && users.length !== 11 ? '' : 'ів'} у системі
+								<span className="font-semibold">{users.length}</span> користувач
+								{users.length % 10 === 1 && users.length !== 11 ? '' : 'ів'} у
+								системі
 							</p>
 						</div>
 					</div>
 				) : (
 					<div className="bg-white rounded-lg shadow-md p-12 text-center border border-slate-200">
 						<p className="text-3xl mb-4">👥</p>
-						<p className="text-slate-600 text-lg font-medium">Немає користувачів</p>
-						<p className="text-slate-500 mt-2">Створіть першого касира скориставшись формою вище</p>
+						<p className="text-slate-600 text-lg font-medium">
+							Немає користувачів
+						</p>
+						<p className="text-slate-500 mt-2">
+							Створіть першого касира скориставшись формою вище
+						</p>
 					</div>
 				)}
 			</div>

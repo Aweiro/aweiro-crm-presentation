@@ -16,14 +16,14 @@ export function useUser() {
 
 		fetch('/api/auth/me', {
 			credentials: 'include',
-			cache: 'no-store',
+			cache: 'no-store'
 		})
-			.then(res => (res.ok ? res.json() : null))
-			.then(data => {
+			.then((res) => (res.ok ? res.json() : null))
+			.then((data) => {
 				if (!mounted) return
 				setUser(data?.user || null)
 			})
-			.catch(err => {
+			.catch((err) => {
 				console.error('useUser fetch error', err)
 				if (mounted) setUser(null)
 			})

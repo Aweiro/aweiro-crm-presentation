@@ -16,7 +16,14 @@ export default function AdminDayPage() {
 		const transactions = data?.transactions ?? []
 		const salesMap = new Map<
 			number,
-			{ userId: number; name: string; total: number; count: number; cash: number; card: number }
+			{
+				userId: number
+				name: string
+				total: number
+				count: number
+				cash: number
+				card: number
+			}
 		>()
 
 		transactions.forEach((t: any) => {
@@ -83,7 +90,9 @@ export default function AdminDayPage() {
 					<div className="flex items-center">
 						<span className="text-2xl sm:text-3xl mr-3 sm:mr-4">⛔</span>
 						<div>
-							<h3 className="text-base sm:text-lg font-semibold text-yellow-800">Зміна закрита</h3>
+							<h3 className="text-base sm:text-lg font-semibold text-yellow-800">
+								Зміна закрита
+							</h3>
 							<p className="text-yellow-700 mt-1 text-sm sm:text-base">
 								Відкрий нову зміну для початку роботи
 							</p>
@@ -98,16 +107,20 @@ export default function AdminDayPage() {
 					{/* СТАТИСТИКА */}
 					{data.summary && (
 						<div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border border-slate-200">
-							<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Касса</h2>
+							<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
+								Касса
+							</h2>
 							<CashSummary summary={data.summary} />
 						</div>
 					)}
 
 					{/* ТАБЛИЦЯ ТРАНЗАКЦІЙ */}
 					<div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border border-slate-200">
-						<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Транзакції</h2>
-						<AdminTable 
-							transactions={data?.transactions ?? []} 
+						<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
+							Транзакції
+						</h2>
+						<AdminTable
+							transactions={data?.transactions ?? []}
 							isLoading={isLoading}
 						/>
 					</div>
@@ -134,16 +147,21 @@ export default function AdminDayPage() {
 													{item.name}
 												</p>
 												<p className="text-xs sm:text-sm text-slate-500">
-													{item.count} {item.count === 1 ? 'продаж' : 'продажів'}
+													{item.count}{' '}
+													{item.count === 1 ? 'продаж' : 'продажів'}
 												</p>
 											</div>
-												<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
-													{formatCurrency(item.total)}
-												</p>
-											</div>
+											<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
+												{formatCurrency(item.total)}
+											</p>
+										</div>
 										<div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:text-sm">
-											<p className="text-green-700 break-all">💵 {formatCurrency(item.cash)}</p>
-											<p className="text-blue-700 break-all text-right">💳 {formatCurrency(item.card)}</p>
+											<p className="text-green-700 break-all">
+												💵 {formatCurrency(item.cash)}
+											</p>
+											<p className="text-blue-700 break-all text-right">
+												💳 {formatCurrency(item.card)}
+											</p>
 										</div>
 									</div>
 								))}
@@ -154,13 +172,17 @@ export default function AdminDayPage() {
 					{/* ВИТРАТИ */}
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
 						<div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border border-slate-200">
-							<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Додати витрати</h2>
+							<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
+								Додати витрати
+							</h2>
 							<ExpenseForm onAdded={mutate} />
 						</div>
 
 						<div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border border-slate-200">
-							<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Список витрат</h2>
-							<ExpensesList 
+							<h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
+								Список витрат
+							</h2>
+							<ExpensesList
 								expenses={data?.expenses ?? []}
 								isLoading={isLoading}
 							/>

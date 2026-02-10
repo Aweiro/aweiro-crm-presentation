@@ -224,7 +224,9 @@ export default function ShiftsArchivePage() {
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
 			<div className="w-full">
 				<div className="mb-6 sm:mb-8">
-					<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">📋 Архів змін</h1>
+					<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
+						📋 Архів змін
+					</h1>
 					<p className="text-slate-600 mt-2 text-base sm:text-lg">
 						Історія всіх закритих змін і звітів
 					</p>
@@ -485,8 +487,7 @@ export default function ShiftsArchivePage() {
 											</p>
 											<p className="text-sm text-green-700 mt-3">
 												Дохід: {formatMoney(getMonthStats()!.totalIncome)} -
-												Витрати:{' '}
-												{formatMoney(getMonthStats()!.totalExpenses)}
+												Витрати: {formatMoney(getMonthStats()!.totalExpenses)}
 											</p>
 										</div>
 

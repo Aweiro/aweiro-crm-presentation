@@ -8,10 +8,7 @@ function PaymentPageContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 
-	const userId = useMemo(
-		() => Number(searchParams.get('user')),
-		[searchParams]
-	)
+	const userId = useMemo(() => Number(searchParams.get('user')), [searchParams])
 
 	const amount = useMemo(
 		() => Number(searchParams.get('amount')),
@@ -60,26 +57,31 @@ function PaymentPageContent() {
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8">
-		<div className="max-w-2xl mx-auto h-screen sm:h-auto flex flex-col sm:justify-center sm:items-center">
-			<button
-				onClick={() => router.back()}
-				className="p-2 text-slate-700 hover:text-slate-900 transition-colors sm:hidden mb-4 self-start"
-			>
-				← Назад
-			</button>				<div className="flex-1 sm:flex-none flex flex-col justify-center w-full">
+			<div className="max-w-2xl mx-auto h-screen sm:h-auto flex flex-col sm:justify-center sm:items-center">
+				<button
+					onClick={() => router.back()}
+					className="p-2 text-slate-700 hover:text-slate-900 transition-colors sm:hidden mb-4 self-start"
+				>
+					← Назад
+				</button>{' '}
+				<div className="flex-1 sm:flex-none flex flex-col justify-center w-full">
 					<div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200 mb-6">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">
-              💳 Як платити?
-            </h1>
-            {userName && <p className="text-slate-600 font-semibold text-lg">для {userName}</p>}
-          </div>
+						<div className="text-center mb-8">
+							<h1 className="text-4xl font-bold text-slate-900 mb-2">
+								💳 Як платити?
+							</h1>
+							{userName && (
+								<p className="text-slate-600 font-semibold text-lg">
+									для {userName}
+								</p>
+							)}
+						</div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border border-blue-200">
-            <p className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">
-              💰 До сплати
-            </p>
-			<div className="text-5xl font-bold text-blue-700">
+						<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border border-blue-200">
+							<p className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">
+								💰 До сплати
+							</p>
+							<div className="text-5xl font-bold text-blue-700">
 								{formatCurrency(amount)}
 							</div>
 						</div>
@@ -132,9 +134,9 @@ function PaymentPageContent() {
 						</button>
 					</div>
 
-				<p className="text-center text-slate-600 text-sm font-medium">
-					{loading ? '⏳ Обробка платежу…' : '👆 Виберіть спосіб оплати'}
-				</p>
+					<p className="text-center text-slate-600 text-sm font-medium">
+						{loading ? '⏳ Обробка платежу…' : '👆 Виберіть спосіб оплати'}
+					</p>
 				</div>
 			</div>
 		</main>
@@ -143,7 +145,11 @@ function PaymentPageContent() {
 
 export default function PaymentPage() {
 	return (
-		<Suspense fallback={<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8" />}>
+		<Suspense
+			fallback={
+				<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8" />
+			}
+		>
 			<PaymentPageContent />
 		</Suspense>
 	)

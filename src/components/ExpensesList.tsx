@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { mutate } from 'swr'
 import { formatCurrency } from '@/lib/currency'
+import ConfirmModal from './ConfirmModal'
 
 type Expense = {
 	id: number
@@ -14,7 +16,13 @@ type Props = {
 	isLoading?: boolean
 }
 
-export default function ExpensesList({ expenses = [], isLoading = false }: Props) {
+export default function ExpensesList({
+	expenses = [],
+	isLoading = false
+}: Props) {
+	const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
+	const [isDeleting, setIsDeleting] = useState(false)
+
 	if (isLoading) return <p>Завантаження…</p>
 
 	if (expenses.length === 0) {
@@ -26,12 +34,19 @@ export default function ExpensesList({ expenses = [], isLoading = false }: Props
 	}
 
 	async function remove(id: number) {
-		await fetch(`/api/admin/expenses/${id}`, {
-			method: 'DELETE'
-		})
+		if (isDeleting) return
+		setIsDeleting(true)
+		try {
+			await fetch(`/api/admin/expenses/${id}`, {
+				method: 'DELETE'
+			})
 
-		mutate('/api/admin/expenses')
-		mutate('/api/admin/day')
+			mutate('/api/admin/expenses')
+			mutate('/api/admin/day')
+			setExpenseToDelete(null)
+		} finally {
+			setIsDeleting(false)
+		}
 	}
 
 	return (
@@ -50,7 +65,7 @@ export default function ExpensesList({ expenses = [], isLoading = false }: Props
 						)}
 					</div>
 					<button
-						onClick={() => remove(e.id)}
+						onClick={() => setExpenseToDelete(e)}
 						className="ml-4 px-3 py-1.5 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white text-sm rounded-lg transition-all font-semibold shadow-sm hover:shadow-md hover:scale-105"
 						title="Видалити витрату"
 					>
@@ -58,6 +73,22 @@ export default function ExpensesList({ expenses = [], isLoading = false }: Props
 					</button>
 				</div>
 			))}
+
+			<ConfirmModal
+				isOpen={Boolean(expenseToDelete)}
+				title="Підтвердьте видалення витрати"
+				description={
+					expenseToDelete
+						? `Витрата на ${formatCurrency(expenseToDelete.amount)} буде видалена.`
+						: ''
+				}
+				confirmText="Видалити"
+				cancelText="Скасувати"
+				tone="danger"
+				isLoading={isDeleting}
+				onClose={() => setExpenseToDelete(null)}
+				onConfirm={() => (expenseToDelete ? remove(expenseToDelete.id) : undefined)}
+			/>
 		</div>
 	)
 }

@@ -14,7 +14,9 @@ type Shift = {
 export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 	const { data, mutate, isLoading } = useSWR('/api/admin/shift', fetcher)
 	const [cashStart, setCashStart] = useState('')
-	const [confirmAction, setConfirmAction] = useState<'open' | 'close' | null>(null)
+	const [confirmAction, setConfirmAction] = useState<'open' | 'close' | null>(
+		null
+	)
 	const [isSubmittingAction, setIsSubmittingAction] = useState(false)
 
 	if (isLoading) {
@@ -60,9 +62,13 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 		return (
 			<>
 				<div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 rounded-lg">
-					<h2 className="text-xl font-bold text-blue-900 mb-4">⏰ Керування змінами</h2>
-					<p className="text-blue-700 mb-4">Зміна ще не відкрита. Відкрий зміну для роботи.</p>
-					<button 
+					<h2 className="text-xl font-bold text-blue-900 mb-4">
+						⏰ Керування змінами
+					</h2>
+					<p className="text-blue-700 mb-4">
+						Зміна ще не відкрита. Відкрий зміну для роботи.
+					</p>
+					<button
 						onClick={() => setConfirmAction('open')}
 						className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
 					>
@@ -91,8 +97,12 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 				<div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
 					<div className="flex items-center justify-between">
 						<div>
-							<h2 className="text-xl font-bold text-slate-900">⏰ Керування змінами</h2>
-							<p className={`text-sm mt-1 font-semibold ${shift.isOpen ? 'text-green-600' : 'text-red-600'}`}>
+							<h2 className="text-xl font-bold text-slate-900">
+								⏰ Керування змінами
+							</h2>
+							<p
+								className={`text-sm mt-1 font-semibold ${shift.isOpen ? 'text-green-600' : 'text-red-600'}`}
+							>
 								{shift.isOpen ? '🟢 Зміна відкрита' : '🔴 Зміна закрита'}
 							</p>
 						</div>
@@ -114,7 +124,7 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 										placeholder="Введіть суму"
 										className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 									/>
-									<button 
+									<button
 										onClick={saveCashStart}
 										className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
 									>
@@ -123,7 +133,8 @@ export default function ShiftControl({ onChange }: { onChange?: () => void }) {
 								</div>
 							) : (
 								<p className="text-sm text-blue-700 mt-2">
-									Поточна каса: <strong>{formatCurrency(shift.cashStart)}</strong>
+									Поточна каса:{' '}
+									<strong>{formatCurrency(shift.cashStart)}</strong>
 								</p>
 							)}
 						</div>

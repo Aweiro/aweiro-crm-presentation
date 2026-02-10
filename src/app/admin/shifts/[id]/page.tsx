@@ -72,7 +72,14 @@ export default function ShiftDetailsPage() {
 		const transactions: Transaction[] = data?.transactions ?? []
 		const salesMap = new Map<
 			number,
-			{ userId: number; name: string; total: number; count: number; cash: number; card: number }
+			{
+				userId: number
+				name: string
+				total: number
+				count: number
+				cash: number
+				card: number
+			}
 		>()
 
 		transactions.forEach((t) => {
@@ -141,7 +148,9 @@ export default function ShiftDetailsPage() {
 				<div className="w-full flex items-center justify-center py-20">
 					<div className="text-center">
 						<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
-						<p className="text-slate-600 text-lg">Завантаження деталей зміни…</p>
+						<p className="text-slate-600 text-lg">
+							Завантаження деталей зміни…
+						</p>
 					</div>
 				</div>
 			</main>
@@ -164,139 +173,36 @@ export default function ShiftDetailsPage() {
 							<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
 								📊 Зміна #{data.shift.id}
 							</h1>
-							<p className="text-slate-600 mt-2 text-sm sm:text-base">Деталіз звіту про работу</p>
+							<p className="text-slate-600 mt-2 text-sm sm:text-base">
+								Деталіз звіту про работу
+							</p>
 						</div>
 					</div>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 sm:mb-8">
 						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-							<p className="text-sm text-blue-700 font-semibold uppercase mb-1">📖 Відкрито</p>
-							<p className="text-base sm:text-lg font-bold text-blue-900">{formatDate(data.shift.openedAt)}</p>
+							<p className="text-sm text-blue-700 font-semibold uppercase mb-1">
+								📖 Відкрито
+							</p>
+							<p className="text-base sm:text-lg font-bold text-blue-900">
+								{formatDate(data.shift.openedAt)}
+							</p>
 						</div>
 						<div className="bg-slate-100 border border-slate-300 rounded-lg p-4">
-							<p className="text-sm text-slate-700 font-semibold uppercase mb-1">🔒 Закрито</p>
-							<p className="text-base sm:text-lg font-bold text-slate-900">{formatDate(data.shift.closedAt)}</p>
+							<p className="text-sm text-slate-700 font-semibold uppercase mb-1">
+								🔒 Закрито
+							</p>
+							<p className="text-base sm:text-lg font-bold text-slate-900">
+								{formatDate(data.shift.closedAt)}
+							</p>
 						</div>
 					</div>
 				</div>
 
-				{data.transactions && data.transactions.length > 0 && (
-					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mb-8">
-						<div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-4">
-							<h2 className="text-xl sm:text-2xl font-bold">💰 Платежі ({data.transactions.length})</h2>
-						</div>
-						<div className="overflow-x-auto">
-							<table className="w-full">
-								<thead className="bg-slate-50 border-b border-slate-200">
-									<tr>
-										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">Працівник</th>
-										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">Час</th>
-										<th className="px-3 sm:px-6 py-3 text-center font-bold text-slate-700">Спосіб</th>
-										<th className="px-3 sm:px-6 py-3 text-right font-bold text-slate-700">Сума</th>
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-slate-200">
-									{data.transactions.map((t: Transaction, i: number) => (
-										<tr
-											key={i}
-											className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
-										>
-											<td className="px-3 sm:px-6 py-3 font-medium text-slate-900 break-words">
-												👤 {t.user?.name ?? '—'}
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-slate-700">
-												{formatTime(t.createdAt)}
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-center">
-												<span
-													className={`inline-block px-2 sm:px-3 py-1 rounded-lg font-semibold text-xs sm:text-sm ${
-														t.paymentMethod === 'CASH'
-															? 'bg-green-100 text-green-700'
-															: 'bg-blue-100 text-blue-700'
-													}`}
-												>
-													{t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
-												</span>
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-right">
-												<span className="font-bold text-slate-900 break-all">
-													{formatCurrency(t.amount)}
-												</span>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				)}
-
-				{data.expenses && data.expenses.length > 0 && (
-					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mb-8">
-						<div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4">
-							<h2 className="text-xl sm:text-2xl font-bold">📉 Витрати ({data.expenses.length})</h2>
-						</div>
-						<div className="space-y-2 p-4 sm:p-6">
-							{data.expenses.map((e: Expense, i: number) => (
-								<div
-									key={i}
-									className="flex justify-between items-start p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-								>
-									<div className="flex-1">
-										<p className="font-semibold text-slate-900">
-											{e.comment || 'Витрата'}
-										</p>
-										{e.comment && (
-											<p className="text-sm text-slate-600 mt-1">
-												{e.comment}
-											</p>
-										)}
-									</div>
-									<span className="font-bold text-red-700 ml-3 sm:ml-4 text-sm sm:text-base break-all text-right">
-										−{formatCurrency(e.amount)}
-									</span>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
-
-				{personalSales.length > 0 && (
-					<div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4 sm:p-6 mb-8">
-						<h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
-							👥 Особисті продажі касирів
-						</h2>
-						<div className="space-y-3">
-							{personalSales.map((item) => (
-								<div
-									key={item.userId}
-									className="rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4"
-								>
-									<div className="flex items-start justify-between gap-3">
-										<div className="min-w-0">
-											<p className="font-semibold text-slate-900 break-words">
-												{item.name}
-											</p>
-											<p className="text-xs sm:text-sm text-slate-500">
-												{item.count} {item.count === 1 ? 'продаж' : 'продажів'}
-											</p>
-										</div>
-										<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
-											{formatCurrency(item.total)}
-										</p>
-									</div>
-									<div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:text-sm">
-										<p className="text-green-700 break-all">💵 {formatCurrency(item.cash)}</p>
-										<p className="text-blue-700 break-all text-right">💳 {formatCurrency(item.card)}</p>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
-
-				<div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-lg p-4 sm:p-8">
-					<h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">📈 Зведення зміни</h2>
+				<div className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-lg p-4 sm:p-8">
+					<h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
+						📈 Зведення зміни
+					</h2>
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
 						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
@@ -355,6 +261,137 @@ export default function ShiftDetailsPage() {
 						</p>
 					</div>
 				</div>
+
+				{data.transactions && data.transactions.length > 0 && (
+					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mb-8">
+						<div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-4">
+							<h2 className="text-xl sm:text-2xl font-bold">
+								💰 Платежі ({data.transactions.length})
+							</h2>
+						</div>
+						<div className="overflow-x-auto">
+							<table className="w-full">
+								<thead className="bg-slate-50 border-b border-slate-200">
+									<tr>
+										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
+											Працівник
+										</th>
+										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
+											Час
+										</th>
+										<th className="px-3 sm:px-6 py-3 text-center font-bold text-slate-700">
+											Спосіб
+										</th>
+										<th className="px-3 sm:px-6 py-3 text-right font-bold text-slate-700">
+											Сума
+										</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y divide-slate-200">
+									{data.transactions.map((t: Transaction, i: number) => (
+										<tr
+											key={i}
+											className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
+										>
+											<td className="px-3 sm:px-6 py-3 font-medium text-slate-900 break-words">
+												👤 {t.user?.name ?? '—'}
+											</td>
+											<td className="px-3 sm:px-6 py-3 text-slate-700">
+												{formatTime(t.createdAt)}
+											</td>
+											<td className="px-3 sm:px-6 py-3 text-center">
+												<span
+													className={`inline-block px-2 sm:px-3 py-1 rounded-lg font-semibold text-xs sm:text-sm ${
+														t.paymentMethod === 'CASH'
+															? 'bg-green-100 text-green-700'
+															: 'bg-blue-100 text-blue-700'
+													}`}
+												>
+													{t.paymentMethod === 'CASH'
+														? '💵 Готівка'
+														: '💳 Карта'}
+												</span>
+											</td>
+											<td className="px-3 sm:px-6 py-3 text-right">
+												<span className="font-bold text-slate-900 break-all">
+													{formatCurrency(t.amount)}
+												</span>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				)}
+
+				{data.expenses && data.expenses.length > 0 && (
+					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mb-8">
+						<div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4">
+							<h2 className="text-xl sm:text-2xl font-bold">
+								📉 Витрати ({data.expenses.length})
+							</h2>
+						</div>
+						<div className="space-y-2 p-4 sm:p-6">
+							{data.expenses.map((e: Expense, i: number) => (
+								<div
+									key={i}
+									className="flex justify-between items-start p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+								>
+									<div className="flex-1">
+										<p className="font-semibold text-slate-900">
+											{e.comment || 'Витрата'}
+										</p>
+										{e.comment && (
+											<p className="text-sm text-slate-600 mt-1">{e.comment}</p>
+										)}
+									</div>
+									<span className="font-bold text-red-700 ml-3 sm:ml-4 text-sm sm:text-base break-all text-right">
+										−{formatCurrency(e.amount)}
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
+
+				{personalSales.length > 0 && (
+					<div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4">
+						<h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
+							👥 Особисті продажі касирів
+						</h2>
+						<div className="space-y-3">
+							{personalSales.map((item) => (
+								<div
+									key={item.userId}
+									className="rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4"
+								>
+									<div className="flex items-start justify-between gap-3">
+										<div className="min-w-0">
+											<p className="font-semibold text-slate-900 break-words">
+												{item.name}
+											</p>
+											<p className="text-xs sm:text-sm text-slate-500">
+												{item.count} {item.count === 1 ? 'продаж' : 'продажів'}
+											</p>
+										</div>
+										<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
+											{formatCurrency(item.total)}
+										</p>
+									</div>
+									<div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:text-sm">
+										<p className="text-green-700 break-all">
+											💵 {formatCurrency(item.cash)}
+										</p>
+										<p className="text-blue-700 break-all text-right">
+											💳 {formatCurrency(item.card)}
+										</p>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</main>
 	)
