@@ -5,8 +5,10 @@ import { formatCurrency } from '@/lib/currency'
 export default function CashSummary({ summary }: any) {
 	if (!summary) return null
 
+	const dayIncome = summary.cashIncome + summary.cardIncome
+
 	return (
-		<div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+		<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
 			<div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
 				<p className="text-sm text-blue-700 font-semibold">Каса на старт</p>
 				<p className="text-xl font-bold text-blue-900 mt-1">
@@ -33,6 +35,17 @@ export default function CashSummary({ summary }: any) {
 				<p className="text-xl font-bold text-purple-900 mt-1">
 					+
 					{formatCurrency(summary.cardIncome, {
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 0
+					})}
+				</p>
+			</div>
+
+			<div className="bg-gradient-to-br from-emerald-50 to-teal-100 p-4 rounded-lg border border-emerald-200">
+				<p className="text-sm text-emerald-700 font-semibold">Дохід за день</p>
+				<p className="text-xl font-bold text-emerald-900 mt-1">
+					+
+					{formatCurrency(dayIncome, {
 						minimumFractionDigits: 0,
 						maximumFractionDigits: 0
 					})}

@@ -234,6 +234,15 @@ export default function ShiftDetailsPage() {
 
 						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
 							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
+								📈 Дохід за день
+							</p>
+							<p className="text-xl sm:text-3xl font-bold text-emerald-300 break-all leading-tight">
+								+{formatCurrency(summary.cashIncome + summary.cardIncome)}
+							</p>
+						</div>
+
+						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
+							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
 								📉 Витрати
 							</p>
 							<p className="text-xl sm:text-3xl font-bold text-red-300 break-all leading-tight">
