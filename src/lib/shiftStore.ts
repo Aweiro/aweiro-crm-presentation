@@ -59,6 +59,7 @@ export async function closeShift() {
     where: { id: shift.id },
     data: {
       isOpen: false,
+      cashStart,
       cashEnd,
       closedAt: new Date()
     }
