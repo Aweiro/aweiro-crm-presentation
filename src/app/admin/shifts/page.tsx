@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
+import { parseExpenseComment } from '@/lib/expenseMeta'
+import ConfirmModal from '@/components/ConfirmModal'
 
 type Shift = {
 	id: number
@@ -15,6 +17,7 @@ type Transaction = {
 	id: number
 	amount: number
 	paymentMethod: string
+	serviceType?: 'BARBER' | 'COSMETICS'
 	createdAt: string
 	userId: number
 	shiftId: number
@@ -39,17 +42,21 @@ export default function ShiftsArchivePage() {
 	const [expenses, setExpenses] = useState<Expense[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+	const [monthExpenseAmount, setMonthExpenseAmount] = useState('')
+	const [monthExpenseComment, setMonthExpenseComment] = useState('')
+	const [addingMonthExpense, setAddingMonthExpense] = useState(false)
+	const [expensesView, setExpensesView] = useState<'ALL' | 'OTHER'>('ALL')
+	const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
+	const [deletingExpense, setDeletingExpense] = useState(false)
+	const [formError, setFormError] = useState('')
 
-	useEffect(() => {
+	const loadArchiveData = () =>
 		Promise.all([
 			fetch('/api/admin/shifts').then((res) => res.json()),
 			fetch('/api/admin/transactions').then((res) => res.json()),
 			fetch('/api/admin/expenses?archive=true').then((res) => res.json())
 		])
 			.then(([shiftsData, transactionsData, expensesData]) => {
-				console.log('Raw Shifts Data:', shiftsData)
-				console.log('Shifts.data:', shiftsData.data)
-				console.log('Is array?', Array.isArray(shiftsData.data))
 				const sortedShifts = (
 					Array.isArray(shiftsData.data) ? shiftsData.data : []
 				).sort(
@@ -57,19 +64,20 @@ export default function ShiftsArchivePage() {
 						new Date(b.closedAt || '').getTime() -
 						new Date(a.closedAt || '').getTime()
 				)
-				console.log('Sorted shifts:', sortedShifts)
 				setShifts(sortedShifts)
 				setTransactions(
 					Array.isArray(transactionsData.data) ? transactionsData.data : []
 				)
 				setExpenses(Array.isArray(expensesData.data) ? expensesData.data : [])
-				if (sortedShifts.length > 0 && sortedShifts[0].closedAt) {
+				if (!selectedMonth && sortedShifts.length > 0 && sortedShifts[0].closedAt) {
 					const firstMonth = new Date(sortedShifts[0].closedAt)
 					setSelectedMonth(formatMonthKey(firstMonth))
 				}
 			})
 			.catch((err) => console.error('Error loading data:', err))
-			.finally(() => setIsLoading(false))
+
+	useEffect(() => {
+		loadArchiveData().finally(() => setIsLoading(false))
 	}, [])
 
 	const formatMonthKey = (date: Date) => {
@@ -93,13 +101,6 @@ export default function ShiftsArchivePage() {
 	}, {} as ShiftsByMonth)
 
 	const months = Object.keys(shiftsByMonth).sort().reverse()
-
-	console.log(
-		'RENDER: shifts.length=' +
-			shifts.length +
-			', months.length=' +
-			months.length
-	)
 
 	const formatDate = (dateString: string | null) => {
 		if (!dateString) return '—'
@@ -145,12 +146,14 @@ export default function ShiftsArchivePage() {
 
 		const monthShifts = shiftsByMonth[selectedMonth] || []
 		const monthShiftIds = monthShifts.map((s) => s.id)
+		const isInSelectedMonth = (dateString: string) =>
+			formatMonthKey(new Date(dateString)) === selectedMonth
 
 		const monthTransactions = transactions.filter((t) =>
 			monthShiftIds.includes(t.shiftId)
 		)
 		const monthExpenses = expenses.filter((e) =>
-			monthShiftIds.includes(e.shiftId)
+			isInSelectedMonth(e.createdAt)
 		)
 
 		const cashTransactions = monthTransactions.filter(
@@ -169,23 +172,47 @@ export default function ShiftsArchivePage() {
 			0
 		)
 		const totalExpenses = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
+		const totalSalaryExpenses = monthExpenses
+			.filter((e) => parseExpenseComment(e.comment).category === 'SALARY')
+			.reduce((sum, e) => sum + e.amount, 0)
+		const totalOtherExpenses = monthExpenses
+			.filter((e) => parseExpenseComment(e.comment).category === 'OTHER')
+			.reduce((sum, e) => sum + e.amount, 0)
 		const totalIncome = totalCashIncome + totalCardIncome
+		const totalBarberIncome = monthTransactions
+			.filter((t) => t.serviceType !== 'COSMETICS')
+			.reduce((sum, t) => sum + t.amount, 0)
+		const totalCosmeticsIncome = monthTransactions
+			.filter((t) => t.serviceType === 'COSMETICS')
+			.reduce((sum, t) => sum + t.amount, 0)
 
 		// Статистика по працівниках
 		const userStats = new Map<
 			number,
-			{ name: string; transactions: number; amount: number }
+			{
+				name: string
+				transactions: number
+				amount: number
+				barber: number
+				cosmetics: number
+			}
 		>()
 		monthTransactions.forEach((t) => {
 			const existing = userStats.get(t.userId) || {
 				name: t.user.name || t.user.login,
 				transactions: 0,
-				amount: 0
+				amount: 0,
+				barber: 0,
+				cosmetics: 0
 			}
 			userStats.set(t.userId, {
 				name: existing.name,
 				transactions: existing.transactions + 1,
-				amount: existing.amount + t.amount
+				amount: existing.amount + t.amount,
+				barber:
+					existing.barber + (t.serviceType === 'COSMETICS' ? 0 : t.amount),
+				cosmetics:
+					existing.cosmetics + (t.serviceType === 'COSMETICS' ? t.amount : 0)
 			})
 		})
 
@@ -194,12 +221,87 @@ export default function ShiftsArchivePage() {
 			totalIncome,
 			totalCashIncome,
 			totalCardIncome,
+			totalBarberIncome,
+			totalCosmeticsIncome,
 			totalExpenses,
+			totalSalaryExpenses,
+			totalOtherExpenses,
 			profit: totalIncome - totalExpenses,
 			transactions: monthTransactions.length,
 			userStats: Array.from(userStats.entries())
 				.map(([id, data]) => ({ id, ...data }))
 				.sort((a, b) => b.amount - a.amount)
+		}
+	}
+
+	const selectedMonthExpenses = expenses
+		.filter(
+			(expense) =>
+				Boolean(selectedMonth) &&
+				formatMonthKey(new Date(expense.createdAt)) === selectedMonth
+		)
+		.sort(
+			(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+		)
+	const visibleMonthExpenses =
+		expensesView === 'ALL'
+			? selectedMonthExpenses
+			: selectedMonthExpenses.filter(
+					(expense) => parseExpenseComment(expense.comment).category === 'OTHER'
+				)
+
+	async function addMonthExpense() {
+		setFormError('')
+		const amount = Number(monthExpenseAmount)
+		const comment = monthExpenseComment.trim()
+
+		if (!amount || amount <= 0) {
+			setFormError('Вкажіть коректну суму витрати')
+			return
+		}
+		if (!comment) {
+			setFormError('Додайте коментар до витрати')
+			return
+		}
+		if (addingMonthExpense) return
+
+		setAddingMonthExpense(true)
+		try {
+			const res = await fetch('/api/admin/expenses', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					amount,
+					comment,
+					category: 'OTHER'
+				})
+			})
+
+			if (!res.ok) {
+				const json = await res.json().catch(() => ({}))
+				setFormError(json?.message || 'Не вдалося додати витрату')
+				return
+			}
+
+			setMonthExpenseAmount('')
+			setMonthExpenseComment('')
+			await loadArchiveData()
+		} finally {
+			setAddingMonthExpense(false)
+		}
+	}
+
+	async function confirmDeleteExpense() {
+		if (!expenseToDelete || deletingExpense) return
+		setDeletingExpense(true)
+		try {
+			await fetch(`/api/admin/expenses/${expenseToDelete.id}`, {
+				method: 'DELETE'
+			})
+			setExpenseToDelete(null)
+			await loadArchiveData()
+		} finally {
+			setDeletingExpense(false)
 		}
 	}
 
@@ -426,8 +528,119 @@ export default function ShiftsArchivePage() {
 								{/* Статистика по місяцю */}
 								{getMonthStats() && (
 									<div className="space-y-6">
+										<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
+											<h4 className="text-lg font-bold text-slate-900 mb-2">
+												🧾 Витрати місяця
+											</h4>
+											<p className="text-sm text-slate-600 mb-4">
+												Тут додаються звичайні місячні витрати (оренда, комуналка, товари тощо).
+											</p>
+
+											<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+												<input
+													type="number"
+													placeholder="Сума"
+													value={monthExpenseAmount}
+													onChange={(e) => setMonthExpenseAmount(e.target.value)}
+													className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+												/>
+												<input
+													type="text"
+													placeholder="Коментар"
+													value={monthExpenseComment}
+													onChange={(e) => setMonthExpenseComment(e.target.value)}
+													className="sm:col-span-2 rounded-lg border border-slate-300 bg-white px-3 py-2"
+												/>
+											</div>
+											<button
+												type="button"
+												onClick={addMonthExpense}
+												disabled={addingMonthExpense}
+												className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-slate-300"
+											>
+												{addingMonthExpense ? 'Додавання...' : 'Додати витрату'}
+											</button>
+											{formError && (
+												<p className="text-sm text-red-600 mt-3">{formError}</p>
+											)}
+
+											<div className="mt-4 space-y-2">
+												<div className="flex flex-wrap items-center gap-2 mb-2">
+													<button
+														type="button"
+														onClick={() => setExpensesView('ALL')}
+														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+															expensesView === 'ALL'
+																? 'bg-slate-900 text-white'
+																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+														}`}
+													>
+														Усі
+													</button>
+													<button
+														type="button"
+														onClick={() => setExpensesView('OTHER')}
+														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+															expensesView === 'OTHER'
+																? 'bg-slate-900 text-white'
+																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+														}`}
+													>
+														Звичайні
+													</button>
+												</div>
+
+												{visibleMonthExpenses.length === 0 ? (
+													<p className="text-sm text-slate-500">
+														За вибраний місяць витрат у цьому фільтрі ще немає.
+													</p>
+												) : (
+													visibleMonthExpenses.map((expense) => {
+															const meta = parseExpenseComment(expense.comment)
+															const isSalary = meta.category === 'SALARY'
+															return (
+																<div
+																	key={expense.id}
+																	className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3"
+																>
+																	<div className="min-w-0">
+																		<p className="font-semibold text-slate-900 break-words">
+																			-{formatMoney(expense.amount)}
+																		</p>
+																		<p className="text-sm text-slate-600 break-words mt-1">
+																			{meta.cleanComment || 'Витрата'}
+																		</p>
+																		<p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
+																			<span
+																				className={`rounded px-2 py-0.5 font-semibold ${
+																					isSalary
+																						? 'bg-emerald-100 text-emerald-700'
+																						: 'bg-slate-200 text-slate-700'
+																				}`}
+																			>
+																				{isSalary ? '💸 Зарплата' : '🧾 Витрата'}
+																			</span>
+																			<span>
+																			{formatDate(expense.createdAt)}
+																			</span>
+																		</p>
+																	</div>
+																	<button
+																		type="button"
+																		onClick={() => setExpenseToDelete(expense)}
+																		className="ml-3 rounded-lg bg-slate-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-800"
+																	>
+																		🗑️
+																	</button>
+																</div>
+															)
+														})
+												)}
+											</div>
+										</div>
+
 										{/* Основні показники */}
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
 												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
 													Загальний дохід
@@ -474,6 +687,30 @@ export default function ShiftsArchivePage() {
 												<p className="text-xs text-slate-400 mt-2">
 													Усього видатків
 												</p>
+												<p className="text-xs text-slate-500 mt-1">
+													💸 {formatMoney(getMonthStats()!.totalSalaryExpenses)} • 🧾{' '}
+													{formatMoney(getMonthStats()!.totalOtherExpenses)}
+												</p>
+											</div>
+
+											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
+												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
+													Барбер послуги
+												</p>
+												<p className="text-xl sm:text-3xl font-bold text-emerald-600 mt-2 break-all leading-tight">
+													{formatMoney(getMonthStats()!.totalBarberIncome)}
+												</p>
+												<p className="text-xs text-slate-400 mt-2">✂️ По категорії барбер</p>
+											</div>
+
+											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
+												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
+													Косметика
+												</p>
+												<p className="text-xl sm:text-3xl font-bold text-violet-600 mt-2 break-all leading-tight">
+													{formatMoney(getMonthStats()!.totalCosmeticsIncome)}
+												</p>
+												<p className="text-xs text-slate-400 mt-2">🧴 По категорії косметика</p>
 											</div>
 										</div>
 
@@ -520,6 +757,12 @@ export default function ShiftsArchivePage() {
 															<div className="text-right min-w-0">
 																<p className="font-bold text-sm sm:text-lg text-slate-900 break-all leading-tight">
 																	{formatMoney(user.amount)}
+																</p>
+																<p className="text-xs text-emerald-700 break-all mt-1">
+																	✂️ {formatMoney(user.barber)}
+																</p>
+																<p className="text-xs text-violet-700 break-all">
+																	🧴 {formatMoney(user.cosmetics)}
 																</p>
 															</div>
 														</div>
@@ -587,6 +830,22 @@ export default function ShiftsArchivePage() {
 					</div>
 				)}
 			</div>
+
+			<ConfirmModal
+				isOpen={Boolean(expenseToDelete)}
+				title="Підтвердьте видалення витрати"
+				description={
+					expenseToDelete
+						? `Витрата на ${formatMoney(expenseToDelete.amount)} буде видалена.`
+						: ''
+				}
+				confirmText="Видалити"
+				cancelText="Скасувати"
+				tone="danger"
+				isLoading={deletingExpense}
+				onClose={() => setExpenseToDelete(null)}
+				onConfirm={confirmDeleteExpense}
+			/>
 		</main>
 	)
 }

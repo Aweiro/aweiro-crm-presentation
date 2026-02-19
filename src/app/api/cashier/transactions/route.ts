@@ -9,6 +9,7 @@ export async function POST(req: Request) {
 
     const userId = Number(body.userId)
     const amount = Number(body.amount)
+    const serviceType = body.serviceType === 'COSMETICS' ? 'COSMETICS' : 'BARBER'
 
     if (!userId || !amount) {
       return NextResponse.json(
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
       userId,
       amount,
       paymentMethod: body.paymentMethod,
+      serviceType,
       shiftId: shift.id
     })
 

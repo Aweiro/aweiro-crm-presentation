@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { addExpense, getShiftExpenses } from '@/lib/expensesStore'
 import { getActiveShift } from '@/lib/shiftStore'
 import { prisma } from '@/lib/prisma'
+import { encodeExpenseComment, type ExpenseCategory } from '@/lib/expenseMeta'
 
 export async function GET(req: Request) {
 	const { searchParams } = new URL(req.url)
@@ -35,6 +36,11 @@ export async function POST(req: Request) {
 	try {
 		const body = await req.json()
 		const { amount, comment } = body
+		const category: ExpenseCategory = body.category === 'SALARY' ? 'SALARY' : 'OTHER'
+		const salaryUserId =
+			Number.isFinite(Number(body.salaryUserId)) && Number(body.salaryUserId) > 0
+				? Number(body.salaryUserId)
+				: undefined
 
 		if (Number(amount) <= 0) {
 			return NextResponse.json(
@@ -50,7 +56,11 @@ export async function POST(req: Request) {
 
 		const expense = await addExpense({
 			amount: Number(amount),
-			comment,
+			comment: encodeExpenseComment({
+				category,
+				comment,
+				salaryUserId
+			}),
 			shiftId: shift.id
 		})
 

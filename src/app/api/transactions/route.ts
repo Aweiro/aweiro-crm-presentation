@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       userId: Number(body.userId),
       amount: Number(body.amount),
       paymentMethod: body.paymentMethod,
+      serviceType: body.serviceType === 'COSMETICS' ? 'COSMETICS' : 'BARBER',
       shiftId: shift.id
     })
 

@@ -7,6 +7,7 @@ type DayTransaction = {
 	id: number
 	amount: number
 	paymentMethod: string
+	serviceType?: 'BARBER' | 'COSMETICS'
 	createdAt: Date
 	user: {
 		id: number
@@ -30,23 +31,57 @@ export async function GET() {
 			})
 		}
 
-		const transactions: DayTransaction[] = await prisma.transaction.findMany({
-			where: { shiftId: shift.id },
-			select: {
-				id: true,
-				amount: true,
-				paymentMethod: true,
-				createdAt: true,
+		let transactions: DayTransaction[] = []
+		try {
+			const rows = await (prisma as any).$queryRawUnsafe(
+				`SELECT
+					t."id",
+					t."amount",
+					t."paymentMethod",
+					COALESCE(CAST(t."serviceType" AS text), 'BARBER') AS "serviceType",
+					t."createdAt",
+					u."id" AS "user_id",
+					u."name" AS "user_name",
+					u."login" AS "user_login"
+				FROM "Transaction" t
+				LEFT JOIN "User" u ON u."id" = t."userId"
+				WHERE t."shiftId" = $1
+				ORDER BY t."createdAt" DESC`,
+				shift.id
+			)
+
+			transactions = (rows as any[]).map((r) => ({
+				id: r.id,
+				amount: r.amount,
+				paymentMethod: r.paymentMethod,
+				serviceType: r.serviceType,
+				createdAt: r.createdAt,
 				user: {
-					select: {
-						id: true,
-						name: true,
-						login: true
-					}
+					id: r.user_id,
+					name: r.user_name,
+					login: r.user_login
 				}
-			},
-			orderBy: { createdAt: 'desc' }
-		})
+			}))
+		} catch {
+			const fallbackTx = await prisma.transaction.findMany({
+				where: { shiftId: shift.id },
+				select: {
+					id: true,
+					amount: true,
+					paymentMethod: true,
+					createdAt: true,
+					user: {
+						select: {
+							id: true,
+							name: true,
+							login: true
+						}
+					}
+				},
+				orderBy: { createdAt: 'desc' }
+			})
+			transactions = fallbackTx.map((t) => ({ ...t, serviceType: 'BARBER' }))
+		}
 
 		const expenses = await prisma.expense.findMany({
 			where: { shiftId: shift.id },

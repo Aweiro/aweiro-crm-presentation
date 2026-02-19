@@ -3,11 +3,44 @@
 import useSWR, { mutate } from 'swr'
 import { useState } from 'react'
 import ConfirmModal from '@/components/ConfirmModal'
+import { formatCurrency } from '@/lib/currency'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
+type UserRow = {
+	id: number
+	name: string
+	login: string
+	role: 'ADMIN' | 'USER'
+	isActive: boolean
+	barberPercent: number
+	cosmeticsPercent: number
+	salaryStats?: {
+		monthBarber: number
+		monthCosmetics: number
+		dayBarber: number
+		dayCosmetics: number
+		monthSalary: number
+		daySalary: number
+		paidMonthSalary: number
+		paidDaySalary: number
+		monthSalaryDue: number
+		daySalaryDue: number
+	}
+}
+
+type MonthExpense = {
+	id: number
+	amount: number
+	createdAt: string
+	shiftId: number
+	comment: string
+	category: 'SALARY' | 'OTHER'
+	salaryUserId: number | null
+}
+
 export default function UsersAdminPage() {
-	const { data, isLoading } = useSWR('/api/admin/users', fetcher)
+	const { data, isLoading, error } = useSWR('/api/admin/users', fetcher)
 
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
@@ -21,6 +54,16 @@ export default function UsersAdminPage() {
 		name: string
 	} | null>(null)
 	const [isDeletingUser, setIsDeletingUser] = useState(false)
+	const [salaryDrafts, setSalaryDrafts] = useState<
+		Record<number, { barberPercent: number; cosmeticsPercent: number }>
+	>({})
+	const [salaryInputDrafts, setSalaryInputDrafts] = useState<
+		Record<number, { barberPercent: string; cosmeticsPercent: string }>
+	>({})
+	const [savingSalaryUserId, setSavingSalaryUserId] = useState<number | null>(null)
+	const [payingSalaryUserId, setPayingSalaryUserId] = useState<number | null>(null)
+	const [expenseToDelete, setExpenseToDelete] = useState<MonthExpense | null>(null)
+	const [isDeletingExpense, setIsDeletingExpense] = useState(false)
 
 	async function create(e: React.FormEvent) {
 		e.preventDefault()
@@ -86,6 +129,197 @@ export default function UsersAdminPage() {
 		mutate('/api/admin/users')
 	}
 
+	function getSalaryDraft(user: UserRow) {
+		return (
+			salaryDrafts[user.id] ?? {
+				barberPercent: user.barberPercent ?? 0,
+				cosmeticsPercent: user.cosmeticsPercent ?? 0
+			}
+		)
+	}
+
+	function updateSalaryDraft(
+		userId: number,
+		field: 'barberPercent' | 'cosmeticsPercent',
+		value: number
+	) {
+		const normalized = Number.isFinite(value)
+			? Math.max(0, Math.min(100, value))
+			: 0
+		setSalaryDrafts((prev) => {
+			const current = prev[userId] ?? {
+				barberPercent: 0,
+				cosmeticsPercent: 0
+			}
+			return {
+				...prev,
+				[userId]: {
+					...current,
+					[field]: normalized
+				}
+			}
+		})
+	}
+
+	function getSalaryInputDraft(user: UserRow) {
+		const numeric = getSalaryDraft(user)
+		return (
+			salaryInputDrafts[user.id] ?? {
+				barberPercent: String(numeric.barberPercent),
+				cosmeticsPercent: String(numeric.cosmeticsPercent)
+			}
+		)
+	}
+
+	function updateSalaryInputDraft(
+		user: UserRow,
+		field: 'barberPercent' | 'cosmeticsPercent',
+		rawValue: string
+	) {
+		if (!/^\d*$/.test(rawValue)) return
+
+		setSalaryInputDrafts((prev) => {
+			const current = getSalaryInputDraft(user)
+			return {
+				...prev,
+				[user.id]: {
+					...current,
+					[field]: rawValue
+				}
+			}
+		})
+
+		if (rawValue === '') {
+			updateSalaryDraft(user.id, field, 0)
+			return
+		}
+
+		updateSalaryDraft(user.id, field, Number(rawValue))
+	}
+
+	function commitSalaryInputDraft(
+		user: UserRow,
+		field: 'barberPercent' | 'cosmeticsPercent'
+	) {
+		const input = getSalaryInputDraft(user)
+		const rawValue = input[field]
+		const normalized =
+			rawValue === '' ? 0 : Math.max(0, Math.min(100, Number(rawValue)))
+		updateSalaryDraft(user.id, field, normalized)
+
+		setSalaryInputDrafts((prev) => {
+			const current = getSalaryInputDraft(user)
+			return {
+				...prev,
+				[user.id]: {
+					...current,
+					[field]: String(normalized)
+				}
+			}
+		})
+	}
+
+	function getSalaryPreview(user: UserRow) {
+		const draft = getSalaryDraft(user)
+		const dayBarber = user.salaryStats?.dayBarber ?? 0
+		const dayCosmetics = user.salaryStats?.dayCosmetics ?? 0
+		const monthBarber = user.salaryStats?.monthBarber ?? 0
+		const monthCosmetics = user.salaryStats?.monthCosmetics ?? 0
+
+		const day = (dayBarber * draft.barberPercent) / 100 + (dayCosmetics * draft.cosmeticsPercent) / 100
+		const month =
+			(monthBarber * draft.barberPercent) / 100 +
+			(monthCosmetics * draft.cosmeticsPercent) / 100
+
+		const paidDay = user.salaryStats?.paidDaySalary ?? 0
+		const paidMonth = user.salaryStats?.paidMonthSalary ?? 0
+
+		return {
+			day,
+			month,
+			dayDue: Math.max(0, day - paidDay),
+			monthDue: Math.max(0, month - paidMonth),
+			paidDay,
+			paidMonth
+		}
+	}
+
+	async function saveSalary(user: UserRow) {
+		const draft = getSalaryDraft(user)
+		if (savingSalaryUserId === user.id) return
+
+		setSavingSalaryUserId(user.id)
+		try {
+			const res = await fetch(`/api/admin/users/${user.id}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					barberPercent: draft.barberPercent,
+					cosmeticsPercent: draft.cosmeticsPercent
+				})
+			})
+
+			if (!res.ok) {
+				const json = await res.json().catch(() => ({}))
+				setFormError(
+					json?.message || 'Не вдалося зберегти налаштування зарплати'
+				)
+				return
+			}
+
+			mutate('/api/admin/users')
+		} finally {
+			setSavingSalaryUserId(null)
+		}
+	}
+
+	async function issueSalary(user: UserRow) {
+		const preview = getSalaryPreview(user)
+		if (preview.monthDue <= 0 || payingSalaryUserId === user.id) return
+
+		setPayingSalaryUserId(user.id)
+		try {
+			const res = await fetch('/api/admin/expenses', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					amount: Math.round(preview.monthDue),
+					category: 'SALARY',
+					salaryUserId: user.id,
+					comment: `Зарплата: ${user.name || user.login}`
+				})
+			})
+
+			if (!res.ok) {
+				const json = await res.json().catch(() => ({}))
+				setFormError(json?.message || 'Не вдалося видати зарплату')
+				return
+			}
+
+			mutate('/api/admin/users')
+			mutate('/api/admin/day')
+			mutate('/api/admin/expenses')
+		} finally {
+			setPayingSalaryUserId(null)
+		}
+	}
+
+	async function confirmDeleteExpense() {
+		if (!expenseToDelete || isDeletingExpense) return
+		setIsDeletingExpense(true)
+		try {
+			await fetch(`/api/admin/expenses/${expenseToDelete.id}`, {
+				method: 'DELETE'
+			})
+
+			setExpenseToDelete(null)
+			mutate('/api/admin/users')
+			mutate('/api/admin/expenses')
+		} finally {
+			setIsDeletingExpense(false)
+		}
+	}
+
 	if (isLoading) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
@@ -103,7 +337,25 @@ export default function UsersAdminPage() {
 		)
 	}
 
-	const users = data.data
+	if (error) {
+		return (
+			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
+				<div className="w-full">
+					<div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-8 text-red-900 font-semibold">
+						Не вдалося завантажити користувачів
+					</div>
+				</div>
+			</main>
+		)
+	}
+
+	const users: UserRow[] = Array.isArray(data?.data) ? data.data : []
+	const monthExpenses: MonthExpense[] = Array.isArray(data?.monthExpenses)
+		? data.monthExpenses
+		: []
+	const salaryMonthExpenses = monthExpenses.filter(
+		(expense) => expense.category === 'SALARY'
+	)
 
 	return (
 		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
@@ -264,7 +516,7 @@ export default function UsersAdminPage() {
 								</thead>
 
 								<tbody className="divide-y divide-slate-200">
-									{users.map((u: any, index: number) => (
+									{users.map((u: UserRow, index: number) => (
 										<tr
 											key={u.id}
 											className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
@@ -353,6 +605,275 @@ export default function UsersAdminPage() {
 						</p>
 					</div>
 				)}
+
+				{users && users.length > 0 && (
+					<div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+						<div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 text-white">
+							<h2 className="text-2xl font-bold">💸 Зарплата працівників</h2>
+							<p className="mt-1 text-sm text-emerald-100">
+								Налаштування відсотків і швидка видача зарплати.
+							</p>
+						</div>
+						<div className="p-6">
+							<p className="text-sm text-slate-600 mb-5">
+							Вкажіть відсоток від типу послуги для кожного працівника.
+						</p>
+
+						{users.filter((u) => u.isActive).length === 0 ? (
+							<div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+								Немає активних працівників для налаштування зарплати.
+							</div>
+						) : (
+							<div className="space-y-5">
+								{users
+									.filter((u) => u.isActive)
+									.map((u) => {
+									const draft = getSalaryDraft(u)
+									const inputDraft = getSalaryInputDraft(u)
+									const salaryPreview = getSalaryPreview(u)
+									return (
+										<div
+											key={u.id}
+											className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm"
+										>
+											<div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-200 pb-4">
+												<div className="min-w-0">
+													<p className="truncate text-lg font-bold text-slate-900">
+														{u.name}
+													</p>
+													<p className="truncate text-xs text-slate-500">{u.login}</p>
+												</div>
+												<div className="rounded-xl bg-slate-900 px-3 py-2 text-right text-white">
+													<p className="text-[11px] uppercase tracking-wide text-slate-300">
+														До видачі
+													</p>
+													<p className="text-base font-bold">
+														{formatCurrency(salaryPreview.monthDue)}
+													</p>
+												</div>
+											</div>
+
+											<div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+												<div className="space-y-3">
+													<div className="rounded-xl border border-slate-200 bg-white p-3">
+														<div className="mb-2 flex items-center justify-between gap-2">
+															<span className="text-sm font-semibold text-slate-800">
+																✂️ Барбер
+															</span>
+															<span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+																{draft.barberPercent}%
+															</span>
+														</div>
+														<div className="flex items-center gap-3">
+															<input
+																type="range"
+																min={0}
+																max={100}
+																value={draft.barberPercent}
+																onChange={(e) =>
+																	(() => {
+																		const value = Number(e.target.value)
+																		updateSalaryDraft(u.id, 'barberPercent', value)
+																		setSalaryInputDrafts((prev) => {
+																			const current = getSalaryInputDraft(u)
+																			return {
+																				...prev,
+																				[u.id]: {
+																					...current,
+																					barberPercent: String(value)
+																				}
+																			}
+																		})
+																	})()
+																}
+																className="h-2 w-full cursor-pointer accent-emerald-600"
+															/>
+															<input
+																type="number"
+																min={0}
+																max={100}
+																value={inputDraft.barberPercent}
+																onChange={(e) =>
+																	updateSalaryInputDraft(
+																		u,
+																		'barberPercent',
+																		e.target.value
+																	)
+																}
+																onBlur={() =>
+																	commitSalaryInputDraft(u, 'barberPercent')
+																}
+																className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-800"
+															/>
+														</div>
+													</div>
+													<div className="rounded-xl border border-slate-200 bg-white p-3">
+														<div className="mb-2 flex items-center justify-between gap-2">
+															<span className="text-sm font-semibold text-slate-800">
+																🧴 Косметика
+															</span>
+															<span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-bold text-violet-700">
+																{draft.cosmeticsPercent}%
+															</span>
+														</div>
+														<div className="flex items-center gap-3">
+															<input
+																type="range"
+																min={0}
+																max={100}
+																value={draft.cosmeticsPercent}
+																onChange={(e) =>
+																	(() => {
+																		const value = Number(e.target.value)
+																		updateSalaryDraft(u.id, 'cosmeticsPercent', value)
+																		setSalaryInputDrafts((prev) => {
+																			const current = getSalaryInputDraft(u)
+																			return {
+																				...prev,
+																				[u.id]: {
+																					...current,
+																					cosmeticsPercent: String(value)
+																				}
+																			}
+																		})
+																	})()
+																}
+																className="h-2 w-full cursor-pointer accent-violet-600"
+															/>
+															<input
+																type="number"
+																min={0}
+																max={100}
+																value={inputDraft.cosmeticsPercent}
+																onChange={(e) =>
+																	updateSalaryInputDraft(
+																		u,
+																		'cosmeticsPercent',
+																		e.target.value
+																	)
+																}
+																onBlur={() =>
+																	commitSalaryInputDraft(u, 'cosmeticsPercent')
+																}
+																className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-800"
+															/>
+														</div>
+													</div>
+												</div>
+
+												<div className="rounded-xl border border-slate-200 bg-white p-3">
+													<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+														<div className="rounded-lg bg-slate-50 px-3 py-2">
+															<p className="text-[11px] uppercase tracking-wide text-slate-500">
+																Нараховано за день
+															</p>
+															<p className="text-sm font-semibold text-slate-900">
+																{formatCurrency(salaryPreview.day)}
+															</p>
+														</div>
+														<div className="rounded-lg bg-slate-50 px-3 py-2">
+															<p className="text-[11px] uppercase tracking-wide text-slate-500">
+																Нараховано за місяць
+															</p>
+															<p className="text-sm font-semibold text-slate-900">
+																{formatCurrency(salaryPreview.month)}
+															</p>
+														</div>
+														<div className="rounded-lg bg-amber-50 px-3 py-2">
+															<p className="text-[11px] uppercase tracking-wide text-amber-700">
+																До видачі за день
+															</p>
+															<p className="text-sm font-semibold text-amber-900">
+																{formatCurrency(salaryPreview.dayDue)}
+															</p>
+														</div>
+														<div className="rounded-lg bg-amber-50 px-3 py-2">
+															<p className="text-[11px] uppercase tracking-wide text-amber-700">
+																До видачі за місяць
+															</p>
+															<p className="text-sm font-semibold text-amber-900">
+																{formatCurrency(salaryPreview.monthDue)}
+															</p>
+														</div>
+													</div>
+
+													<div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+													<button
+														type="button"
+														onClick={() => saveSalary(u)}
+														disabled={savingSalaryUserId === u.id}
+														className="w-full rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:bg-slate-300"
+													>
+														{savingSalaryUserId === u.id
+															? 'Збереження...'
+															: 'Зберегти %'}
+													</button>
+													<button
+														type="button"
+														onClick={() => issueSalary(u)}
+														disabled={payingSalaryUserId === u.id || salaryPreview.monthDue <= 0}
+														className="w-full rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:bg-slate-300"
+													>
+														{payingSalaryUserId === u.id
+															? 'Видача...'
+															: 'Видати зарплату'}
+													</button>
+												</div>
+											</div>
+											</div>
+										</div>
+									)
+									})}
+							</div>
+						)}
+					</div>
+					</div>
+				)}
+
+				<div className="mt-8 bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+					<h2 className="text-2xl font-bold text-slate-900 mb-2">💸 Виплати зарплати за місяць</h2>
+					<p className="text-sm text-slate-600 mb-5">
+						У вкладці користувачів відображаються тільки зарплатні виплати.
+					</p>
+
+					{salaryMonthExpenses.length === 0 ? (
+						<p className="text-sm text-slate-500">За поточний місяць виплат ще немає.</p>
+					) : (
+						<div className="space-y-2">
+							{salaryMonthExpenses.map((expense) => (
+								<div
+									key={expense.id}
+									className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3"
+								>
+									<div className="min-w-0">
+										<p className="font-semibold text-slate-900 break-words">
+											-{formatCurrency(expense.amount)}
+										</p>
+										<p className="text-sm text-slate-600 break-words mt-1">
+											{expense.comment}
+										</p>
+										<p className="text-xs text-slate-500 mt-1">
+											{new Date(expense.createdAt).toLocaleDateString('uk-UA', {
+												day: '2-digit',
+												month: '2-digit',
+												hour: '2-digit',
+												minute: '2-digit'
+											})}
+											{' • 💸 Зарплата'}
+										</p>
+									</div>
+									<button
+										type="button"
+										onClick={() => setExpenseToDelete(expense)}
+										className="ml-4 rounded-lg bg-slate-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-800"
+									>
+										🗑️
+									</button>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
 			</div>
 
 			<ConfirmModal
@@ -369,6 +890,22 @@ export default function UsersAdminPage() {
 				isLoading={isDeletingUser}
 				onClose={() => setUserToDelete(null)}
 				onConfirm={confirmDeleteUser}
+			/>
+
+			<ConfirmModal
+				isOpen={Boolean(expenseToDelete)}
+				title="Підтвердьте видалення витрати"
+				description={
+					expenseToDelete
+						? `Витрата на ${formatCurrency(expenseToDelete.amount)} буде видалена.`
+						: ''
+				}
+				confirmText="Видалити"
+				cancelText="Скасувати"
+				tone="danger"
+				isLoading={isDeletingExpense}
+				onClose={() => setExpenseToDelete(null)}
+				onConfirm={confirmDeleteExpense}
 			/>
 		</main>
 	)

@@ -7,6 +7,7 @@ import { formatCurrency } from '@/lib/currency'
 type Transaction = {
 	amount: number
 	paymentMethod: 'CASH' | 'CARD'
+	serviceType?: 'BARBER' | 'COSMETICS'
 	createdAt: string
 	user: {
 		id: number
@@ -58,12 +59,20 @@ export default function ShiftDetailsPage() {
 		const cardIncome = transactions
 			.filter((t) => t.paymentMethod === 'CARD')
 			.reduce((sum, t) => sum + t.amount, 0)
+		const barberIncome = transactions
+			.filter((t) => t.serviceType !== 'COSMETICS')
+			.reduce((sum, t) => sum + t.amount, 0)
+		const cosmeticsIncome = transactions
+			.filter((t) => t.serviceType === 'COSMETICS')
+			.reduce((sum, t) => sum + t.amount, 0)
 
 		const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
 
 		return {
 			cashIncome,
 			cardIncome,
+			barberIncome,
+			cosmeticsIncome,
 			expenses: totalExpenses
 		}
 	}, [data])
@@ -79,6 +88,8 @@ export default function ShiftDetailsPage() {
 				count: number
 				cash: number
 				card: number
+				barber: number
+				cosmetics: number
 			}
 		>()
 
@@ -92,13 +103,17 @@ export default function ShiftDetailsPage() {
 				total: 0,
 				count: 0,
 				cash: 0,
-				card: 0
+				card: 0,
+				barber: 0,
+				cosmetics: 0
 			}
 
 			entry.total += t.amount
 			entry.count += 1
 			if (t.paymentMethod === 'CASH') entry.cash += t.amount
 			if (t.paymentMethod === 'CARD') entry.card += t.amount
+			if (t.serviceType === 'COSMETICS') entry.cosmetics += t.amount
+			else entry.barber += t.amount
 			salesMap.set(userId, entry)
 		})
 
@@ -122,6 +137,10 @@ export default function ShiftDetailsPage() {
 			hour: '2-digit',
 			minute: '2-digit'
 		})
+	}
+
+	const formatService = (serviceType?: 'BARBER' | 'COSMETICS') => {
+		return serviceType === 'COSMETICS' ? '🧴 Косметика' : '✂️ Барбер'
 	}
 
 	if (error) {
@@ -249,6 +268,24 @@ export default function ShiftDetailsPage() {
 								−{formatCurrency(summary.expenses)}
 							</p>
 						</div>
+
+						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
+							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
+								✂️ Барбер
+							</p>
+							<p className="text-xl sm:text-3xl font-bold text-emerald-300 break-all leading-tight">
+								+{formatCurrency(summary.barberIncome)}
+							</p>
+						</div>
+
+						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
+							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
+								🧴 Косметика
+							</p>
+							<p className="text-xl sm:text-3xl font-bold text-violet-300 break-all leading-tight">
+								+{formatCurrency(summary.cosmeticsIncome)}
+							</p>
+						</div>
 					</div>
 
 					<div className="border-t-2 border-white/30 pt-5 sm:pt-6">
@@ -291,6 +328,9 @@ export default function ShiftDetailsPage() {
 										<th className="px-3 sm:px-6 py-3 text-center font-bold text-slate-700">
 											Спосіб
 										</th>
+										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
+											Послуга
+										</th>
 										<th className="px-3 sm:px-6 py-3 text-right font-bold text-slate-700">
 											Сума
 										</th>
@@ -320,6 +360,9 @@ export default function ShiftDetailsPage() {
 														? '💵 Готівка'
 														: '💳 Карта'}
 												</span>
+											</td>
+											<td className="px-3 sm:px-6 py-3 text-slate-700">
+												{formatService(t.serviceType)}
 											</td>
 											<td className="px-3 sm:px-6 py-3 text-right">
 												<span className="font-bold text-slate-900 break-all">
@@ -388,13 +431,23 @@ export default function ShiftDetailsPage() {
 											{formatCurrency(item.total)}
 										</p>
 									</div>
-									<div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:text-sm">
-										<p className="text-green-700 break-all">
-											💵 {formatCurrency(item.cash)}
-										</p>
-										<p className="text-blue-700 break-all text-right">
-											💳 {formatCurrency(item.card)}
-										</p>
+									<div className="mt-2 flex items-start justify-between gap-4 text-xs sm:text-sm">
+										<div className="space-y-1 min-w-0">
+											<p className="text-emerald-700 break-all">
+												✂️ {formatCurrency(item.barber)}
+											</p>
+											<p className="text-violet-700 break-all">
+												🧴 {formatCurrency(item.cosmetics)}
+											</p>
+										</div>
+										<div className="space-y-1 min-w-0 text-right">
+											<p className="text-green-700 break-all">
+												💵 {formatCurrency(item.cash)}
+											</p>
+											<p className="text-blue-700 break-all">
+												💳 {formatCurrency(item.card)}
+											</p>
+										</div>
 									</div>
 								</div>
 							))}

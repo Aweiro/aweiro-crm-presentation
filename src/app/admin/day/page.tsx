@@ -23,6 +23,8 @@ export default function AdminDayPage() {
 				count: number
 				cash: number
 				card: number
+				barber: number
+				cosmetics: number
 			}
 		>()
 
@@ -36,13 +38,17 @@ export default function AdminDayPage() {
 				total: 0,
 				count: 0,
 				cash: 0,
-				card: 0
+				card: 0,
+				barber: 0,
+				cosmetics: 0
 			}
 
 			entry.total += t.amount
 			entry.count += 1
 			if (t.paymentMethod === 'CASH') entry.cash += t.amount
 			if (t.paymentMethod === 'CARD') entry.card += t.amount
+			if (t.serviceType === 'COSMETICS') entry.cosmetics += t.amount
+			else entry.barber += t.amount
 			salesMap.set(userId, entry)
 		})
 
@@ -155,13 +161,23 @@ export default function AdminDayPage() {
 												{formatCurrency(item.total)}
 											</p>
 										</div>
-										<div className="mt-2 grid grid-cols-2 gap-2 text-xs sm:text-sm">
-											<p className="text-green-700 break-all">
-												💵 {formatCurrency(item.cash)}
-											</p>
-											<p className="text-blue-700 break-all text-right">
-												💳 {formatCurrency(item.card)}
-											</p>
+										<div className="mt-2 flex items-start justify-between gap-4 text-xs sm:text-sm">
+											<div className="space-y-1 min-w-0">
+												<p className="text-emerald-700 break-all">
+													✂️ {formatCurrency(item.barber)}
+												</p>
+												<p className="text-violet-700 break-all">
+													🧴 {formatCurrency(item.cosmetics)}
+												</p>
+											</div>
+											<div className="space-y-1 min-w-0 text-right">
+												<p className="text-green-700 break-all">
+													💵 {formatCurrency(item.cash)}
+												</p>
+												<p className="text-blue-700 break-all">
+													💳 {formatCurrency(item.card)}
+												</p>
+											</div>
 										</div>
 									</div>
 								))}

@@ -9,6 +9,7 @@ type Tx = {
 	id: number
 	amount: number
 	paymentMethod: 'CASH' | 'CARD'
+	serviceType?: 'BARBER' | 'COSMETICS'
 	createdAt: string | Date
 	user: {
 		id: number
@@ -55,6 +56,8 @@ export default function AdminTable({
 			hour: '2-digit',
 			minute: '2-digit'
 		})
+	const formatService = (serviceType?: 'BARBER' | 'COSMETICS') =>
+		serviceType === 'COSMETICS' ? '🧴 Косметика' : '✂️ Барбер'
 
 	return (
 		<>
@@ -72,6 +75,9 @@ export default function AdminTable({
 								</p>
 								<p className="mt-1 text-xs text-slate-500">
 									🕒 {formatTime(t.createdAt)}
+								</p>
+								<p className="mt-1 text-xs text-slate-600">
+									{formatService(t.serviceType)}
 								</p>
 							</div>
 							<span
@@ -114,6 +120,9 @@ export default function AdminTable({
 							<th className="px-4 py-3 text-left font-semibold text-slate-900">
 								Метод
 							</th>
+							<th className="px-4 py-3 text-left font-semibold text-slate-900">
+								Послуга
+							</th>
 							<th className="px-4 py-3 text-right font-semibold text-slate-900">
 								Сума
 							</th>
@@ -144,6 +153,9 @@ export default function AdminTable({
 									>
 										{t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
 									</span>
+								</td>
+								<td className="px-4 py-3 text-slate-700">
+									{formatService(t.serviceType)}
 								</td>
 								<td className="px-4 py-3 text-right font-semibold text-slate-900">
 									{formatCurrency(t.amount)}

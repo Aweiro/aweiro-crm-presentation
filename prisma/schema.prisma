@@ -12,6 +12,8 @@ model User {
   passwordHash String
   role         Role
   name         String   // 👈 ОБОВʼЯЗКОВЕ
+  barberPercent Int     @default(0)
+  cosmeticsPercent Int  @default(0)
   createdAt    DateTime @default(now())
 	isActive     Boolean  @default(true)
   transactions Transaction[]
@@ -37,12 +39,18 @@ model Transaction {
   id            Int      @id @default(autoincrement())
   amount        Int
   paymentMethod String
+  serviceType   ServiceType @default(BARBER)
   createdAt     DateTime
   userId        Int
   shiftId       Int
 
   user  User  @relation(fields: [userId], references: [id])
   shift Shift @relation(fields: [shiftId], references: [id])
+}
+
+enum ServiceType {
+  BARBER
+  COSMETICS
 }
 
 model Expense {

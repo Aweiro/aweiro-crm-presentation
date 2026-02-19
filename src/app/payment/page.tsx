@@ -26,6 +26,7 @@ function PaymentPageContent() {
 
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+	const [serviceType, setServiceType] = useState<'BARBER' | 'COSMETICS'>('BARBER')
 
 	async function handlePayment(method: 'CASH' | 'CARD') {
 		if (loading) return
@@ -39,7 +40,8 @@ function PaymentPageContent() {
 				body: JSON.stringify({
 					userId,
 					amount,
-					paymentMethod: method
+					paymentMethod: method,
+					serviceType
 				})
 			})
 
@@ -83,6 +85,40 @@ function PaymentPageContent() {
 							</p>
 							<div className="text-5xl font-bold text-blue-700">
 								{formatCurrency(amount)}
+							</div>
+						</div>
+
+						<div className="mb-6">
+							<p className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">
+								🧾 Тип послуги
+							</p>
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+								<button
+									type="button"
+									disabled={loading}
+									onClick={() => setServiceType('BARBER')}
+									className={`rounded-lg border-2 px-4 py-3 text-left transition-colors ${
+										serviceType === 'BARBER'
+											? 'border-emerald-400 bg-emerald-50 text-emerald-900'
+											: 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+									}`}
+								>
+									<p className="font-semibold">Барбер послуги</p>
+									<p className="text-xs opacity-80">Стрижки, борода, укладки</p>
+								</button>
+								<button
+									type="button"
+									disabled={loading}
+									onClick={() => setServiceType('COSMETICS')}
+									className={`rounded-lg border-2 px-4 py-3 text-left transition-colors ${
+										serviceType === 'COSMETICS'
+											? 'border-violet-400 bg-violet-50 text-violet-900'
+											: 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+									}`}
+								>
+									<p className="font-semibold">Косметика</p>
+									<p className="text-xs opacity-80">Продаж косметичних товарів</p>
+								</button>
 							</div>
 						</div>
 
