@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime @default(now())
 	isActive     Boolean  @default(true)
   transactions Transaction[]
+  salaryExpenses Expense[] @relation("SalaryUserExpenses")
 }
 
 enum Role {
@@ -56,9 +57,26 @@ enum ServiceType {
 model Expense {
   id        Int      @id @default(autoincrement())
   amount    Int
+  category  ExpenseCategory @default(OTHER)
+  salaryUserId Int?
   comment   String?
   createdAt DateTime
   shiftId   Int
 
   shift Shift @relation(fields: [shiftId], references: [id])
+  salaryUser User? @relation("SalaryUserExpenses", fields: [salaryUserId], references: [id])
+}
+
+enum ExpenseCategory {
+  SALARY
+  RENT
+  UTILITIES
+  OTHER
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

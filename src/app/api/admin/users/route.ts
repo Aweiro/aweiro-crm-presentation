@@ -1,7 +1,48 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { parseExpenseComment } from '@/lib/expenseMeta'
+
+function inferExpenseMeta(expense: {
+	category?: string | null
+	salaryUserId?: number | null
+	comment?: string | null
+}) {
+	const text = (expense.comment || '').trim()
+	const lower = text.toLowerCase()
+	const isSalaryByText = /(зарплат|salary|зп|виплат)/i.test(lower)
+	const isRentByText = /(оренд|rent)/i.test(lower)
+	const isUtilitiesByText = /(комунал|utility|utilities)/i.test(lower)
+	const normalizedCategory =
+		expense.category === 'SALARY' ||
+		expense.category === 'RENT' ||
+		expense.category === 'UTILITIES' ||
+		expense.category === 'OTHER'
+			? expense.category
+			: isSalaryByText
+				? 'SALARY'
+				: isRentByText
+					? 'RENT'
+					: isUtilitiesByText
+						? 'UTILITIES'
+						: 'OTHER'
+
+	const idFromComment =
+		text.match(/\[USER:(\d+)\]/i)?.[1] ||
+		text.match(/userId\s*[:=]\s*(\d+)/i)?.[1] ||
+		text.match(/\buid\s*[:=]\s*(\d+)/i)?.[1]
+	const salaryUserId =
+		typeof expense.salaryUserId === 'number' && expense.salaryUserId > 0
+			? expense.salaryUserId
+			: idFromComment
+				? Number(idFromComment)
+				: null
+
+	return {
+		category: normalizedCategory as 'SALARY' | 'RENT' | 'UTILITIES' | 'OTHER',
+		salaryUserId: Number.isFinite(salaryUserId) ? salaryUserId : null,
+		cleanComment: text
+	}
+}
 
 export async function GET() {
 	const users = (await (async () => {
@@ -103,24 +144,76 @@ export async function GET() {
 		txStats.set(tx.userId, stats)
 	})
 
-	const monthExpenses = await prisma.expense.findMany({
-		where: {
-			createdAt: { gte: monthStart }
-		},
-		select: {
-			id: true,
-			amount: true,
-			comment: true,
-			createdAt: true,
-			shiftId: true
+	const monthExpenses = (await (async () => {
+		try {
+			return await (prisma.expense as any).findMany({
+				where: {
+					createdAt: { gte: monthStart }
+				},
+				select: {
+					id: true,
+					amount: true,
+					category: true,
+					salaryUserId: true,
+					comment: true,
+					createdAt: true,
+					shiftId: true
+				}
+			})
+		} catch {
+			const legacyExpenses = await prisma.expense.findMany({
+				where: { createdAt: { gte: monthStart } },
+				select: {
+					id: true,
+					amount: true,
+					comment: true,
+					createdAt: true,
+					shiftId: true
+				}
+			})
+			return legacyExpenses.map((expense) => {
+				const text = (expense.comment || '').toLowerCase()
+				const isSalary = /(зарплат|salary|зп|виплат)/i.test(text)
+				return {
+					...expense,
+					category: isSalary ? 'SALARY' : 'OTHER',
+					salaryUserId: null
+				}
+			})
 		}
-	})
+	})()) as Array<{
+		id: number
+		amount: number
+		category: 'SALARY' | 'RENT' | 'UTILITIES' | 'OTHER'
+		salaryUserId: number | null
+		comment: string | null
+		createdAt: Date
+		shiftId: number
+	}>
+	const rentSetting = await (async () => {
+		try {
+			const appSetting = (prisma as any).appSetting
+			if (appSetting?.findUnique) {
+				return await appSetting.findUnique({
+					where: { key: 'monthlyRentAmount' }
+				})
+			}
+
+			const rows = (await (prisma as any).$queryRawUnsafe(
+				'SELECT "value" FROM "AppSetting" WHERE "key" = $1 LIMIT 1',
+				'monthlyRentAmount'
+			)) as Array<{ value: string }>
+			return rows[0] ?? null
+		} catch {
+			return null
+		}
+	})()
 
 	const paidMonthMap = new Map<number, number>()
 	const paidDayMap = new Map<number, number>()
 
 	monthExpenses.forEach((expense) => {
-		const meta = parseExpenseComment(expense.comment)
+		const meta = inferExpenseMeta(expense)
 		if (meta.category !== 'SALARY' || !meta.salaryUserId) return
 
 		paidMonthMap.set(
@@ -176,14 +269,15 @@ export async function GET() {
 
 	return NextResponse.json({
 		data,
+		rentAmount: Number(rentSetting?.value || 0) || 0,
 		monthExpenses: monthExpenses.map((expense) => {
-			const meta = parseExpenseComment(expense.comment)
+			const meta = inferExpenseMeta(expense)
 			return {
 				id: expense.id,
 				amount: expense.amount,
 				createdAt: expense.createdAt,
 				shiftId: expense.shiftId,
-				comment: meta.cleanComment || expense.comment || 'Витрата',
+				comment: meta.cleanComment || 'Витрата',
 				category: meta.category,
 				salaryUserId: meta.salaryUserId
 			}

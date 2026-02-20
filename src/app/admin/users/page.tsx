@@ -4,6 +4,7 @@ import useSWR, { mutate } from 'swr'
 import { useState } from 'react'
 import ConfirmModal from '@/components/ConfirmModal'
 import { formatCurrency } from '@/lib/currency'
+import { normalizeExpenseComment } from '@/lib/expenseComment'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -35,7 +36,7 @@ type MonthExpense = {
 	createdAt: string
 	shiftId: number
 	comment: string
-	category: 'SALARY' | 'OTHER'
+	category: 'SALARY' | 'RENT' | 'UTILITIES' | 'OTHER'
 	salaryUserId: number | null
 }
 
@@ -62,6 +63,8 @@ export default function UsersAdminPage() {
 	>({})
 	const [savingSalaryUserId, setSavingSalaryUserId] = useState<number | null>(null)
 	const [payingSalaryUserId, setPayingSalaryUserId] = useState<number | null>(null)
+	const [rentAmountDraft, setRentAmountDraft] = useState('')
+	const [savingRent, setSavingRent] = useState(false)
 	const [expenseToDelete, setExpenseToDelete] = useState<MonthExpense | null>(null)
 	const [isDeletingExpense, setIsDeletingExpense] = useState(false)
 
@@ -320,6 +323,34 @@ export default function UsersAdminPage() {
 		}
 	}
 
+	async function saveRentAmount() {
+		if (savingRent) return
+		setFormError('')
+		const amount = Number(rentAmountDraft)
+		if (Number.isNaN(amount) || amount < 0) {
+			setFormError('Сума оренди має бути 0 або більше')
+			return
+		}
+
+		setSavingRent(true)
+		try {
+			const res = await fetch('/api/admin/settings/rent', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ rentAmount: amount })
+			})
+			if (!res.ok) {
+				const json = await res.json().catch(() => ({}))
+				setFormError(json?.message || 'Не вдалося зберегти суму оренди')
+				return
+			}
+
+			mutate('/api/admin/users')
+		} finally {
+			setSavingRent(false)
+		}
+	}
+
 	if (isLoading) {
 		return (
 			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-0">
@@ -353,6 +384,11 @@ export default function UsersAdminPage() {
 	const monthExpenses: MonthExpense[] = Array.isArray(data?.monthExpenses)
 		? data.monthExpenses
 		: []
+	const rentAmount =
+		typeof data?.rentAmount === 'number' && Number.isFinite(data.rentAmount)
+			? data.rentAmount
+			: 0
+	const effectiveRentDraft = rentAmountDraft === '' ? String(rentAmount) : rentAmountDraft
 	const salaryMonthExpenses = monthExpenses.filter(
 		(expense) => expense.category === 'SALARY'
 	)
@@ -607,6 +643,36 @@ export default function UsersAdminPage() {
 				)}
 
 				{users && users.length > 0 && (
+					<div className="mt-8 bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+						<h2 className="text-2xl font-bold text-slate-900 mb-2">🏢 Оренда</h2>
+						<p className="text-sm text-slate-600 mb-4">
+							Фіксована сума за місяць. В архіві можна додати оренду тільки 1 раз на місяць.
+						</p>
+						<div className="flex flex-col sm:flex-row gap-3 items-start">
+							<input
+								type="number"
+								min={0}
+								value={effectiveRentDraft}
+								onChange={(e) => setRentAmountDraft(e.target.value)}
+								className="w-full sm:w-56 rounded-lg border border-slate-300 bg-white px-3 py-2"
+								placeholder="Сума оренди"
+							/>
+							<button
+								type="button"
+								onClick={saveRentAmount}
+								disabled={savingRent}
+								className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:bg-slate-300"
+							>
+								{savingRent ? 'Збереження...' : 'Зберегти оренду'}
+							</button>
+							<div className="text-sm text-slate-600">
+								Поточна: <span className="font-semibold">{formatCurrency(rentAmount)}</span>
+							</div>
+						</div>
+					</div>
+				)}
+
+				{users && users.length > 0 && (
 					<div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
 						<div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 text-white">
 							<h2 className="text-2xl font-bold">💸 Зарплата працівників</h2>
@@ -850,7 +916,7 @@ export default function UsersAdminPage() {
 											-{formatCurrency(expense.amount)}
 										</p>
 										<p className="text-sm text-slate-600 break-words mt-1">
-											{expense.comment}
+											{normalizeExpenseComment(expense.comment)}
 										</p>
 										<p className="text-xs text-slate-500 mt-1">
 											{new Date(expense.createdAt).toLocaleDateString('uk-UA', {

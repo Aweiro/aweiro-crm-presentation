@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { mutate } from 'swr'
 import { formatCurrency } from '@/lib/currency'
 import ConfirmModal from './ConfirmModal'
-import { parseExpenseComment } from '@/lib/expenseMeta'
+import { normalizeExpenseComment } from '@/lib/expenseComment'
 
 type Expense = {
 	id: number
 	amount: number
+	category?: 'SALARY' | 'RENT' | 'UTILITIES' | 'OTHER'
 	comment?: string
 }
 
@@ -61,15 +62,22 @@ export default function ExpensesList({
 						<p className="font-semibold text-slate-900">
 							-{formatCurrency(e.amount)}
 						</p>
-							{(() => {
-								const meta = parseExpenseComment(e.comment)
-								const categoryLabel =
-									meta.category === 'SALARY' ? '💸 Зарплата' : '🧾 Інше'
+						{(() => {
+							const categoryLabel =
+								e.category === 'SALARY'
+									? '💸 Зарплата'
+									: e.category === 'RENT'
+										? '🏢 Оренда'
+										: e.category === 'UTILITIES'
+											? '⚡ Комунальні'
+											: '🧾 Інше'
 							return (
 								<>
 									<p className="text-xs text-slate-500 mt-1">{categoryLabel}</p>
-									{meta.cleanComment ? (
-										<p className="text-sm text-slate-600 mt-1">{meta.cleanComment}</p>
+									{e.comment ? (
+										<p className="text-sm text-slate-600 mt-1">
+											{normalizeExpenseComment(e.comment)}
+										</p>
 									) : null}
 								</>
 							)

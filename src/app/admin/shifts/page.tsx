@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
-import { parseExpenseComment } from '@/lib/expenseMeta'
 import ConfirmModal from '@/components/ConfirmModal'
+import { normalizeExpenseComment } from '@/lib/expenseComment'
 
 type Shift = {
 	id: number
@@ -27,6 +27,8 @@ type Transaction = {
 type Expense = {
 	id: number
 	amount: number
+	category: 'SALARY' | 'RENT' | 'UTILITIES' | 'OTHER'
+	salaryUserId?: number | null
 	comment?: string
 	createdAt: string
 	shiftId: number
@@ -34,6 +36,22 @@ type Expense = {
 
 type ShiftsByMonth = {
 	[key: string]: Shift[]
+}
+
+function getExpenseCategory(expense: Pick<Expense, 'category' | 'comment'>) {
+	if (
+		expense.category === 'SALARY' ||
+		expense.category === 'RENT' ||
+		expense.category === 'UTILITIES' ||
+		expense.category === 'OTHER'
+	) {
+		return expense.category
+	}
+	const text = (expense.comment || '').toLowerCase()
+	if (/(зарплат|salary|зп|виплат)/i.test(text)) return 'SALARY'
+	if (/(оренд|rent)/i.test(text)) return 'RENT'
+	if (/(комунал|utility|utilities)/i.test(text)) return 'UTILITIES'
+	return 'OTHER'
 }
 
 export default function ShiftsArchivePage() {
@@ -44,11 +62,17 @@ export default function ShiftsArchivePage() {
 	const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
 	const [monthExpenseAmount, setMonthExpenseAmount] = useState('')
 	const [monthExpenseComment, setMonthExpenseComment] = useState('')
+	const [monthExpenseCategory, setMonthExpenseCategory] = useState<
+		'RENT' | 'UTILITIES' | 'OTHER'
+	>('OTHER')
 	const [addingMonthExpense, setAddingMonthExpense] = useState(false)
-	const [expensesView, setExpensesView] = useState<'ALL' | 'OTHER'>('ALL')
+	const [expensesView, setExpensesView] = useState<
+		'ALL' | 'RENT' | 'UTILITIES' | 'OTHER' | 'SALARY'
+	>('ALL')
 	const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
 	const [deletingExpense, setDeletingExpense] = useState(false)
 	const [formError, setFormError] = useState('')
+	const [monthlyRentAmount, setMonthlyRentAmount] = useState(0)
 
 	const loadArchiveData = () =>
 		Promise.all([
@@ -69,6 +93,12 @@ export default function ShiftsArchivePage() {
 					Array.isArray(transactionsData.data) ? transactionsData.data : []
 				)
 				setExpenses(Array.isArray(expensesData.data) ? expensesData.data : [])
+				setMonthlyRentAmount(
+					typeof expensesData.rentAmount === 'number' &&
+						Number.isFinite(expensesData.rentAmount)
+						? expensesData.rentAmount
+						: 0
+				)
 				if (!selectedMonth && sortedShifts.length > 0 && sortedShifts[0].closedAt) {
 					const firstMonth = new Date(sortedShifts[0].closedAt)
 					setSelectedMonth(formatMonthKey(firstMonth))
@@ -173,10 +203,10 @@ export default function ShiftsArchivePage() {
 		)
 		const totalExpenses = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
 		const totalSalaryExpenses = monthExpenses
-			.filter((e) => parseExpenseComment(e.comment).category === 'SALARY')
+			.filter((e) => getExpenseCategory(e) === 'SALARY')
 			.reduce((sum, e) => sum + e.amount, 0)
 		const totalOtherExpenses = monthExpenses
-			.filter((e) => parseExpenseComment(e.comment).category === 'OTHER')
+			.filter((e) => getExpenseCategory(e) !== 'SALARY')
 			.reduce((sum, e) => sum + e.amount, 0)
 		const totalIncome = totalCashIncome + totalCardIncome
 		const totalBarberIncome = monthTransactions
@@ -247,19 +277,18 @@ export default function ShiftsArchivePage() {
 		expensesView === 'ALL'
 			? selectedMonthExpenses
 			: selectedMonthExpenses.filter(
-					(expense) => parseExpenseComment(expense.comment).category === 'OTHER'
+					(expense) => getExpenseCategory(expense) === expensesView
 				)
 
 	async function addMonthExpense() {
 		setFormError('')
 		const amount = Number(monthExpenseAmount)
 		const comment = monthExpenseComment.trim()
-
-		if (!amount || amount <= 0) {
+		if (monthExpenseCategory !== 'RENT' && (!amount || amount <= 0)) {
 			setFormError('Вкажіть коректну суму витрати')
 			return
 		}
-		if (!comment) {
+		if (monthExpenseCategory !== 'RENT' && !comment) {
 			setFormError('Додайте коментар до витрати')
 			return
 		}
@@ -271,9 +300,9 @@ export default function ShiftsArchivePage() {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					amount,
-					comment,
-					category: 'OTHER'
+					amount: monthExpenseCategory === 'RENT' ? undefined : amount,
+					comment: monthExpenseCategory === 'RENT' ? 'Оренда' : comment,
+					category: monthExpenseCategory
 				})
 			})
 
@@ -285,6 +314,7 @@ export default function ShiftsArchivePage() {
 
 			setMonthExpenseAmount('')
 			setMonthExpenseComment('')
+			setMonthExpenseCategory('OTHER')
 			await loadArchiveData()
 		} finally {
 			setAddingMonthExpense(false)
@@ -533,23 +563,46 @@ export default function ShiftsArchivePage() {
 												🧾 Витрати місяця
 											</h4>
 											<p className="text-sm text-slate-600 mb-4">
-												Тут додаються звичайні місячні витрати (оренда, комуналка, товари тощо).
+												Додавайте витрати за категоріями: оренда, комунальні послуги або інші.
 											</p>
 
-											<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+											<div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
+												<select
+													value={monthExpenseCategory}
+													onChange={(e) =>
+														setMonthExpenseCategory(
+															e.target.value as 'RENT' | 'UTILITIES' | 'OTHER'
+														)
+													}
+													className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+												>
+													<option value="OTHER">Інші витрати</option>
+													<option value="UTILITIES">Комунальні послуги</option>
+													<option value="RENT">Оренда</option>
+												</select>
 												<input
 													type="number"
-													placeholder="Сума"
+													placeholder={
+														monthExpenseCategory === 'RENT'
+															? `Фіксовано: ${formatMoney(monthlyRentAmount)}`
+															: 'Сума'
+													}
 													value={monthExpenseAmount}
 													onChange={(e) => setMonthExpenseAmount(e.target.value)}
-													className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+													disabled={monthExpenseCategory === 'RENT'}
+													className="rounded-lg border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
 												/>
 												<input
 													type="text"
-													placeholder="Коментар"
+													placeholder={
+														monthExpenseCategory === 'RENT'
+															? 'Оренда додається фіксованою сумою раз на місяць'
+															: 'Коментар'
+													}
 													value={monthExpenseComment}
 													onChange={(e) => setMonthExpenseComment(e.target.value)}
-													className="sm:col-span-2 rounded-lg border border-slate-300 bg-white px-3 py-2"
+													disabled={monthExpenseCategory === 'RENT'}
+													className="sm:col-span-2 rounded-lg border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
 												/>
 											</div>
 											<button
@@ -579,6 +632,39 @@ export default function ShiftsArchivePage() {
 													</button>
 													<button
 														type="button"
+														onClick={() => setExpensesView('SALARY')}
+														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+															expensesView === 'SALARY'
+																? 'bg-slate-900 text-white'
+																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+														}`}
+													>
+														Зарплата
+													</button>
+													<button
+														type="button"
+														onClick={() => setExpensesView('RENT')}
+														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+															expensesView === 'RENT'
+																? 'bg-slate-900 text-white'
+																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+														}`}
+													>
+														Оренда
+													</button>
+													<button
+														type="button"
+														onClick={() => setExpensesView('UTILITIES')}
+														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+															expensesView === 'UTILITIES'
+																? 'bg-slate-900 text-white'
+																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+														}`}
+													>
+														Комунальні
+													</button>
+													<button
+														type="button"
 														onClick={() => setExpensesView('OTHER')}
 														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
 															expensesView === 'OTHER'
@@ -586,7 +672,7 @@ export default function ShiftsArchivePage() {
 																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
 														}`}
 													>
-														Звичайні
+														Інші
 													</button>
 												</div>
 
@@ -596,8 +682,15 @@ export default function ShiftsArchivePage() {
 													</p>
 												) : (
 													visibleMonthExpenses.map((expense) => {
-															const meta = parseExpenseComment(expense.comment)
-															const isSalary = meta.category === 'SALARY'
+															const expenseCategory = getExpenseCategory(expense)
+															const categoryLabel =
+																expenseCategory === 'SALARY'
+																	? '💸 Зарплата'
+																	: expenseCategory === 'RENT'
+																		? '🏢 Оренда'
+																		: expenseCategory === 'UTILITIES'
+																			? '⚡ Комунальні'
+																			: '🧾 Інше'
 															return (
 																<div
 																	key={expense.id}
@@ -608,17 +701,13 @@ export default function ShiftsArchivePage() {
 																			-{formatMoney(expense.amount)}
 																		</p>
 																		<p className="text-sm text-slate-600 break-words mt-1">
-																			{meta.cleanComment || 'Витрата'}
+																			{normalizeExpenseComment(expense.comment) || 'Витрата'}
 																		</p>
 																		<p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
 																			<span
-																				className={`rounded px-2 py-0.5 font-semibold ${
-																					isSalary
-																						? 'bg-emerald-100 text-emerald-700'
-																						: 'bg-slate-200 text-slate-700'
-																				}`}
+																				className="rounded bg-slate-200 px-2 py-0.5 font-semibold text-slate-700"
 																			>
-																				{isSalary ? '💸 Зарплата' : '🧾 Витрата'}
+																				{categoryLabel}
 																			</span>
 																			<span>
 																			{formatDate(expense.createdAt)}
