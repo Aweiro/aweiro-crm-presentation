@@ -17,6 +17,7 @@ node_modules
 .DS_Store
 .env.local
 .env.production
+.env.presentation
 
 # logs
 npm-debug.log*
