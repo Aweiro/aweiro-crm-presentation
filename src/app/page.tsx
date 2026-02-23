@@ -60,6 +60,15 @@ const HOME_SECTIONS: HomeSection[] = [
 		accent: 'text-orange-600',
 		quickClass: 'bg-orange-100 text-orange-700 hover:bg-orange-200',
 		roles: ['ADMIN']
+	},
+	{
+		href: '/admin/inventory',
+		title: 'Склад',
+		description: 'Косметика й товари: ціни, залишки, поставки',
+		icon: '📦',
+		accent: 'text-cyan-700',
+		quickClass: 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200',
+		roles: ['ADMIN']
 	}
 ]
 

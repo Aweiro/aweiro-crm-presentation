@@ -21,7 +21,8 @@ const NAV_LINKS: NavLink[] = [
 	{ href: '/user/sales', label: 'Мої продажі', roles: ['USER'] },
 	{ href: '/admin/day', label: 'День', roles: ['ADMIN'] },
 	{ href: '/admin/shifts', label: 'Архів', roles: ['ADMIN'] },
-	{ href: '/admin/users', label: 'Користувачі', roles: ['ADMIN'] }
+	{ href: '/admin/users', label: 'Користувачі', roles: ['ADMIN'] },
+	{ href: '/admin/inventory', label: 'Склад', roles: ['ADMIN'] }
 ]
 
 export default function Header() {
