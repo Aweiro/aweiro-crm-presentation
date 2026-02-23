@@ -228,7 +228,7 @@ export default function HomePage() {
 					</div>
 					<div className="border-t border-slate-800 pt-6 text-slate-400 text-sm text-center">
 						<p>
-							Версія {process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'} •
+							Версія {process.env.NEXT_PUBLIC_APP_VERSION || '1.1.0'} •
 							Розроблено для покращення роботи
 						</p>
 					</div>
