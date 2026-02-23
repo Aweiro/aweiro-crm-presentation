@@ -47,8 +47,20 @@ export default function AdminDayPage() {
 			entry.count += 1
 			if (t.paymentMethod === 'CASH') entry.cash += t.amount
 			if (t.paymentMethod === 'CARD') entry.card += t.amount
-			if (t.serviceType === 'COSMETICS') entry.cosmetics += t.amount
-			else entry.barber += t.amount
+			const barberAmount =
+				typeof t.barberAmount === 'number'
+					? t.barberAmount
+					: t.serviceType === 'COSMETICS'
+						? 0
+						: t.amount
+			const cosmeticsAmount =
+				typeof t.cosmeticsAmount === 'number'
+					? t.cosmeticsAmount
+					: t.serviceType === 'COSMETICS'
+						? t.amount
+						: 0
+			entry.barber += barberAmount
+			entry.cosmetics += cosmeticsAmount
 			salesMap.set(userId, entry)
 		})
 

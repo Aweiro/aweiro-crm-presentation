@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { ensureReceiptTables } from '@/lib/receiptDb'
 
 export const runtime = 'nodejs'
 
@@ -8,6 +9,16 @@ type DayTransaction = {
 	amount: number
 	paymentMethod: string
 	serviceType?: 'BARBER' | 'COSMETICS'
+	barberAmount?: number
+	cosmeticsAmount?: number
+	items?: Array<{
+		id?: number
+		itemId?: number
+		itemName: string
+		price: number
+		quantity: number
+		lineTotal: number
+	}>
 	createdAt: Date
 	user: {
 		id: number
@@ -32,55 +43,125 @@ export async function GET() {
 		}
 
 		let transactions: DayTransaction[] = []
-		try {
-			const rows = await (prisma as any).$queryRawUnsafe(
-				`SELECT
-					t."id",
-					t."amount",
-					t."paymentMethod",
-					COALESCE(CAST(t."serviceType" AS text), 'BARBER') AS "serviceType",
-					t."createdAt",
-					u."id" AS "user_id",
-					u."name" AS "user_name",
-					u."login" AS "user_login"
-				FROM "Transaction" t
-				LEFT JOIN "User" u ON u."id" = t."userId"
-				WHERE t."shiftId" = $1
-				ORDER BY t."createdAt" DESC`,
-				shift.id
-			)
+		await ensureReceiptTables()
+		const receiptRows = (await (prisma as any).$queryRawUnsafe(
+			`
+			SELECT
+				r."id",
+				r."userId",
+				r."paymentMethod",
+				r."barberAmount",
+				r."cosmeticsAmount",
+				r."totalAmount",
+				r."createdAt",
+				u."name" AS "user_name",
+				u."login" AS "user_login"
+			FROM "CashierReceipt" r
+			LEFT JOIN "User" u ON u."id" = r."userId"
+			WHERE r."shiftId" = $1
+			ORDER BY r."createdAt" DESC, r."id" DESC
+			`,
+			shift.id
+		)) as Array<any>
 
-			transactions = (rows as any[]).map((r) => ({
+		if (receiptRows.length > 0) {
+			const receiptIds = receiptRows.map((r) => r.id)
+			const itemRows = (await (prisma as any).$queryRawUnsafe(
+				`
+				SELECT
+					"id",
+					"receiptId",
+					"itemId",
+					"itemName",
+					"price",
+					"quantity",
+					"lineTotal"
+				FROM "CashierReceiptItem"
+				WHERE "receiptId" = ANY($1::int[])
+				ORDER BY "id" ASC
+				`,
+				receiptIds
+			)) as Array<any>
+
+			const itemsByReceipt = new Map<number, DayTransaction['items']>()
+			for (const row of itemRows) {
+				const list = itemsByReceipt.get(row.receiptId) ?? []
+				list.push({
+					id: row.id,
+					itemId: row.itemId,
+					itemName: row.itemName,
+					price: row.price,
+					quantity: row.quantity,
+					lineTotal: row.lineTotal
+				})
+				itemsByReceipt.set(row.receiptId, list)
+			}
+
+			transactions = receiptRows.map((r) => ({
 				id: r.id,
-				amount: r.amount,
+				amount: r.totalAmount,
 				paymentMethod: r.paymentMethod,
-				serviceType: r.serviceType,
+				barberAmount: r.barberAmount,
+				cosmeticsAmount: r.cosmeticsAmount,
+				items: itemsByReceipt.get(r.id) ?? [],
 				createdAt: r.createdAt,
 				user: {
-					id: r.user_id,
+					id: r.userId,
 					name: r.user_name,
 					login: r.user_login
 				}
 			}))
-		} catch {
-			const fallbackTx = await prisma.transaction.findMany({
-				where: { shiftId: shift.id },
-				select: {
-					id: true,
-					amount: true,
-					paymentMethod: true,
-					createdAt: true,
+		} else {
+			try {
+				const rows = await (prisma as any).$queryRawUnsafe(
+					`SELECT
+						t."id",
+						t."amount",
+						t."paymentMethod",
+						COALESCE(CAST(t."serviceType" AS text), 'BARBER') AS "serviceType",
+						t."createdAt",
+						u."id" AS "user_id",
+						u."name" AS "user_name",
+						u."login" AS "user_login"
+					FROM "Transaction" t
+					LEFT JOIN "User" u ON u."id" = t."userId"
+					WHERE t."shiftId" = $1
+					ORDER BY t."createdAt" DESC`,
+					shift.id
+				)
+
+				transactions = (rows as any[]).map((r) => ({
+					id: r.id,
+					amount: r.amount,
+					paymentMethod: r.paymentMethod,
+					serviceType: r.serviceType,
+					createdAt: r.createdAt,
 					user: {
-						select: {
-							id: true,
-							name: true,
-							login: true
-						}
+						id: r.user_id,
+						name: r.user_name,
+						login: r.user_login
 					}
-				},
-				orderBy: { createdAt: 'desc' }
-			})
-			transactions = fallbackTx.map((t) => ({ ...t, serviceType: 'BARBER' }))
+				}))
+			} catch {
+				const fallbackTx = await prisma.transaction.findMany({
+					where: { shiftId: shift.id },
+					select: {
+						id: true,
+						amount: true,
+						paymentMethod: true,
+						createdAt: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								login: true
+							}
+						}
+					},
+					orderBy: { createdAt: 'desc' }
+				})
+				transactions = fallbackTx.map((t) => ({ ...t, serviceType: 'BARBER' }))
+			}
 		}
 
 		const expenses = await prisma.expense.findMany({

@@ -5,9 +5,20 @@ import { useParams, useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/currency'
 
 type Transaction = {
+	id: number
 	amount: number
 	paymentMethod: 'CASH' | 'CARD'
 	serviceType?: 'BARBER' | 'COSMETICS'
+	barberAmount?: number
+	cosmeticsAmount?: number
+	items?: Array<{
+		id?: number
+		itemId?: number
+		itemName: string
+		price: number
+		quantity: number
+		lineTotal: number
+	}>
 	createdAt: string
 	user: {
 		id: number
@@ -51,6 +62,18 @@ export default function ShiftDetailsPage() {
 
 		const transactions: Transaction[] = data.transactions ?? []
 		const expenses: Expense[] = data.expenses ?? []
+		const getBarberAmount = (t: Transaction) =>
+			typeof t.barberAmount === 'number'
+				? t.barberAmount
+				: t.serviceType === 'COSMETICS'
+					? 0
+					: t.amount
+		const getCosmeticsAmount = (t: Transaction) =>
+			typeof t.cosmeticsAmount === 'number'
+				? t.cosmeticsAmount
+				: t.serviceType === 'COSMETICS'
+					? t.amount
+					: 0
 
 		const cashIncome = transactions
 			.filter((t: any) => t.paymentMethod === 'CASH')
@@ -59,12 +82,14 @@ export default function ShiftDetailsPage() {
 		const cardIncome = transactions
 			.filter((t) => t.paymentMethod === 'CARD')
 			.reduce((sum, t) => sum + t.amount, 0)
-		const barberIncome = transactions
-			.filter((t) => t.serviceType !== 'COSMETICS')
-			.reduce((sum, t) => sum + t.amount, 0)
-		const cosmeticsIncome = transactions
-			.filter((t) => t.serviceType === 'COSMETICS')
-			.reduce((sum, t) => sum + t.amount, 0)
+		const barberIncome = transactions.reduce(
+			(sum, t) => sum + getBarberAmount(t),
+			0
+		)
+		const cosmeticsIncome = transactions.reduce(
+			(sum, t) => sum + getCosmeticsAmount(t),
+			0
+		)
 
 		const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
 
@@ -112,8 +137,20 @@ export default function ShiftDetailsPage() {
 			entry.count += 1
 			if (t.paymentMethod === 'CASH') entry.cash += t.amount
 			if (t.paymentMethod === 'CARD') entry.card += t.amount
-			if (t.serviceType === 'COSMETICS') entry.cosmetics += t.amount
-			else entry.barber += t.amount
+			const barberAmount =
+				typeof t.barberAmount === 'number'
+					? t.barberAmount
+					: t.serviceType === 'COSMETICS'
+						? 0
+						: t.amount
+			const cosmeticsAmount =
+				typeof t.cosmeticsAmount === 'number'
+					? t.cosmeticsAmount
+					: t.serviceType === 'COSMETICS'
+						? t.amount
+						: 0
+			entry.barber += barberAmount
+			entry.cosmetics += cosmeticsAmount
 			salesMap.set(userId, entry)
 		})
 
@@ -329,7 +366,7 @@ export default function ShiftDetailsPage() {
 											Спосіб
 										</th>
 										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
-											Послуга
+											Чек
 										</th>
 										<th className="px-3 sm:px-6 py-3 text-right font-bold text-slate-700">
 											Сума
@@ -339,7 +376,7 @@ export default function ShiftDetailsPage() {
 								<tbody className="divide-y divide-slate-200">
 									{data.transactions.map((t: Transaction, i: number) => (
 										<tr
-											key={i}
+											key={t.id}
 											className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
 										>
 											<td className="px-3 sm:px-6 py-3 font-medium text-slate-900 break-words">
@@ -361,8 +398,31 @@ export default function ShiftDetailsPage() {
 														: '💳 Карта'}
 												</span>
 											</td>
-											<td className="px-3 sm:px-6 py-3 text-slate-700">
-												{formatService(t.serviceType)}
+											<td className="px-3 sm:px-6 py-3 text-slate-700 text-sm">
+												{typeof t.barberAmount === 'number' ||
+												typeof t.cosmeticsAmount === 'number' ? (
+													<div className="space-y-1">
+														{(t.barberAmount ?? 0) > 0 ? (
+															<p>✂️ Барбер: {formatCurrency(t.barberAmount ?? 0)}</p>
+														) : null}
+														{(t.cosmeticsAmount ?? 0) > 0 ? (
+															<p>
+																🧴 Косметика: {formatCurrency(t.cosmeticsAmount ?? 0)}
+															</p>
+														) : null}
+														{(t.items ?? []).length > 0 ? (
+															<div className="text-xs text-slate-500 pt-1">
+																{(t.items ?? []).map((item, idx) => (
+																	<p key={`${t.id}-${idx}`}>
+																		• {item.itemName} × {item.quantity}
+																	</p>
+																))}
+															</div>
+														) : null}
+													</div>
+												) : (
+													formatService(t.serviceType)
+												)}
 											</td>
 											<td className="px-3 sm:px-6 py-3 text-right">
 												<span className="font-bold text-slate-900 break-all">
