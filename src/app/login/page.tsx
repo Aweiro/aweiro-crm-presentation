@@ -125,12 +125,12 @@ function LoginPageContent() {
 							<span>Підтримка:</span>
 
 							<a
-								href="https://t.me/sergsxdxv"
+								href="https://t.me/arsenbogak"
 								target="_blank"
 								rel="noreferrer"
 								className="font-semibold text-blue-600 hover:text-blue-700"
 							>
-								@sergsxdxv
+								@arsenbogak
 							</a>
 						</p>
 					</div>

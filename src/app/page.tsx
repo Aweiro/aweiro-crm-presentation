@@ -218,17 +218,17 @@ export default function HomePage() {
 						<div>
 							<h4 className="font-bold mb-3">Підтримка</h4>
 							<ul className="space-y-2 text-slate-400 text-sm">
-								<li>Email: support@sirius.local</li>
+								<li>Email: arsenskott@gmail.com</li>
 								<li>Version: 1.0.0</li>
 								<li className="text-slate-500 text-xs mt-3">
-									© 2026 Sirius System
+									© 2026 Aweiro System
 								</li>
 							</ul>
 						</div>
 					</div>
 					<div className="border-t border-slate-800 pt-6 text-slate-400 text-sm text-center">
 						<p>
-							Версия {process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'} •
+							Версія {process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0'} •
 							Розроблено для покращення роботи
 						</p>
 					</div>
