@@ -122,7 +122,7 @@ function LoginPageContent() {
 						<p className="flex justify-center gap-2 text-sm text-slate-500">
 							<Send size={16} className="text-blue-500" />
 
-							<span>Підтримка:</span>
+							<span>Telegram:</span>
 
 							<a
 								href="https://t.me/arsenbogak"
