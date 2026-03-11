@@ -15,7 +15,7 @@ import {
 	Package,
 	LayoutDashboard,
 	ArrowLeft,
-	ChevronRight,
+	Gift,
 	Zap,
 	Info
 } from 'lucide-react'
@@ -187,8 +187,11 @@ export default function ShiftDetailsPage() {
 		})
 	}
 
-	const formatTime = (dateString: string) => {
-		return new Date(dateString).toLocaleTimeString('uk-UA', {
+	const formatTime = (dateString: string | null) => {
+		if (!dateString) return '—'
+		return new Date(dateString).toLocaleString('uk-UA', {
+			day: '2-digit',
+			month: '2-digit',
 			hour: '2-digit',
 			minute: '2-digit'
 		})
@@ -197,6 +200,10 @@ export default function ShiftDetailsPage() {
 	const formatMoney = (amount: number) => formatCurrency(amount)
 	const formatReceiptItemName = (item: NonNullable<Transaction['items']>[number]) =>
 		item.itemId ? `🧴 ${item.itemName}` : item.itemName
+	const hasReceiptFormatFn = (transactions: Transaction[]) => transactions.some((t) => Array.isArray(t.items))
+	const hasItemsFn = (t: Transaction) => (t.items ?? []).length > 0
+
+	const hasReceiptFormat = data?.transactions ? hasReceiptFormatFn(data.transactions) : false
 
 	if (error) {
 		return (
@@ -298,35 +305,37 @@ export default function ShiftDetailsPage() {
 				{/* ANALYTICS AND SALES BREAKDOWN */}
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
 					{/* PIE CHART - SERVICE BREAKDOWN */}
-					<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[450px]">
+					<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
 						<div className="flex items-center gap-3 mb-8 px-2">
 							<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
 								<Package size={20} />
 							</div>
 							<h3 className="text-xl font-black text-slate-900 tracking-tight">Розподіл послуг</h3>
 						</div>
-						<div className="flex-1 min-h-0 relative">
-							<ResponsiveContainer width="100%" height="100%">
-								<PieChart>
-									<Pie
-										data={stats.pieData}
-										innerRadius={70}
-										outerRadius={100}
-										paddingAngle={10}
-										dataKey="value"
-										stroke="none"
-									>
-										{stats.pieData.map((_entry, index) => (
-											<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-										))}
-									</Pie>
-									<Tooltip
-										contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-										formatter={(v: any) => formatMoney(v)}
-									/>
-								</PieChart>
-							</ResponsiveContainer>
-							<div className="absolute inset-x-0 bottom-0 py-4 flex flex-col gap-3">
+						<div className="flex-1 min-h-0 flex flex-col">
+							<div className="min-h-[260px] flex-1">
+								<ResponsiveContainer width="100%" height="100%">
+									<PieChart>
+										<Pie
+											data={stats.pieData}
+											innerRadius={70}
+											outerRadius={100}
+											paddingAngle={10}
+											dataKey="value"
+											stroke="none"
+										>
+											{stats.pieData.map((_entry, index) => (
+												<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+											))}
+										</Pie>
+										<Tooltip
+											contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+											formatter={(v: any) => formatMoney(v)}
+										/>
+									</PieChart>
+								</ResponsiveContainer>
+							</div>
+							<div className="pt-4 flex flex-col gap-3">
 								<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
 									<div className="flex items-center gap-2">
 										<div className="w-2.5 h-2.5 rounded-sm bg-indigo-500"></div>
@@ -391,64 +400,107 @@ export default function ShiftDetailsPage() {
 							{data.transactions.length} операцій
 						</div>
 					</div>
-					<div className="overflow-x-auto">
-						<table className="w-full">
-							<thead>
-								<tr className="bg-slate-50/50">
-									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Час</th>
-									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Працівник</th>
-									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Метод</th>
-									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Послуги / Товари</th>
-									<th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Сума</th>
-								</tr>
-							</thead>
-							<tbody className="divide-y divide-slate-100">
-								{data.transactions.map((t: Transaction) => (
-									<tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
-										<td className="px-8 py-5">
-											<span className="text-xs font-black text-slate-400">{formatTime(t.createdAt)}</span>
-										</td>
-										<td className="px-8 py-5 font-black text-slate-900">{t.user?.name ?? '—'}</td>
-										<td className="px-8 py-5">
-											<div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${t.paymentMethod === 'CASH' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'
-												}`}>
-												{t.paymentMethod === 'CASH' ? <Coins size={12} /> : <CreditCard size={12} />}
-												{t.paymentMethod === 'CASH' ? 'Готівка' : 'Карта'}
+					<div className="p-4 sm:p-8">
+						<div className="space-y-4">
+							{data.transactions.map((t: Transaction) => (
+								<div
+									key={`${Array.isArray(t.items) ? 'r' : 't'}-${t.id}`}
+									className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-200/60 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+								>
+									<div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 pointer-events-none" />
+
+									{/* Left: Info */}
+									<div className="relative flex items-start gap-4 sm:w-1/3">
+										<div className="shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
+											{hasReceiptFormat ? <Receipt size={24} /> : (t.serviceType === 'COSMETICS' ? <Package size={24} /> : <Scissors size={24} />)}
+										</div>
+										<div>
+											<p className="font-black text-slate-900 leading-tight mb-1 text-lg">
+												{t.user?.name ?? '—'}
+											</p>
+											<div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/5 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500">
+												🕒 {formatTime(t.createdAt)}
 											</div>
-										</td>
-										<td className="px-8 py-5">
-											<div className="flex flex-col gap-1">
-												{(t.barberAmount ?? 0) > 0 && (
-													<span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-														<Scissors size={12} className="text-slate-400" /> {formatMoney(t.barberAmount!)}
-													</span>
-												)}
-												{(t.cosmeticsAmount ?? 0) > 0 && (
-													<span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-														<Package size={12} className="text-slate-400" /> {formatMoney(t.cosmeticsAmount!)}
-													</span>
-												)}
-												{t.items && t.items.length > 0 && (
-													<div className="flex flex-wrap gap-1 mt-1">
-														{t.items.map((item, idx) => (
-															<span key={idx} className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md">
-																{formatReceiptItemName(item)} ×{item.quantity}
-															</span>
-														))}
+										</div>
+									</div>
+
+									{/* Center: Breakdown / Items */}
+									<div className="relative flex-1">
+										{hasReceiptFormat ? (
+											<div className="flex flex-col gap-2">
+												<div className="flex flex-wrap gap-2">
+													{(t.barberAmount ?? 0) > 0 ? (
+														<span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 border border-emerald-100/60 text-[11px] font-black uppercase tracking-widest text-emerald-600 shadow-sm">
+															<Scissors size={12} className="opacity-70" /> {formatMoney(t.barberAmount ?? 0)}
+														</span>
+													) : null}
+													{(t.cosmeticsAmount ?? 0) > 0 ? (
+														<span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 border border-violet-100/60 text-[11px] font-black uppercase tracking-widest text-violet-600 shadow-sm">
+															<Package size={12} className="opacity-70" /> {formatMoney(t.cosmeticsAmount ?? 0)}
+														</span>
+													) : null}
+													{(t.discount ?? 0) > 0 ? (
+														<span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 border border-red-100/60 text-[11px] font-black uppercase tracking-widest text-red-600 shadow-sm">
+															<Gift size={12} className="opacity-70" /> −{formatMoney(t.discount ?? 0)}
+														</span>
+													) : null}
+												</div>
+												{hasItemsFn(t) ? (
+													<div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-3 mt-1 space-y-2">
+														<p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+															Склад чеку
+														</p>
+														<div className="grid gap-2">
+															{(t.items ?? []).map((item, idx) => (
+																<div
+																	key={`${t.id}-${idx}`}
+																	className="flex items-center justify-between gap-3 text-sm"
+																>
+																	<p className="font-bold text-slate-700 break-words flex-1">
+																		{formatReceiptItemName(item)}
+																		<span className="text-slate-400 font-bold ml-1 text-xs">
+																			× {item.quantity}
+																		</span>
+																	</p>
+																	<p className="shrink-0 font-black text-slate-900">
+																		{formatMoney(item.lineTotal)}
+																	</p>
+																</div>
+															))}
+														</div>
 													</div>
-												)}
-												{(t.discount ?? 0) > 0 && (
-													<span className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1">
-														🎁 Знижка: -{formatMoney(t.discount!)}
-													</span>
-												)}
+												) : null}
 											</div>
-										</td>
-										<td className="px-8 py-5 text-right font-black text-slate-900">{formatMoney(t.amount)}</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+										) : (
+											<p className="inline-flex items-center gap-1 rounded-xl bg-slate-50 px-3 py-1.5 border border-slate-100 text-xs font-black uppercase tracking-widest text-slate-600">
+												{t.serviceType === 'COSMETICS' ? '🧴 Косметика' : '✂️ Барбер'}
+											</p>
+										)}
+									</div>
+
+									{/* Right: Total */}
+									<div className="relative flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-4 sm:gap-2 sm:w-1/4">
+										<div className="flex flex-col items-start sm:items-end">
+											<span
+												className={`inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${t.paymentMethod === 'CASH'
+													? 'bg-emerald-50 border border-emerald-100/60 text-emerald-600'
+													: 'bg-blue-50 border border-blue-100/60 text-blue-600'
+													}`}
+											>
+												{t.paymentMethod === 'CASH' ? (
+													<><Coins size={12} className="opacity-70" /> Готівка</>
+												) : (
+													<><CreditCard size={12} className="opacity-70" /> Карта</>
+												)}
+											</span>
+											<p className="font-black text-slate-900 text-2xl tracking-tight leading-none">
+												{formatMoney(t.amount)}
+											</p>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
 

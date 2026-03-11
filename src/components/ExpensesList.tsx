@@ -20,6 +20,7 @@ type Expense = {
 	amount: number
 	category?: 'SALARY' | 'RENT' | 'UTILITIES' | 'OTHER'
 	comment?: string
+	createdAt?: string
 }
 
 type Props = {
@@ -101,6 +102,16 @@ export default function ExpensesList({
 										</p>
 									)}
 								</div>
+								{e.createdAt ? (
+									<p className="mt-1 text-xs font-bold text-slate-400">
+										{new Date(e.createdAt).toLocaleString('uk-UA', {
+											day: '2-digit',
+											month: '2-digit',
+											hour: '2-digit',
+											minute: '2-digit'
+										})}
+									</p>
+								) : null}
 							</div>
 						</div>
 						<button

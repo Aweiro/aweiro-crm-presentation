@@ -21,52 +21,52 @@ type NavLink = {
 }
 
 const NAV_LINKS: NavLink[] = [
-	{ href: '/', label: 'Головна', roles: ['ADMIN', 'USER'] },
-	{ href: '/cashier', label: 'Каса', roles: ['ADMIN', 'USER'] },
-	{ href: '/appointments', label: 'Записи', roles: ['ADMIN', 'USER'] },
-	{ href: '/user/sales', label: 'Мої продажі', roles: ['USER'] },
+	{ href: '/', label: 'Панель', roles: ['ADMIN', 'USER'] },
+	{ href: '/cashier', label: 'Оплата', roles: ['ADMIN', 'USER'] },
+	{ href: '/appointments', label: 'Календар', roles: ['ADMIN', 'USER'] },
+	{ href: '/user/sales', label: 'Статистика', roles: ['USER'] },
 	{
 		href: '/admin/day/shift-cash',
 		activePrefix: '/admin/day',
-		label: 'День',
+		label: 'Робочий день',
 		roles: ['ADMIN'],
 		subLinks: [
-			{ href: '/admin/day/shift-cash', label: 'Керування зміною та каса' },
-			{ href: '/admin/day/sales', label: 'Транзакції та продажі' },
+			{ href: '/admin/day/shift-cash', label: 'Зміна та каса' },
+			{ href: '/admin/day/sales', label: 'Транзакції дня' },
 			{ href: '/admin/day/expenses', label: 'Витрати дня' }
 		]
 	},
 	{
 		href: '/admin/shifts/archive',
 		activePrefix: '/admin/shifts',
-		label: 'Архів',
+		label: 'Звіти',
 		roles: ['ADMIN'],
 		subLinks: [
-			{ href: '/admin/shifts/archive', label: 'Архів по місяцях' },
-			{ href: '/admin/shifts/expenses', label: 'Витрати місяця' },
-			{ href: '/admin/shifts/analytics', label: 'Інша аналітика' }
+			{ href: '/admin/shifts/archive', label: 'Зміни по місяцях' },
+			{ href: '/admin/shifts/expenses', label: 'Місячні витрати' },
+			{ href: '/admin/shifts/analytics', label: 'Аналітика місяця' }
 		]
 	},
 	{
 		href: '/admin/users/team',
 		activePrefix: '/admin/users',
-		label: 'Користувачі',
+		label: 'Команда',
 		roles: ['ADMIN'],
 		subLinks: [
-			{ href: '/admin/users/team', label: 'Додати користувача та список' },
-			{ href: '/admin/users/services', label: 'Послуги користувачів' },
+			{ href: '/admin/users/team', label: 'Команда та ролі' },
+			{ href: '/admin/users/services', label: 'Послуги та ціни' },
 			{ href: '/admin/users/schedule', label: 'Графік роботи' },
-			{ href: '/admin/users/finance', label: 'Зарплати та виплати' }
+			{ href: '/admin/users/finance', label: 'Зарплати і виплати' }
 		]
 	},
 	{
 		href: '/admin/inventory/list',
 		activePrefix: '/admin/inventory',
-		label: 'Склад',
+		label: 'Товари',
 		roles: ['ADMIN'],
 		subLinks: [
-			{ href: '/admin/inventory/list', label: 'Товари на складі' },
-			{ href: '/admin/inventory/history', label: 'Історія операцій' }
+			{ href: '/admin/inventory/list', label: 'Склад товарів' },
+			{ href: '/admin/inventory/history', label: 'Історія складу' }
 		]
 	}
 ]

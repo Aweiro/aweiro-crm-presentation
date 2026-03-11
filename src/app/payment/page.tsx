@@ -150,16 +150,16 @@ function PaymentPageContent() {
 			<div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-indigo-200/40 blur-3xl" />
 
 			<div className="relative mx-auto max-w-6xl">
-				<button
-					onClick={() => router.back()}
-					className="mb-4 rounded-lg border border-slate-200 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-700 backdrop-blur hover:bg-white"
-				>
-					← Назад
-				</button>
-
 				<div className="mb-6 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
 					<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 						<div>
+							<button
+								onClick={() => router.back()}
+								className="mb-3 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+							>
+								<span aria-hidden>←</span>
+								Назад
+							</button>
 							<p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
 								Каса
 							</p>
@@ -186,7 +186,10 @@ function PaymentPageContent() {
 							</div>
 
 							{servicesLoading ? (
-								<div className="mb-6 space-y-2.5" aria-label="Завантаження послуг">
+								<div
+									className="mb-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3"
+									aria-label="Завантаження послуг"
+								>
 									{Array.from({ length: 4 }).map((_, i) => (
 										<div
 											key={`svc-skeleton-${i}`}
@@ -198,7 +201,7 @@ function PaymentPageContent() {
 									))}
 								</div>
 							) : availableServices.length > 0 ? (
-								<div className="mb-6 space-y-2">
+								<div className="mb-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
 									{availableServices.map((service) => {
 										const isSelected = selectedServiceIds.includes(service.id)
 										return (
@@ -242,7 +245,7 @@ function PaymentPageContent() {
 										type="number"
 										min={0}
 										step="1"
-										placeholder="Додаткова сума (ручна)"
+										placeholder="Додаткові пропозиції"
 										value={barberAmount}
 										onChange={(e) => setBarberAmount(e.target.value)}
 										className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-16 text-xl font-bold text-slate-900 outline-none ring-blue-200 transition focus:border-blue-400 focus:ring-4"
@@ -401,7 +404,7 @@ function PaymentPageContent() {
 										))}
 										{manualBarberAmount > 0 ? (
 											<div className="flex items-center justify-between gap-2 text-xs">
-												<span className="text-slate-700">✂️ Довільна сума</span>
+												<span className="text-slate-700">✂️ Додаткові пропозиції</span>
 												<span className="font-semibold text-slate-900">
 													{formatCurrency(manualBarberAmount)}
 												</span>

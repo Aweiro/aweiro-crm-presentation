@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { mutate } from 'swr'
 import { formatCurrency } from '@/lib/currency'
 import ConfirmModal from './ConfirmModal'
+import { Trash2, Receipt, Package, Scissors, Gift, CreditCard, Coins } from 'lucide-react'
 
 type Tx = {
 	id: number
@@ -63,7 +64,9 @@ export default function AdminTable({
 	}
 
 	const formatTime = (value: string | Date) =>
-		new Date(value).toLocaleTimeString('uk-UA', {
+		new Date(value).toLocaleString('uk-UA', {
+			day: '2-digit',
+			month: '2-digit',
 			hour: '2-digit',
 			minute: '2-digit'
 		})
@@ -76,76 +79,68 @@ export default function AdminTable({
 
 	return (
 		<>
-			<div className="md:hidden space-y-3">
+			<div className="space-y-4">
 				{transactions.map((t) => (
 					<div
 						key={`${Array.isArray(t.items) ? 'r' : 't'}-${t.id}`}
-						className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm ring-1 ring-slate-100"
+						className="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-200/60 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-6"
 					>
-						<div className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 px-3 py-3 border-b border-slate-200">
-							<div className="flex items-start justify-between gap-3">
-								<div className="min-w-0">
-									<p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
-										Працівник
-									</p>
-									<p className="font-semibold text-slate-900 break-words text-[15px]">
-										{t.user?.name ?? '—'}
-									</p>
-									<p className="mt-1 text-xs text-slate-500">
-										🕒 {formatTime(t.createdAt)}
-									</p>
+						<div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 pointer-events-none" />
+
+						{/* Left: Info */}
+						<div className="relative flex items-start gap-4 sm:w-1/3">
+							<div className="shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
+								{hasReceiptFormat ? <Receipt size={24} /> : formatService(t.serviceType) === '🧴 Косметика' ? <Package size={24} /> : <Scissors size={24} />}
+							</div>
+							<div>
+								<p className="font-black text-slate-900 leading-tight mb-1 text-lg">
+									{t.user?.name ?? '—'}
+								</p>
+								<div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/5 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500">
+									🕒 {formatTime(t.createdAt)}
 								</div>
-								<span
-									className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${t.paymentMethod === 'CASH'
-										? 'bg-green-100 text-green-800'
-										: 'bg-blue-100 text-blue-800'
-										}`}
-								>
-									{t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
-								</span>
 							</div>
 						</div>
 
-						<div className="p-3.5">
+						{/* Center: Breakdown / Items */}
+						<div className="relative flex-1">
 							{hasReceiptFormat ? (
-								<div className="text-xs text-slate-700 space-y-2.5">
-									<div className="flex flex-wrap gap-2.5">
+								<div className="flex flex-col gap-2">
+									<div className="flex flex-wrap gap-2">
 										{(t.barberAmount ?? 0) > 0 ? (
-											<span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 font-semibold text-emerald-800 ring-1 ring-emerald-200">
-												✂️ Барбер: {formatCurrency(t.barberAmount ?? 0)}
+											<span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 border border-emerald-100/60 text-[11px] font-black uppercase tracking-widest text-emerald-600 shadow-sm">
+												<Scissors size={12} className="opacity-70" /> {formatCurrency(t.barberAmount ?? 0)}
 											</span>
 										) : null}
 										{(t.cosmeticsAmount ?? 0) > 0 ? (
-											<span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-1 font-semibold text-violet-800 ring-1 ring-violet-200">
-												🧴 Косметика: {formatCurrency(t.cosmeticsAmount ?? 0)}
+											<span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 border border-violet-100/60 text-[11px] font-black uppercase tracking-widest text-violet-600 shadow-sm">
+												<Package size={12} className="opacity-70" /> {formatCurrency(t.cosmeticsAmount ?? 0)}
 											</span>
 										) : null}
 										{(t.discount ?? 0) > 0 ? (
-											<span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-1 font-semibold text-red-800 ring-1 ring-red-200">
-												🎁 Знижка: −{formatCurrency(t.discount ?? 0)}
+											<span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 border border-red-100/60 text-[11px] font-black uppercase tracking-widest text-red-600 shadow-sm">
+												<Gift size={12} className="opacity-70" /> −{formatCurrency(t.discount ?? 0)}
 											</span>
 										) : null}
 									</div>
 									{hasItems(t) ? (
-										<div className="rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50/80 to-white p-2.5">
-											<p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-500 mb-2">
-												🧴 Склад чеку
+										<div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-3 mt-1 space-y-2">
+											<p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+												Склад чеку
 											</p>
-											<div className="space-y-1.5">
+											<div className="grid gap-2">
 												{(t.items ?? []).map((item, idx) => (
 													<div
 														key={`${t.id}-${idx}`}
-														className="flex items-center justify-between gap-3 rounded-lg border border-violet-100 bg-white px-2.5 py-2"
+														className="flex items-center justify-between gap-3 text-sm"
 													>
-														<div className="min-w-0">
-															<p className="text-slate-800 font-medium break-words">
-																{formatReceiptItemName(item)}
-															</p>
-															<p className="text-[11px] text-slate-500">
-																{item.quantity} × {formatCurrency(item.price)}
-															</p>
-														</div>
-														<p className="shrink-0 font-semibold text-slate-900">
+														<p className="font-bold text-slate-700 break-words flex-1">
+															{formatReceiptItemName(item)}
+															<span className="text-slate-400 font-bold ml-1 text-xs">
+																× {item.quantity}
+															</span>
+														</p>
+														<p className="shrink-0 font-black text-slate-900">
 															{formatCurrency(item.lineTotal)}
 														</p>
 													</div>
@@ -155,144 +150,42 @@ export default function AdminTable({
 									) : null}
 								</div>
 							) : (
-								<p className="text-sm font-medium text-slate-700">
+								<p className="inline-flex items-center gap-1 rounded-xl bg-slate-50 px-3 py-1.5 border border-slate-100 text-xs font-black uppercase tracking-widest text-slate-600">
 									{formatService(t.serviceType)}
 								</p>
 							)}
+						</div>
 
-							<div className="mt-3.5 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
-								<p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">
-									Сума чеку
-								</p>
-								<p className="font-bold text-slate-900 text-xl break-all">
+						{/* Right: Total & Action */}
+						<div className="relative flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-4 sm:gap-2 sm:w-1/4">
+							<div className="flex flex-col items-start sm:items-end">
+								<span
+									className={`inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${t.paymentMethod === 'CASH'
+										? 'bg-emerald-50 border border-emerald-100/60 text-emerald-600'
+										: 'bg-blue-50 border border-blue-100/60 text-blue-600'
+										}`}
+								>
+									{t.paymentMethod === 'CASH' ? (
+										<><Coins size={12} className="opacity-70" /> Готівка</>
+									) : (
+										<><CreditCard size={12} className="opacity-70" /> Карта</>
+									)}
+								</span>
+								<p className="font-black text-slate-900 text-2xl tracking-tight leading-none">
 									{formatCurrency(t.amount)}
 								</p>
 							</div>
 
-							<div className="mt-3 flex justify-end">
-								<button
-									onClick={() => setTransactionToDelete(t)}
-									className="px-3 py-1.5 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-lg transition-all text-sm font-semibold"
-									title="Видалити транзакцію"
-								>
-									🗑️ Видалити
-								</button>
-							</div>
+							<button
+								onClick={() => setTransactionToDelete(t)}
+								className="shrink-0 sm:opacity-0 sm:group-hover:opacity-100 sm:-translate-x-2 sm:group-hover:translate-x-0 inline-flex items-center justify-center p-3 sm:p-2 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600 transition-all duration-300 border border-transparent hover:border-rose-200"
+								title="Видалити транзакцію"
+							>
+								<Trash2 size={16} />
+							</button>
 						</div>
 					</div>
 				))}
-			</div>
-
-			<div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200">
-				<table className="w-full border-collapse">
-					<thead>
-						<tr className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 border-b border-slate-300">
-							<th className="px-4 py-3 text-left font-semibold text-slate-900">
-								Працівник
-							</th>
-							<th className="px-4 py-3 text-left font-semibold text-slate-900">
-								Час
-							</th>
-							<th className="px-4 py-3 text-left font-semibold text-slate-900">
-								Метод
-							</th>
-							<th className="px-4 py-3 text-left font-semibold text-slate-900">
-								Чек
-							</th>
-							<th className="px-4 py-3 text-right font-semibold text-slate-900">
-								Сума
-							</th>
-							<th className="px-4 py-3 text-center font-semibold text-slate-900">
-								Дія
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{transactions.map((t, idx) => (
-							<tr
-								key={`${Array.isArray(t.items) ? 'r' : 't'}-${t.id}`}
-								className={`border-b border-slate-200 hover:bg-slate-50/70 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'}`}
-							>
-								<td className="px-4 py-3 text-slate-900 font-medium">
-									{t.user?.name ?? '—'}
-								</td>
-								<td className="px-4 py-3 text-slate-700 font-medium">
-									{formatTime(t.createdAt)}
-								</td>
-								<td className="px-4 py-3">
-									<span
-										className={`px-3 py-1 rounded-full text-sm font-semibold ${t.paymentMethod === 'CASH'
-											? 'bg-green-100 text-green-800'
-											: 'bg-blue-100 text-blue-800'
-											}`}
-									>
-										{t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
-									</span>
-								</td>
-								<td className="px-4 py-3 text-slate-700 text-sm">
-									{hasReceiptFormat ? (
-										<div className="space-y-2">
-											<div className="flex flex-wrap gap-1.5">
-												{(t.barberAmount ?? 0) > 0 ? (
-													<span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-800">
-														✂️ {formatCurrency(t.barberAmount ?? 0)}
-													</span>
-												) : null}
-												{(t.cosmeticsAmount ?? 0) > 0 ? (
-													<span className="inline-flex items-center rounded-full bg-violet-100 px-2 py-0.5 font-semibold text-violet-800">
-														🧴 {formatCurrency(t.cosmeticsAmount ?? 0)}
-													</span>
-												) : null}
-												{(t.discount ?? 0) > 0 ? (
-													<span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-800">
-														🎁 −{formatCurrency(t.discount ?? 0)}
-													</span>
-												) : null}
-											</div>
-											{hasItems(t) ? (
-												<div className="rounded-lg border border-violet-100 bg-violet-50/40 px-2.5 py-2 text-xs space-y-1">
-													<p className="font-semibold uppercase tracking-[0.1em] text-violet-500">
-														Позиції
-													</p>
-													{(t.items ?? []).map((item, idx) => (
-														<div
-															key={`${t.id}-${idx}`}
-															className="flex items-center justify-between gap-3"
-														>
-															<p className="break-words text-slate-700">
-																{formatReceiptItemName(item)}{' '}
-																<span className="text-slate-500">
-																	× {item.quantity}
-																</span>
-															</p>
-															<p className="shrink-0 font-semibold text-slate-900">
-																{formatCurrency(item.lineTotal)}
-															</p>
-														</div>
-													))}
-												</div>
-											) : null}
-										</div>
-									) : (
-										formatService(t.serviceType)
-									)}
-								</td>
-								<td className="px-4 py-3 text-right font-semibold text-slate-900">
-									{formatCurrency(t.amount)}
-								</td>
-								<td className="px-4 py-3 text-center">
-									<button
-										onClick={() => setTransactionToDelete(t)}
-										className="px-3 py-1.5 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white rounded-lg transition-all text-sm font-semibold shadow-sm hover:shadow-md hover:scale-105 flex items-center gap-1 mx-auto"
-										title="Видалити транзакцію"
-									>
-										🗑️
-									</button>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
 			</div>
 
 			<ConfirmModal

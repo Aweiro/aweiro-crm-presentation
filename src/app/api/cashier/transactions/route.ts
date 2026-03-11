@@ -162,6 +162,12 @@ export async function POST(req: Request) {
     }
 
     const serviceItems: Array<{ name: string; price: number }> = []
+    if (Number.isFinite(barberAmount) && barberAmount > 0) {
+      serviceItems.push({
+        name: '✂️ Додаткові пропозиції',
+        price: Number(barberAmount)
+      })
+    }
     if (serviceIds.length > 0) {
       const uniqueServiceIds = Array.from(new Set(serviceIds))
       const servicesRows = (await (prisma as any).$queryRawUnsafe(
@@ -191,7 +197,7 @@ export async function POST(req: Request) {
     }
 
     const calculatedServiceTotal = serviceItems.reduce((acc, svc) => acc + svc.price, 0)
-    const totalBarberRevenue = Math.round(barberAmount) + Math.round(calculatedServiceTotal)
+    const totalBarberRevenue = Math.round(calculatedServiceTotal)
     const isBarberTransactionActive = totalBarberRevenue > 0
 
     const created: any[] = []
