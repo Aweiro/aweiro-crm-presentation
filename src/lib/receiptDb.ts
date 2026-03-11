@@ -27,4 +27,25 @@ export async function ensureReceiptTables() {
       "lineTotal" INTEGER NOT NULL
     )
   `)
+
+  // Backward-compatible schema updates for existing installations.
+  await (prisma as any).$executeRawUnsafe(`
+    ALTER TABLE "CashierReceipt"
+    ADD COLUMN IF NOT EXISTS "discount" INTEGER NOT NULL DEFAULT 0
+  `)
+
+  await (prisma as any).$executeRawUnsafe(`
+    ALTER TABLE "CashierReceipt"
+    ADD COLUMN IF NOT EXISTS "barberTransactionId" INTEGER
+  `)
+
+  await (prisma as any).$executeRawUnsafe(`
+    ALTER TABLE "CashierReceipt"
+    ADD COLUMN IF NOT EXISTS "cosmeticsTransactionId" INTEGER
+  `)
+
+  await (prisma as any).$executeRawUnsafe(`
+    ALTER TABLE "CashierReceipt"
+    ADD COLUMN IF NOT EXISTS "totalAmount" INTEGER NOT NULL DEFAULT 0
+  `)
 }
