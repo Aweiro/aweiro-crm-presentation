@@ -73,17 +73,31 @@ export default function ShiftDetailsPage() {
 
 	useEffect(() => {
 		if (!id) return
+		if (!/^\d+$/.test(id)) {
+			setError('Некоректний ID зміни')
+			return
+		}
 
 		fetch(`/api/admin/shifts/${id}`)
 			.then(async (res) => {
-				const json = await res.json()
-				if (!res.ok) throw json
+				const raw = await res.text()
+				let json: any = {}
+				if (raw) {
+					try {
+						json = JSON.parse(raw)
+					} catch {
+						json = { message: raw }
+					}
+				}
+				if (!res.ok) {
+					throw new Error(json?.message || `HTTP ${res.status}`)
+				}
 				return json
 			})
 			.then(setData)
-			.catch((err) => {
+			.catch((err: any) => {
 				console.error(err)
-				setError(err.message ?? 'Помилка завантаження зміни')
+				setError(err?.message ?? 'Помилка завантаження зміни')
 			})
 	}, [id])
 
