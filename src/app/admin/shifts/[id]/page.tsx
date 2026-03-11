@@ -2,7 +2,32 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import {
+	ShieldCheck,
+	CalendarDays,
+	TrendingUp,
+	TrendingDown,
+	Coins,
+	CreditCard,
+	History,
+	Receipt,
+	Scissors,
+	Package,
+	LayoutDashboard,
+	ArrowLeft,
+	ChevronRight,
+	Zap,
+	Info
+} from 'lucide-react'
+import {
+	PieChart,
+	Pie,
+	Cell,
+	ResponsiveContainer,
+	Tooltip
+} from 'recharts'
 import { formatCurrency } from '@/lib/currency'
+import PageLoader from '@/components/PageLoader'
 
 type Transaction = {
 	id: number
@@ -11,6 +36,7 @@ type Transaction = {
 	serviceType?: 'BARBER' | 'COSMETICS'
 	barberAmount?: number
 	cosmeticsAmount?: number
+	discount?: number
 	items?: Array<{
 		id?: number
 		itemId?: number
@@ -29,7 +55,11 @@ type Transaction = {
 type Expense = {
 	amount: number
 	comment?: string
+	category?: 'RENT' | 'UTILITIES' | 'SALARY' | 'OTHER'
+	createdAt: string
 }
+
+const COLORS = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
 export default function ShiftDetailsPage() {
 	const params = useParams()
@@ -57,72 +87,53 @@ export default function ShiftDetailsPage() {
 			})
 	}, [id])
 
-	const summary = useMemo(() => {
+	const stats = useMemo(() => {
 		if (!data) return null
 
 		const transactions: Transaction[] = data.transactions ?? []
 		const expenses: Expense[] = data.expenses ?? []
+
 		const getBarberAmount = (t: Transaction) =>
-			typeof t.barberAmount === 'number'
-				? t.barberAmount
-				: t.serviceType === 'COSMETICS'
-					? 0
-					: t.amount
+			typeof t.barberAmount === 'number' ? t.barberAmount : (t.serviceType === 'COSMETICS' ? 0 : t.amount)
+
 		const getCosmeticsAmount = (t: Transaction) =>
-			typeof t.cosmeticsAmount === 'number'
-				? t.cosmeticsAmount
-				: t.serviceType === 'COSMETICS'
-					? t.amount
-					: 0
+			typeof t.cosmeticsAmount === 'number' ? t.cosmeticsAmount : (t.serviceType === 'COSMETICS' ? t.amount : 0)
 
-		const cashIncome = transactions
-			.filter((t: any) => t.paymentMethod === 'CASH')
-			.reduce((sum, t) => sum + t.amount, 0)
-
-		const cardIncome = transactions
-			.filter((t) => t.paymentMethod === 'CARD')
-			.reduce((sum, t) => sum + t.amount, 0)
-		const barberIncome = transactions.reduce(
-			(sum, t) => sum + getBarberAmount(t),
-			0
-		)
-		const cosmeticsIncome = transactions.reduce(
-			(sum, t) => sum + getCosmeticsAmount(t),
-			0
-		)
-
+		const cashIncome = transactions.filter(t => t.paymentMethod === 'CASH').reduce((sum, t) => sum + t.amount, 0)
+		const cardIncome = transactions.filter(t => t.paymentMethod === 'CARD').reduce((sum, t) => sum + t.amount, 0)
+		const barberIncome = transactions.reduce((sum, t) => sum + getBarberAmount(t), 0)
+		const cosmeticsIncome = transactions.reduce((sum, t) => sum + getCosmeticsAmount(t), 0)
+		const totalDiscounts = transactions.reduce((sum, t) => sum + (t.discount || 0), 0)
 		const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
+		const totalIncome = cashIncome + cardIncome
+
+		const pieData = [
+			{ name: 'Барбер', value: barberIncome },
+			{ name: 'Косметика', value: cosmeticsIncome }
+		].filter(d => d.value > 0)
 
 		return {
 			cashIncome,
 			cardIncome,
 			barberIncome,
 			cosmeticsIncome,
-			expenses: totalExpenses
+			totalDiscounts,
+			totalExpenses,
+			totalIncome,
+			profit: totalIncome - totalExpenses,
+			pieData
 		}
 	}, [data])
 
 	const personalSales = useMemo(() => {
 		const transactions: Transaction[] = data?.transactions ?? []
-		const salesMap = new Map<
-			number,
-			{
-				userId: number
-				name: string
-				total: number
-				count: number
-				cash: number
-				card: number
-				barber: number
-				cosmetics: number
-			}
-		>()
+		const salesMap = new Map<number, any>()
 
 		transactions.forEach((t) => {
 			const userId = t.user?.id
 			if (!userId) return
 
-			const entry = salesMap.get(userId) ?? {
+			const existing = salesMap.get(userId) || {
 				userId,
 				name: t.user?.name || `Касир #${userId}`,
 				total: 0,
@@ -130,28 +141,22 @@ export default function ShiftDetailsPage() {
 				cash: 0,
 				card: 0,
 				barber: 0,
-				cosmetics: 0
+				cosmetics: 0,
+				discounts: 0
 			}
 
-			entry.total += t.amount
-			entry.count += 1
-			if (t.paymentMethod === 'CASH') entry.cash += t.amount
-			if (t.paymentMethod === 'CARD') entry.card += t.amount
-			const barberAmount =
-				typeof t.barberAmount === 'number'
-					? t.barberAmount
-					: t.serviceType === 'COSMETICS'
-						? 0
-						: t.amount
-			const cosmeticsAmount =
-				typeof t.cosmeticsAmount === 'number'
-					? t.cosmeticsAmount
-					: t.serviceType === 'COSMETICS'
-						? t.amount
-						: 0
-			entry.barber += barberAmount
-			entry.cosmetics += cosmeticsAmount
-			salesMap.set(userId, entry)
+			existing.total += t.amount
+			existing.count += 1
+			if (t.paymentMethod === 'CASH') existing.cash += t.amount
+			if (t.paymentMethod === 'CARD') existing.card += t.amount
+
+			const bAmt = typeof t.barberAmount === 'number' ? t.barberAmount : (t.serviceType === 'COSMETICS' ? 0 : t.amount)
+			const cAmt = typeof t.cosmeticsAmount === 'number' ? t.cosmeticsAmount : (t.serviceType === 'COSMETICS' ? t.amount : 0)
+
+			existing.barber += bAmt
+			existing.cosmetics += cAmt
+			existing.discounts += (t.discount || 0)
+			salesMap.set(userId, existing)
 		})
 
 		return Array.from(salesMap.values()).sort((a, b) => b.total - a.total)
@@ -159,10 +164,9 @@ export default function ShiftDetailsPage() {
 
 	const formatDate = (dateString: string | null) => {
 		if (!dateString) return '—'
-		const date = new Date(dateString)
-		return date.toLocaleDateString('uk-UA', {
+		return new Date(dateString).toLocaleDateString('uk-UA', {
 			day: '2-digit',
-			month: '2-digit',
+			month: 'long',
 			year: 'numeric',
 			hour: '2-digit',
 			minute: '2-digit'
@@ -176,344 +180,317 @@ export default function ShiftDetailsPage() {
 		})
 	}
 
-	const formatService = (serviceType?: 'BARBER' | 'COSMETICS') => {
-		return serviceType === 'COSMETICS' ? '🧴 Косметика' : '✂️ Барбер'
-	}
+	const formatMoney = (amount: number) => formatCurrency(amount)
+	const formatReceiptItemName = (item: NonNullable<Transaction['items']>[number]) =>
+		item.itemId ? `🧴 ${item.itemName}` : item.itemName
 
 	if (error) {
 		return (
-			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-				<div className="w-full">
+			<main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+				<div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-xl border border-red-100 text-center">
+					<div className="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+						<Info size={40} />
+					</div>
+					<h2 className="text-2xl font-black text-slate-900 mb-2">Помилка</h2>
+					<p className="text-slate-500 font-bold mb-8">{error}</p>
 					<button
 						onClick={() => router.back()}
-						className="mb-6 px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors font-semibold"
+						className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-lg hover:bg-slate-800 transition-all active:scale-[0.98]"
 					>
-						← Назад
+						Повернутися назад
 					</button>
-					<div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-8 text-center">
-						<p className="text-2xl text-red-900 font-bold">❌ {error}</p>
-					</div>
 				</div>
 			</main>
 		)
 	}
 
-	if (!summary) {
-		return (
-			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-				<div className="w-full flex items-center justify-center py-20">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
-						<p className="text-slate-600 text-lg">
-							Завантаження деталей зміни…
-						</p>
-					</div>
-				</div>
-			</main>
-		)
+	if (!data || !stats) {
+		return <PageLoader message="Завантаження деталей зміни…" />
 	}
 
 	return (
-		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-			<div className="w-full">
-				<button
-					onClick={() => router.back()}
-					className="mb-6 px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors font-semibold"
-				>
-					← Назад до архіву
-				</button>
+		<main className="min-h-screen bg-slate-50 relative overflow-hidden">
+			{/* Mesh Background Decorations */}
+			<div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+			<div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-				<div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4 sm:p-8 mb-6 sm:mb-8">
-					<div className="flex justify-between items-start mb-5 sm:mb-6">
-						<div>
-							<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
-								📊 Зміна #{data.shift.id}
-							</h1>
-							<p className="text-slate-600 mt-2 text-sm sm:text-base">
-								Деталіз звіту про работу
-							</p>
+			<div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
+				{/* HEADER AND NAVIGATION */}
+				<div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+					<div className="space-y-3">
+						<button
+							onClick={() => router.back()}
+							className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-900 font-black text-[10px] uppercase tracking-widest transition-colors mb-2"
+						>
+							<ArrowLeft size={14} /> Назад до архіву
+						</button>
+						<div className="flex items-center gap-3">
+							<div className="inline-flex items-center gap-2.5 px-3 py-1 bg-slate-900/5 backdrop-blur-md rounded-full border border-slate-200 shadow-sm">
+								<ShieldCheck size={14} className="text-slate-900" />
+								<span className="text-[10px] font-black uppercase tracking-widest text-slate-900">Деталі зміни</span>
+							</div>
+							<span className="text-slate-300 font-bold">#{data.shift.id}</span>
+						</div>
+						<h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight text-balance">
+							Звіт за {new Date(data.shift.openedAt).toLocaleDateString('uk-UA', { day: '2-digit', month: 'long' })}
+						</h1>
+					</div>
+
+					<div className="flex flex-col sm:flex-row gap-4">
+						<div className="bg-white/60 backdrop-blur-xl rounded-2xl p-4 border border-white shadow-sm flex items-center gap-4">
+							<div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+								<CalendarDays size={20} />
+							</div>
+							<div>
+								<p className="text-[10px] font-black uppercase text-slate-400">Початок зміни</p>
+								<p className="text-sm font-black text-slate-900">{formatTime(data.shift.openedAt)}</p>
+							</div>
+						</div>
+						<div className="bg-white/60 backdrop-blur-xl rounded-2xl p-4 border border-white shadow-sm flex items-center gap-4">
+							<div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+								<History size={20} />
+							</div>
+							<div>
+								<p className="text-[10px] font-black uppercase text-slate-400">Закриття</p>
+								<p className="text-sm font-black text-slate-900">{formatTime(data.shift.closedAt)}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* SUMMARY STATS GRID */}
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+					{[
+						{ label: 'Каса на старт', value: data.shift.cashStart, icon: Coins, color: 'slate' },
+						{ label: 'Загальний дохід', value: stats.totalIncome, icon: TrendingUp, color: 'emerald' },
+						{ label: 'Усі витрати', value: stats.totalExpenses, icon: TrendingDown, color: 'red' },
+						{ label: 'Чистий прибуток', value: stats.profit, icon: Zap, color: 'blue' },
+					].map((stat, i) => (
+						<div key={i} className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-sm relative overflow-hidden group">
+							<div className={`absolute top-0 right-0 w-24 h-24 bg-${stat.color}-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150`} />
+							<div className="relative">
+								<div className={`w-12 h-12 rounded-2xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 mb-6 shadow-sm border border-${stat.color}-100/50`}>
+									<stat.icon size={22} />
+								</div>
+								<p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{stat.label}</p>
+								<p className="text-3xl font-black text-slate-900 tracking-tight">
+									{formatMoney(stat.value)}
+								</p>
+							</div>
+						</div>
+					))}
+				</div>
+
+				{/* ANALYTICS AND SALES BREAKDOWN */}
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+					{/* PIE CHART - SERVICE BREAKDOWN */}
+					<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[450px]">
+						<div className="flex items-center gap-3 mb-8 px-2">
+							<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+								<Package size={20} />
+							</div>
+							<h3 className="text-xl font-black text-slate-900 tracking-tight">Розподіл послуг</h3>
+						</div>
+						<div className="flex-1 min-h-0 relative">
+							<ResponsiveContainer width="100%" height="100%">
+								<PieChart>
+									<Pie
+										data={stats.pieData}
+										innerRadius={70}
+										outerRadius={100}
+										paddingAngle={10}
+										dataKey="value"
+										stroke="none"
+									>
+										{stats.pieData.map((_entry, index) => (
+											<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+										))}
+									</Pie>
+									<Tooltip
+										contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+										formatter={(v: any) => formatMoney(v)}
+									/>
+								</PieChart>
+							</ResponsiveContainer>
+							<div className="absolute inset-x-0 bottom-0 py-4 flex flex-col gap-3">
+								<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
+									<div className="flex items-center gap-2">
+										<div className="w-2.5 h-2.5 rounded-sm bg-indigo-500"></div>
+										<span className="text-xs font-black text-slate-600">Барбер</span>
+									</div>
+									<span className="text-xs font-black text-slate-900">{formatMoney(stats.barberIncome)}</span>
+								</div>
+								<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
+									<div className="flex items-center gap-2">
+										<div className="w-2.5 h-2.5 rounded-sm bg-cyan-500"></div>
+										<span className="text-xs font-black text-slate-600">Косметика</span>
+									</div>
+									<span className="text-xs font-black text-slate-900">{formatMoney(stats.cosmeticsIncome)}</span>
+								</div>
+							</div>
 						</div>
 					</div>
 
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 sm:mb-8">
-						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-							<p className="text-sm text-blue-700 font-semibold uppercase mb-1">
-								📖 Відкрито
-							</p>
-							<p className="text-base sm:text-lg font-bold text-blue-900">
-								{formatDate(data.shift.openedAt)}
-							</p>
+					{/* STAFF PERFORMANCE */}
+					<div className="lg:col-span-2 bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col">
+						<div className="flex items-center gap-3 mb-8 px-2">
+							<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+								<LayoutDashboard size={20} />
+							</div>
+							<h3 className="text-xl font-black text-slate-900 tracking-tight">Ефективність працівників</h3>
 						</div>
-						<div className="bg-slate-100 border border-slate-300 rounded-lg p-4">
-							<p className="text-sm text-slate-700 font-semibold uppercase mb-1">
-								🔒 Закрито
-							</p>
-							<p className="text-base sm:text-lg font-bold text-slate-900">
-								{formatDate(data.shift.closedAt)}
-							</p>
+						<div className="space-y-4">
+							{personalSales.map((item, index) => (
+								<div key={item.userId} className="group flex items-center justify-between p-5 bg-slate-50/50 hover:bg-white hover:shadow-md border border-slate-100 rounded-3xl transition-all duration-300">
+									<div className="flex items-center gap-4">
+										<div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center font-black text-slate-900">
+											{index + 1}
+										</div>
+										<div>
+											<p className="font-black text-slate-900 leading-tight">{item.name}</p>
+											<p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">{item.count} послуг</p>
+										</div>
+									</div>
+									<div className="text-right flex flex-col items-end">
+										<div className="flex items-center gap-2 mb-1">
+											<span className="text-xs font-black text-emerald-600">✂️ {formatMoney(item.barber)}</span>
+											<span className="text-xs font-black text-violet-600">🧴 {formatMoney(item.cosmetics)}</span>
+										</div>
+										<p className="text-lg font-black text-slate-900">{formatMoney(item.total)}</p>
+									</div>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
 
-				<div className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-lg p-4 sm:p-8">
-					<h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
-						📈 Зведення зміни
-					</h2>
-
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								💰 Каса на старт
-							</p>
-							<p className="text-xl sm:text-3xl font-bold break-all leading-tight">
-								{formatCurrency(data.shift.cashStart ?? 0)}
-							</p>
+				{/* TRANSACTIONS TABLE */}
+				<div className="bg-white rounded-[3rem] border border-slate-200/60 shadow-sm overflow-hidden mb-10">
+					<div className="p-8 border-b border-slate-100 flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+								<Receipt size={20} />
+							</div>
+							<h3 className="text-xl font-black text-slate-900 tracking-tight">Деталізовані транзакції</h3>
 						</div>
-
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								🟢 Готівка приймана
-							</p>
-							<p className="text-xl sm:text-3xl font-bold text-green-300 break-all leading-tight">
-								+{formatCurrency(summary.cashIncome)}
-							</p>
-						</div>
-
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								💳 Карти приймано
-							</p>
-							<p className="text-xl sm:text-3xl font-bold text-purple-300 break-all leading-tight">
-								+{formatCurrency(summary.cardIncome)}
-							</p>
-						</div>
-
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								📈 Дохід за день
-							</p>
-							<p className="text-xl sm:text-3xl font-bold text-emerald-300 break-all leading-tight">
-								+{formatCurrency(summary.cashIncome + summary.cardIncome)}
-							</p>
-						</div>
-
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								📉 Витрати
-							</p>
-							<p className="text-xl sm:text-3xl font-bold text-red-300 break-all leading-tight">
-								−{formatCurrency(summary.expenses)}
-							</p>
-						</div>
-
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								✂️ Барбер
-							</p>
-							<p className="text-xl sm:text-3xl font-bold text-emerald-300 break-all leading-tight">
-								+{formatCurrency(summary.barberIncome)}
-							</p>
-						</div>
-
-						<div className="bg-white/20 rounded-lg p-4 sm:p-6 backdrop-blur">
-							<p className="text-blue-100 text-sm font-semibold uppercase mb-2">
-								🧴 Косметика
-							</p>
-							<p className="text-xl sm:text-3xl font-bold text-violet-300 break-all leading-tight">
-								+{formatCurrency(summary.cosmeticsIncome)}
-							</p>
+						<div className="px-4 py-1.5 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+							{data.transactions.length} операцій
 						</div>
 					</div>
-
-					<div className="border-t-2 border-white/30 pt-5 sm:pt-6">
-						<p className="text-blue-100 text-sm font-semibold uppercase mb-3">
-							🔒 Каса на закрит (фактична)
-						</p>
-						<p className="text-3xl sm:text-5xl font-bold break-all leading-tight">
-							{formatCurrency(data.shift.cashEnd ?? 0)}
-						</p>
-						<p className="text-blue-200 text-sm mt-4">
-							Розраховано:{' '}
-							<span className="font-bold">
-								{formatCurrency(
-									(data.shift.cashStart ?? 0) +
-										summary.cashIncome -
-										summary.expenses
-								)}
-							</span>
-						</p>
-					</div>
-				</div>
-
-				{data.transactions && data.transactions.length > 0 && (
-					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mb-8">
-						<div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-4">
-							<h2 className="text-xl sm:text-2xl font-bold">
-								💰 Платежі ({data.transactions.length})
-							</h2>
-						</div>
-						<div className="overflow-x-auto">
-							<table className="w-full">
-								<thead className="bg-slate-50 border-b border-slate-200">
-									<tr>
-										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
-											Працівник
-										</th>
-										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
-											Час
-										</th>
-										<th className="px-3 sm:px-6 py-3 text-center font-bold text-slate-700">
-											Спосіб
-										</th>
-										<th className="px-3 sm:px-6 py-3 text-left font-bold text-slate-700">
-											Чек
-										</th>
-										<th className="px-3 sm:px-6 py-3 text-right font-bold text-slate-700">
-											Сума
-										</th>
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-slate-200">
-									{data.transactions.map((t: Transaction, i: number) => (
-										<tr
-											key={t.id}
-											className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}
-										>
-											<td className="px-3 sm:px-6 py-3 font-medium text-slate-900 break-words">
-												👤 {t.user?.name ?? '—'}
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-slate-700">
-												{formatTime(t.createdAt)}
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-center">
-												<span
-													className={`inline-block px-2 sm:px-3 py-1 rounded-lg font-semibold text-xs sm:text-sm ${
-														t.paymentMethod === 'CASH'
-															? 'bg-green-100 text-green-700'
-															: 'bg-blue-100 text-blue-700'
-													}`}
-												>
-													{t.paymentMethod === 'CASH'
-														? '💵 Готівка'
-														: '💳 Карта'}
-												</span>
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-slate-700 text-sm">
-												{typeof t.barberAmount === 'number' ||
-												typeof t.cosmeticsAmount === 'number' ? (
-													<div className="space-y-1">
-														{(t.barberAmount ?? 0) > 0 ? (
-															<p>✂️ Барбер: {formatCurrency(t.barberAmount ?? 0)}</p>
-														) : null}
-														{(t.cosmeticsAmount ?? 0) > 0 ? (
-															<p>
-																🧴 Косметика: {formatCurrency(t.cosmeticsAmount ?? 0)}
-															</p>
-														) : null}
-														{(t.items ?? []).length > 0 ? (
-															<div className="text-xs text-slate-500 pt-1">
-																{(t.items ?? []).map((item, idx) => (
-																	<p key={`${t.id}-${idx}`}>
-																		• {item.itemName} × {item.quantity}
-																	</p>
-																))}
-															</div>
-														) : null}
-													</div>
-												) : (
-													formatService(t.serviceType)
+					<div className="overflow-x-auto">
+						<table className="w-full">
+							<thead>
+								<tr className="bg-slate-50/50">
+									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Час</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Працівник</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Метод</th>
+									<th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Послуги / Товари</th>
+									<th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Сума</th>
+								</tr>
+							</thead>
+							<tbody className="divide-y divide-slate-100">
+								{data.transactions.map((t: Transaction) => (
+									<tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
+										<td className="px-8 py-5">
+											<span className="text-xs font-black text-slate-400">{formatTime(t.createdAt)}</span>
+										</td>
+										<td className="px-8 py-5 font-black text-slate-900">{t.user?.name ?? '—'}</td>
+										<td className="px-8 py-5">
+											<div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${t.paymentMethod === 'CASH' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'
+												}`}>
+												{t.paymentMethod === 'CASH' ? <Coins size={12} /> : <CreditCard size={12} />}
+												{t.paymentMethod === 'CASH' ? 'Готівка' : 'Карта'}
+											</div>
+										</td>
+										<td className="px-8 py-5">
+											<div className="flex flex-col gap-1">
+												{(t.barberAmount ?? 0) > 0 && (
+													<span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+														<Scissors size={12} className="text-slate-400" /> {formatMoney(t.barberAmount!)}
+													</span>
 												)}
-											</td>
-											<td className="px-3 sm:px-6 py-3 text-right">
-												<span className="font-bold text-slate-900 break-all">
-													{formatCurrency(t.amount)}
-												</span>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
+												{(t.cosmeticsAmount ?? 0) > 0 && (
+													<span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+														<Package size={12} className="text-slate-400" /> {formatMoney(t.cosmeticsAmount!)}
+													</span>
+												)}
+												{t.items && t.items.length > 0 && (
+													<div className="flex flex-wrap gap-1 mt-1">
+														{t.items.map((item, idx) => (
+															<span key={idx} className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md">
+																{formatReceiptItemName(item)} ×{item.quantity}
+															</span>
+														))}
+													</div>
+												)}
+												{(t.discount ?? 0) > 0 && (
+													<span className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1">
+														🎁 Знижка: -{formatMoney(t.discount!)}
+													</span>
+												)}
+											</div>
+										</td>
+										<td className="px-8 py-5 text-right font-black text-slate-900">{formatMoney(t.amount)}</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
 					</div>
-				)}
+				</div>
 
+				{/* EXPENSES LIST */}
 				{data.expenses && data.expenses.length > 0 && (
-					<div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mb-8">
-						<div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4">
-							<h2 className="text-xl sm:text-2xl font-bold">
-								📉 Витрати ({data.expenses.length})
-							</h2>
+					<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm mb-10">
+						<div className="flex items-center gap-3 mb-8 px-2">
+							<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+								<Receipt size={20} />
+							</div>
+							<h3 className="text-xl font-black text-slate-900 tracking-tight">Витрати зміни</h3>
 						</div>
-						<div className="space-y-2 p-4 sm:p-6">
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 							{data.expenses.map((e: Expense, i: number) => (
-								<div
-									key={i}
-									className="flex justify-between items-start p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-								>
-									<div className="flex-1">
-										<p className="font-semibold text-slate-900">
-											{e.comment || 'Витрата'}
-										</p>
-										{e.comment && (
-											<p className="text-sm text-slate-600 mt-1">{e.comment}</p>
-										)}
+								<div key={i} className="group p-5 bg-red-50/50 hover:bg-white hover:shadow-md border border-red-100/50 rounded-3xl transition-all duration-300 flex items-center justify-between">
+									<div className="flex items-center gap-4">
+										<div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-red-500">
+											<TrendingDown size={20} />
+										</div>
+										<div>
+											<p className="font-black text-slate-900 leading-tight">{e.comment || 'Інші витрати'}</p>
+											<p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Витрата каси</p>
+										</div>
 									</div>
-									<span className="font-bold text-red-700 ml-3 sm:ml-4 text-sm sm:text-base break-all text-right">
-										−{formatCurrency(e.amount)}
-									</span>
+									<p className="text-lg font-black text-red-600">-{formatMoney(e.amount)}</p>
 								</div>
 							))}
 						</div>
 					</div>
 				)}
 
-				{personalSales.length > 0 && (
-					<div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4">
-						<h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
-							👥 Особисті продажі касирів
-						</h2>
-						<div className="space-y-3">
-							{personalSales.map((item) => (
-								<div
-									key={item.userId}
-									className="rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4"
-								>
-									<div className="flex items-start justify-between gap-3">
-										<div className="min-w-0">
-											<p className="font-semibold text-slate-900 break-words">
-												{item.name}
-											</p>
-											<p className="text-xs sm:text-sm text-slate-500">
-												{item.count} {item.count === 1 ? 'продаж' : 'продажів'}
-											</p>
-										</div>
-										<p className="font-bold text-slate-900 text-sm sm:text-base break-all text-right">
-											{formatCurrency(item.total)}
-										</p>
-									</div>
-									<div className="mt-2 flex items-start justify-between gap-4 text-xs sm:text-sm">
-										<div className="space-y-1 min-w-0">
-											<p className="text-emerald-700 break-all">
-												✂️ {formatCurrency(item.barber)}
-											</p>
-											<p className="text-violet-700 break-all">
-												🧴 {formatCurrency(item.cosmetics)}
-											</p>
-										</div>
-										<div className="space-y-1 min-w-0 text-right">
-											<p className="text-green-700 break-all">
-												💵 {formatCurrency(item.cash)}
-											</p>
-											<p className="text-blue-700 break-all">
-												💳 {formatCurrency(item.card)}
-											</p>
-										</div>
-									</div>
-								</div>
-							))}
+				{/* FINAL BALANCE FOOTER */}
+				<div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
+					<div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
+					<div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
+						<div className="space-y-4 text-center md:text-left">
+							<div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-300">
+								<ShieldCheck size={12} /> Фінальний результат
+							</div>
+							<h3 className="text-4xl font-black tracking-tight">Каса на закриття</h3>
+							<div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-slate-400 font-bold">
+								<span className="flex items-center gap-1.5"><Coins size={14} /> Старт: {formatMoney(data.shift.cashStart)}</span>
+								<span className="flex items-center gap-1.5"><TrendingUp size={14} className="text-emerald-400" /> Прихід (Готівка): {formatMoney(stats.cashIncome)}</span>
+								<span className="flex items-center gap-1.5"><TrendingDown size={14} className="text-red-400" /> Витрати: {formatMoney(stats.totalExpenses)}</span>
+							</div>
+						</div>
+
+						<div className="flex flex-col items-center md:items-end gap-2">
+							<p className="text-6xl font-black tracking-tighter text-white">{formatMoney(data.shift.cashEnd)}</p>
+							<div className="px-4 py-2 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10 flex items-center gap-3">
+								<div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+								<span className="text-xs font-bold text-slate-300">Фактична касова різниця порахована</span>
+							</div>
 						</div>
 					</div>
-				)}
+				</div>
 			</div>
 		</main>
 	)

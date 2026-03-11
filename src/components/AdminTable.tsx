@@ -12,6 +12,7 @@ type Tx = {
 	serviceType?: 'BARBER' | 'COSMETICS'
 	barberAmount?: number
 	cosmeticsAmount?: number
+	discount?: number
 	items?: Array<{
 		id?: number
 		itemId?: number
@@ -68,6 +69,8 @@ export default function AdminTable({
 		})
 	const formatService = (serviceType?: 'BARBER' | 'COSMETICS') =>
 		serviceType === 'COSMETICS' ? '🧴 Косметика' : '✂️ Барбер'
+	const formatReceiptItemName = (item: NonNullable<Tx['items']>[number]) =>
+		item.itemId ? `🧴 ${item.itemName}` : item.itemName
 	const hasReceiptFormat = transactions.some((t) => Array.isArray(t.items))
 	const hasItems = (t: Tx) => (t.items ?? []).length > 0
 
@@ -76,7 +79,7 @@ export default function AdminTable({
 			<div className="md:hidden space-y-3">
 				{transactions.map((t) => (
 					<div
-						key={t.id}
+						key={`${Array.isArray(t.items) ? 'r' : 't'}-${t.id}`}
 						className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm ring-1 ring-slate-100"
 					>
 						<div className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 px-3 py-3 border-b border-slate-200">
@@ -93,11 +96,10 @@ export default function AdminTable({
 									</p>
 								</div>
 								<span
-									className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${
-										t.paymentMethod === 'CASH'
-											? 'bg-green-100 text-green-800'
-											: 'bg-blue-100 text-blue-800'
-									}`}
+									className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${t.paymentMethod === 'CASH'
+										? 'bg-green-100 text-green-800'
+										: 'bg-blue-100 text-blue-800'
+										}`}
 								>
 									{t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
 								</span>
@@ -118,6 +120,11 @@ export default function AdminTable({
 												🧴 Косметика: {formatCurrency(t.cosmeticsAmount ?? 0)}
 											</span>
 										) : null}
+										{(t.discount ?? 0) > 0 ? (
+											<span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-1 font-semibold text-red-800 ring-1 ring-red-200">
+												🎁 Знижка: −{formatCurrency(t.discount ?? 0)}
+											</span>
+										) : null}
 									</div>
 									{hasItems(t) ? (
 										<div className="rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50/80 to-white p-2.5">
@@ -132,7 +139,7 @@ export default function AdminTable({
 													>
 														<div className="min-w-0">
 															<p className="text-slate-800 font-medium break-words">
-																{item.itemName}
+																{formatReceiptItemName(item)}
 															</p>
 															<p className="text-[11px] text-slate-500">
 																{item.quantity} × {formatCurrency(item.price)}
@@ -203,7 +210,7 @@ export default function AdminTable({
 					<tbody>
 						{transactions.map((t, idx) => (
 							<tr
-								key={t.id}
+								key={`${Array.isArray(t.items) ? 'r' : 't'}-${t.id}`}
 								className={`border-b border-slate-200 hover:bg-slate-50/70 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'}`}
 							>
 								<td className="px-4 py-3 text-slate-900 font-medium">
@@ -214,11 +221,10 @@ export default function AdminTable({
 								</td>
 								<td className="px-4 py-3">
 									<span
-										className={`px-3 py-1 rounded-full text-sm font-semibold ${
-											t.paymentMethod === 'CASH'
-												? 'bg-green-100 text-green-800'
-												: 'bg-blue-100 text-blue-800'
-										}`}
+										className={`px-3 py-1 rounded-full text-sm font-semibold ${t.paymentMethod === 'CASH'
+											? 'bg-green-100 text-green-800'
+											: 'bg-blue-100 text-blue-800'
+											}`}
 									>
 										{t.paymentMethod === 'CASH' ? '💵 Готівка' : '💳 Карта'}
 									</span>
@@ -237,6 +243,11 @@ export default function AdminTable({
 														🧴 {formatCurrency(t.cosmeticsAmount ?? 0)}
 													</span>
 												) : null}
+												{(t.discount ?? 0) > 0 ? (
+													<span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-800">
+														🎁 −{formatCurrency(t.discount ?? 0)}
+													</span>
+												) : null}
 											</div>
 											{hasItems(t) ? (
 												<div className="rounded-lg border border-violet-100 bg-violet-50/40 px-2.5 py-2 text-xs space-y-1">
@@ -249,7 +260,7 @@ export default function AdminTable({
 															className="flex items-center justify-between gap-3"
 														>
 															<p className="break-words text-slate-700">
-																{item.itemName}{' '}
+																{formatReceiptItemName(item)}{' '}
 																<span className="text-slate-500">
 																	× {item.quantity}
 																</span>

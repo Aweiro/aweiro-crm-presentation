@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 export async function addTransaction(data: {
 	userId: number
 	amount: number
+	discount?: number
 	paymentMethod: 'CASH' | 'CARD'
 	serviceType?: 'BARBER' | 'COSMETICS'
 	shiftId: number
@@ -11,6 +12,7 @@ export async function addTransaction(data: {
 	const createData: any = {
 		userId: data.userId,
 		amount: data.amount,
+		discount: data.discount || 0,
 		paymentMethod: data.paymentMethod,
 		createdAt,
 		shiftId: data.shiftId
@@ -31,11 +33,12 @@ export async function addTransaction(data: {
 			try {
 				const rows = await (prisma as any).$queryRawUnsafe(
 					`INSERT INTO "Transaction"
-						("userId","amount","paymentMethod","serviceType","createdAt","shiftId")
-					 VALUES ($1,$2,$3,$4,$5,$6)
+						("userId","amount","discount","paymentMethod","serviceType","createdAt","shiftId")
+					 VALUES ($1,$2,$3,$4,$5,$6,$7)
 					 RETURNING *`,
 					data.userId,
 					data.amount,
+					data.discount || 0,
 					data.paymentMethod,
 					data.serviceType,
 					createdAt,
@@ -66,6 +69,7 @@ export function getShiftTransactions(shiftId: number) {
 					`SELECT
 						t."id",
 						t."amount",
+						t."discount",
 						t."paymentMethod",
 						COALESCE(CAST(t."serviceType" AS text), 'BARBER') AS "serviceType",
 						t."createdAt",
@@ -83,6 +87,7 @@ export function getShiftTransactions(shiftId: number) {
 				return (rows as any[]).map((r) => ({
 					id: r.id,
 					amount: r.amount,
+					discount: r.discount || 0,
 					paymentMethod: r.paymentMethod,
 					serviceType: r.serviceType,
 					createdAt: r.createdAt,

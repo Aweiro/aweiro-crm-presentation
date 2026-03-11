@@ -64,6 +64,9 @@ export function middleware(req: NextRequest) {
 	if (role === 'USER' && pathname.startsWith('/cashier')) {
 		return NextResponse.next()
 	}
+	if (role === 'USER' && pathname.startsWith('/appointments')) {
+		return NextResponse.next()
+	}
 
 	return redirectToLogin(req)
 }
@@ -84,5 +87,11 @@ function decodeJWT(token: string) {
 }
 
 export const config = {
-	matcher: ['/login', '/admin/:path*', '/cashier/:path*', '/user/:path*'],
+	matcher: [
+		'/login',
+		'/admin/:path*',
+		'/cashier/:path*',
+		'/user/:path*',
+		'/appointments/:path*'
+	],
 }

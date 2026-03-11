@@ -3,6 +3,14 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
+import useSWR from 'swr'
+
+type Service = {
+	id: number
+	name: string
+	price: number
+	durationMin: number
+}
 
 type InventoryItem = {
 	id: number
@@ -33,14 +41,36 @@ function PaymentPageContent() {
 	const [loadingInventory, setLoadingInventory] = useState(true)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+	const [discountValue, setDiscountValue] = useState('')
+	const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([])
+
+	const { data: servicesData, isLoading: servicesLoading } = useSWR(
+		userId ? `/api/appointments/services?barberId=${userId}` : null,
+		(url) => fetch(url).then(res => res.json())
+	)
+	const availableServices: Service[] = Array.isArray(servicesData?.data) ? servicesData.data : []
 
 	const barberValue = Number(barberAmount || 0)
+	const discountAmount = Number(discountValue || 0)
+	const manualBarberAmount =
+		Number.isFinite(barberValue) && barberValue > 0 ? barberValue : 0
+
+	const servicesTotal = useMemo(() => {
+		return availableServices
+			.filter(s => selectedServiceIds.includes(s.id))
+			.reduce((sum, s) => sum + s.price, 0)
+	}, [availableServices, selectedServiceIds])
+	const selectedServices = useMemo(
+		() => availableServices.filter((s) => selectedServiceIds.includes(s.id)),
+		[availableServices, selectedServiceIds]
+	)
 	const cosmeticsTotal = useMemo(() => {
 		return inventory.reduce((sum, item) => {
 			const qty = selectedItems[item.id] || 0
-			return sum + qty * item.price
+			return sum + qty * (item.price / 100)
 		}, 0)
 	}, [inventory, selectedItems])
+	const barberTotal = manualBarberAmount + servicesTotal
 
 	const selectedLines = useMemo(() => {
 		return inventory
@@ -52,8 +82,7 @@ function PaymentPageContent() {
 		[inventory]
 	)
 
-	const total =
-		(Number.isFinite(barberValue) ? barberValue : 0) + cosmeticsTotal
+	const total = Math.max(0, barberTotal + cosmeticsTotal - discountAmount)
 
 	useEffect(() => {
 		if (!userId) {
@@ -90,17 +119,17 @@ function PaymentPageContent() {
 					quantity: Number(quantity)
 				}))
 				.filter((row) => row.quantity > 0)
-
 			const res = await fetch('/api/cashier/transactions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					userId,
-					paymentMethod: method,
-					barberAmount:
-						Number.isFinite(barberValue) && barberValue > 0 ? barberValue : 0,
-					cosmeticsItems
-				})
+					body: JSON.stringify({
+						userId,
+						paymentMethod: method,
+						barberAmount: manualBarberAmount,
+						serviceIds: selectedServiceIds,
+						discount: discountAmount,
+						cosmeticsItems
+					})
 			})
 
 			if (!res.ok) {
@@ -152,28 +181,77 @@ function PaymentPageContent() {
 							<div className="mb-4 flex items-center justify-between gap-2">
 								<h2 className="text-xl font-bold text-slate-900">✂️ Послуги</h2>
 								<span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-									Послуги
+									Стрижки та Догляд
 								</span>
 							</div>
 
-							<div className="relative">
-								<input
-									type="number"
-									min={0}
-									step="1"
-									placeholder="Сума барбер-послуг"
-									value={barberAmount}
-									onChange={(e) => setBarberAmount(e.target.value)}
-									className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-16 text-2xl font-bold text-slate-900 outline-none ring-blue-200 transition focus:border-blue-400 focus:ring-4"
-								/>
-								<span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500">
-									zł
-								</span>
-							</div>
+							{servicesLoading ? (
+								<div className="mb-6 space-y-2.5" aria-label="Завантаження послуг">
+									{Array.from({ length: 4 }).map((_, i) => (
+										<div
+											key={`svc-skeleton-${i}`}
+											className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
+										>
+											<div className="h-4 w-2/3 animate-pulse rounded bg-slate-200" />
+											<div className="mt-2 h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+										</div>
+									))}
+								</div>
+							) : availableServices.length > 0 ? (
+								<div className="mb-6 space-y-2">
+									{availableServices.map((service) => {
+										const isSelected = selectedServiceIds.includes(service.id)
+										return (
+											<button
+												key={service.id}
+												type="button"
+												onClick={() => {
+													setSelectedServiceIds(prev =>
+														isSelected
+															? prev.filter(id => id !== service.id)
+															: [...prev, service.id]
+													)
+												}}
+												className={`w-full text-left px-4 py-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${isSelected
+													? 'bg-blue-50 border-blue-300 ring-1 ring-blue-200 shadow-sm text-blue-900'
+													: 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
+													}`}
+											>
+												<div className="flex-1 min-w-0">
+													<span className="text-[14px] font-semibold block truncate leading-tight mb-0.5">{service.name}</span>
+													<span className={`text-[12px] ${isSelected ? 'text-blue-600' : 'text-slate-400'}`}>{service.durationMin} хв • {formatCurrency(service.price)}</span>
+												</div>
+												<div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-300'
+													}`}>
+													{isSelected && <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+												</div>
+											</button>
+										)
+									})}
+								</div>
+							) : (
+								<div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+									У цього майстра немає призначених послуг.
+								</div>
+							)}
 
-							<p className="mt-2 text-sm text-slate-500">
-								Введи суму стрижки / послуг
-							</p>
+							<div className="rounded-2xl border-2 border-dashed border-slate-200 p-4">
+								<p className="text-sm font-semibold text-slate-700 mb-2">Або введіть довільну суму послуг:</p>
+								<div className="relative">
+									<input
+										type="number"
+										min={0}
+										step="1"
+										placeholder="Додаткова сума (ручна)"
+										value={barberAmount}
+										onChange={(e) => setBarberAmount(e.target.value)}
+										className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-16 text-xl font-bold text-slate-900 outline-none ring-blue-200 transition focus:border-blue-400 focus:ring-4"
+									/>
+									<span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500">
+										zł
+									</span>
+								</div>
+							</div>
 						</div>
 
 						<div className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-lg">
@@ -187,8 +265,22 @@ function PaymentPageContent() {
 							</div>
 
 							{loadingInventory ? (
-								<div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-500">
-									Завантаження товарів...
+								<div className="space-y-2.5" aria-label="Завантаження товарів">
+									{Array.from({ length: 3 }).map((_, i) => (
+										<div
+											key={`inv-skeleton-${i}`}
+											className="rounded-2xl border border-slate-200 bg-white p-3"
+										>
+											<div className="flex items-start justify-between gap-3">
+												<div className="min-w-0 flex-1">
+													<div className="h-5 w-1/3 animate-pulse rounded bg-slate-200" />
+													<div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-slate-100" />
+													<div className="mt-3 h-4 w-1/2 animate-pulse rounded bg-slate-100" />
+												</div>
+												<div className="h-10 w-32 animate-pulse rounded-xl bg-slate-100" />
+											</div>
+										</div>
+									))}
 								</div>
 							) : availableInventory.length === 0 ? (
 								<div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-500">
@@ -212,7 +304,7 @@ function PaymentPageContent() {
 															{item.description || 'Без опису'}
 														</p>
 														<p className="mt-1 text-sm font-semibold text-cyan-700">
-															{formatCurrency(item.price)} · в наявності{' '}
+															{formatCurrency(item.price / 100)} · в наявності{' '}
 															{item.quantity}
 														</p>
 													</div>
@@ -277,7 +369,7 @@ function PaymentPageContent() {
 								<div className="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
 									<span>✂️ Послуги</span>
 									<span className="font-semibold">
-										{formatCurrency(barberValue || 0)}
+										{formatCurrency(barberTotal)}
 									</span>
 								</div>
 								<div className="flex items-center justify-between rounded-lg bg-violet-50 px-3 py-2 text-sm text-violet-800">
@@ -288,22 +380,43 @@ function PaymentPageContent() {
 								</div>
 							</div>
 
-							{selectedLines.length > 0 ? (
+							{selectedLines.length > 0 || selectedServices.length > 0 || manualBarberAmount > 0 ? (
 								<div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
 									<p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
 										Позиції
 									</p>
 									<div className="space-y-1.5">
+										{selectedServices.map((service) => (
+											<div
+												key={`svc-${service.id}`}
+												className="flex items-center justify-between gap-2 text-xs"
+											>
+												<span className="text-slate-700">
+													✂️ {service.name}
+												</span>
+												<span className="font-semibold text-slate-900">
+													{formatCurrency(service.price)}
+												</span>
+											</div>
+										))}
+										{manualBarberAmount > 0 ? (
+											<div className="flex items-center justify-between gap-2 text-xs">
+												<span className="text-slate-700">✂️ Довільна сума</span>
+												<span className="font-semibold text-slate-900">
+													{formatCurrency(manualBarberAmount)}
+												</span>
+											</div>
+										) : null}
 										{selectedLines.map(({ item, qty }) => (
 											<div
 												key={item.id}
 												className="flex items-center justify-between gap-2 text-xs"
 											>
 												<span className="text-slate-700">
-													{item.shortName} × {qty}
+													🧴 {item.shortName} × {qty}
 												</span>
 												<span className="font-semibold text-slate-900">
-													{formatCurrency(item.price * qty)}
+													{formatCurrency((item.price / 100) * qty)}
 												</span>
 											</div>
 										))}
@@ -311,11 +424,34 @@ function PaymentPageContent() {
 								</div>
 							) : null}
 
-							<div className="mt-4 border-t border-blue-100 pt-4">
-								<p className="text-sm text-slate-600">До сплати</p>
-								<p className="text-3xl font-bold text-blue-700">
-									{formatCurrency(total)}
-								</p>
+							<div className="mt-4 border-t border-blue-100 pt-4 space-y-4">
+								<div className="flex items-center justify-between gap-3 bg-red-50/50 p-2.5 rounded-xl border border-red-100">
+									<label htmlFor="discountInput" className="text-sm font-semibold text-red-700">
+										Знижка (zł)
+									</label>
+									<div className="relative w-28">
+										<input
+											id="discountInput"
+											type="number"
+											min={0}
+											step="1"
+											placeholder="0"
+											value={discountValue}
+											onChange={(e) => setDiscountValue(e.target.value)}
+											className="w-full rounded-lg border border-red-200 bg-white px-3 py-1.5 pr-8 text-right font-bold text-red-700 outline-none ring-red-200 transition focus:border-red-400 focus:ring-2"
+										/>
+										<span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-red-400">
+											zł
+										</span>
+									</div>
+								</div>
+
+								<div className="pt-2 border-t border-slate-100">
+									<p className="text-sm text-slate-600">До сплати</p>
+									<p className="text-3xl font-bold text-blue-700">
+										{formatCurrency(total)}
+									</p>
+								</div>
 							</div>
 						</div>
 

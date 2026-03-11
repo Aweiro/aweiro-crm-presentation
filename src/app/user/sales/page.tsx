@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
+import PageLoader from '@/components/PageLoader'
 
 type Stats = {
 	count: number
@@ -62,16 +63,7 @@ export default function UserSalesPage() {
 	)
 
 	if (loading) {
-		return (
-			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-8">
-				<div className="page-container flex items-center justify-center py-20">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto mb-4" />
-						<p className="text-slate-600">Завантаження статистики…</p>
-					</div>
-				</div>
-			</main>
-		)
+		return <PageLoader message="Завантаження статистики…" />
 	}
 
 	if (error || !data) {

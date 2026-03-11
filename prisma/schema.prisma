@@ -7,71 +7,60 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  login        String   @unique
-  passwordHash String
-  role         Role
-  name         String   // 👈 ОБОВʼЯЗКОВЕ
-  barberPercent Int     @default(0)
-  cosmeticsPercent Int  @default(0)
-  createdAt    DateTime @default(now())
-	isActive     Boolean  @default(true)
-  transactions Transaction[]
-  salaryExpenses Expense[] @relation("SalaryUserExpenses")
-}
-
-enum Role {
-  ADMIN
-  USER
+  id                                            Int                  @id @default(autoincrement())
+  createdAt                                     DateTime             @default(now())
+  login                                         String               @unique
+  role                                          Role
+  name                                          String
+  passwordHash                                  String
+  isActive                                      Boolean              @default(true)
+  barberPercent                                 Int                  @default(0)
+  cosmeticsPercent                              Int                  @default(0)
+  BarberDateSchedule                            BarberDateSchedule[]
+  BarberSchedule                                BarberSchedule[]
+  CashierReceipt                                CashierReceipt[]
+  ClientBooking_ClientBooking_barberIdToUser    ClientBooking[]      @relation("ClientBooking_barberIdToUser")
+  ClientBooking_ClientBooking_createdByIdToUser ClientBooking[]      @relation("ClientBooking_createdByIdToUser")
+  salaryExpenses                                Expense[]            @relation("SalaryUserExpenses")
+  transactions                                  Transaction[]
+  UserBarberService                             UserBarberService[]
 }
 
 model Shift {
-  id        Int      @id @default(autoincrement())
-  isOpen    Boolean
-  cashStart Int?
-  cashEnd   Int?
-  openedAt  DateTime
-  closedAt  DateTime?
-  transactions Transaction[]
-  expenses     Expense[]
+  id             Int              @id @default(autoincrement())
+  isOpen         Boolean
+  cashStart      Int?
+  cashEnd        Int?
+  openedAt       DateTime
+  closedAt       DateTime?
+  CashierReceipt CashierReceipt[]
+  expenses       Expense[]
+  transactions   Transaction[]
 }
 
 model Transaction {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   amount        Int
+  discount      Int         @default(0)
   paymentMethod String
-  serviceType   ServiceType @default(BARBER)
   createdAt     DateTime
   userId        Int
   shiftId       Int
-
-  user  User  @relation(fields: [userId], references: [id])
-  shift Shift @relation(fields: [shiftId], references: [id])
-}
-
-enum ServiceType {
-  BARBER
-  COSMETICS
+  serviceType   ServiceType @default(BARBER)
+  shift         Shift       @relation(fields: [shiftId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
 }
 
 model Expense {
-  id        Int      @id @default(autoincrement())
-  amount    Int
-  category  ExpenseCategory @default(OTHER)
+  id           Int             @id @default(autoincrement())
+  amount       Int
+  comment      String?
+  createdAt    DateTime
+  shiftId      Int
+  category     ExpenseCategory @default(OTHER)
   salaryUserId Int?
-  comment   String?
-  createdAt DateTime
-  shiftId   Int
-
-  shift Shift @relation(fields: [shiftId], references: [id])
-  salaryUser User? @relation("SalaryUserExpenses", fields: [salaryUserId], references: [id])
-}
-
-enum ExpenseCategory {
-  SALARY
-  RENT
-  UTILITIES
-  OTHER
+  salaryUser   User?           @relation("SalaryUserExpenses", fields: [salaryUserId], references: [id])
+  shift        Shift           @relation(fields: [shiftId], references: [id])
 }
 
 model AppSetting {
@@ -79,4 +68,149 @@ model AppSetting {
   value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model BarberDateSchedule {
+  userId    Int
+  date      DateTime @db.Date
+  isWorking Boolean  @default(true)
+  startHour Int      @default(9)
+  endHour   Int      @default(20)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([userId, date])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model BarberSchedule {
+  userId    Int
+  dayOfWeek Int
+  isWorking Boolean @default(true)
+  startHour Int     @default(9)
+  endHour   Int     @default(20)
+  User      User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([userId, dayOfWeek])
+}
+
+model BarberService {
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  price                Int                    @default(0)
+  durationMin          Int                    @default(30)
+  isActive             Boolean                @default(true)
+  createdAt            DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime               @default(now()) @db.Timestamptz(6)
+  ClientBookingService ClientBookingService[]
+  UserBarberService    UserBarberService[]
+}
+
+model CashierReceipt {
+  id                     Int                  @id @default(autoincrement())
+  userId                 Int
+  shiftId                Int
+  paymentMethod          String
+  barberAmount           Int                  @default(0)
+  cosmeticsAmount        Int                  @default(0)
+  totalAmount            Int                  @default(0)
+  discount               Int                  @default(0)
+  barberTransactionId    Int?
+  cosmeticsTransactionId Int?
+  createdAt              DateTime             @default(now())
+  Shift                  Shift                @relation(fields: [shiftId], references: [id], onUpdate: NoAction)
+  User                   User                 @relation(fields: [userId], references: [id], onUpdate: NoAction)
+  CashierReceiptItem     CashierReceiptItem[]
+}
+
+model CashierReceiptItem {
+  id             Int            @id @default(autoincrement())
+  receiptId      Int
+  itemId         Int?
+  itemName       String
+  price          Int
+  quantity       Int
+  lineTotal      Int
+  CashierReceipt CashierReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model ClientBooking {
+  id                                   Int                    @id @default(autoincrement())
+  clientName                           String
+  clientPhone                          String?
+  comment                              String?
+  barberId                             Int
+  startAt                              DateTime               @db.Timestamptz(6)
+  endAt                                DateTime               @db.Timestamptz(6)
+  status                               String                 @default("BOOKED")
+  createdById                          Int?
+  createdAt                            DateTime               @default(now()) @db.Timestamptz(6)
+  User_ClientBooking_barberIdToUser    User                   @relation("ClientBooking_barberIdToUser", fields: [barberId], references: [id], onUpdate: NoAction)
+  User_ClientBooking_createdByIdToUser User?                  @relation("ClientBooking_createdByIdToUser", fields: [createdById], references: [id], onUpdate: NoAction)
+  ClientBookingService                 ClientBookingService[]
+
+  @@index([barberId, startAt])
+  @@index([startAt])
+}
+
+model ClientBookingService {
+  bookingId     Int
+  serviceId     Int
+  price         Int
+  durationMin   Int
+  orderIndex    Int           @default(0)
+  ClientBooking ClientBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  BarberService BarberService @relation(fields: [serviceId], references: [id], onUpdate: NoAction)
+
+  @@id([bookingId, orderIndex])
+}
+
+model InventoryItem {
+  id              Int               @id @default(autoincrement())
+  shortName       String
+  description     String?
+  price           Int               @default(0)
+  quantity        Int               @default(0)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now())
+  InventorySupply InventorySupply[]
+}
+
+model InventorySupply {
+  id            Int           @id @default(autoincrement())
+  itemId        Int
+  operationType String        @default("SUPPLY")
+  quantity      Int
+  note          String?
+  createdAt     DateTime      @default(now())
+  InventoryItem InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model UserBarberService {
+  userId        Int
+  serviceId     Int
+  createdAt     DateTime      @default(now()) @db.Timestamptz(6)
+  price         Int?
+  durationMin   Int?
+  BarberService BarberService @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([userId, serviceId])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum ServiceType {
+  BARBER
+  COSMETICS
+}
+
+enum ExpenseCategory {
+  SALARY
+  RENT
+  UTILITIES
+  OTHER
 }

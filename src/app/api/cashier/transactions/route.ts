@@ -14,11 +14,15 @@ export async function POST(req: Request) {
 
     const userId = Number(body.userId)
     const amount = Number(body.amount)
+    const discount = Number(body.discount || 0)
     const serviceType = body.serviceType === 'COSMETICS' ? 'COSMETICS' : 'BARBER'
     const barberAmount = Number(body.barberAmount || 0)
     const paymentMethod = body.paymentMethod === 'CARD' ? 'CARD' : 'CASH'
     const cosmeticsItems = Array.isArray(body.cosmeticsItems)
       ? body.cosmeticsItems
+      : []
+    const serviceIds: number[] = Array.isArray(body.serviceIds)
+      ? body.serviceIds.map(Number).filter((id: number) => Number.isFinite(id) && id > 0)
       : []
 
     if (!userId) {
@@ -54,6 +58,7 @@ export async function POST(req: Request) {
       const tx = await addTransaction({
         userId,
         amount,
+        discount,
         paymentMethod,
         serviceType,
         shiftId: shift.id
@@ -62,7 +67,7 @@ export async function POST(req: Request) {
       return NextResponse.json(tx)
     }
 
-    const hasBarber = Number.isFinite(barberAmount) && barberAmount > 0
+    const hasBarber = (Number.isFinite(barberAmount) && barberAmount > 0) || serviceIds.length > 0
     const requestedCosmetics = cosmeticsItems
       .map((item: any) => ({
         itemId: Number(item?.itemId),
@@ -145,24 +150,58 @@ export async function POST(req: Request) {
           `Продаж у чеку (касир #${userId})`
         )
 
-        cosmeticsTotal += dbItem.price * Math.round(item.quantity)
+        cosmeticsTotal += (dbItem.price / 100) * Math.round(item.quantity)
         soldItems.push({
           itemId: dbItem.id,
           itemName: dbItem.shortName,
-          price: dbItem.price,
+          price: dbItem.price / 100,
           quantity: Math.round(item.quantity),
-          lineTotal: dbItem.price * Math.round(item.quantity)
+          lineTotal: (dbItem.price / 100) * Math.round(item.quantity)
         })
       }
     }
 
+    const serviceItems: Array<{ name: string; price: number }> = []
+    if (serviceIds.length > 0) {
+      const uniqueServiceIds = Array.from(new Set(serviceIds))
+      const servicesRows = (await (prisma as any).$queryRawUnsafe(
+        `
+        SELECT
+          s."id",
+          s."name",
+          COALESCE(us."price", s."price") AS "price"
+        FROM "BarberService" s
+        LEFT JOIN "UserBarberService" us
+          ON us."serviceId" = s."id" AND us."userId" = $1
+        WHERE s."id" = ANY($2::int[]) AND s."isActive" = TRUE
+        `,
+        userId,
+        uniqueServiceIds
+      )) as Array<{ id: number; name: string; price: number }>
+
+      for (const svcId of serviceIds) {
+        const dbSvc = servicesRows.find(r => r.id === svcId)
+        if (dbSvc) {
+          serviceItems.push({
+            name: `✂️ ${dbSvc.name}`,
+            price: Number(dbSvc.price)
+          })
+        }
+      }
+    }
+
+    const calculatedServiceTotal = serviceItems.reduce((acc, svc) => acc + svc.price, 0)
+    const totalBarberRevenue = Math.round(barberAmount) + Math.round(calculatedServiceTotal)
+    const isBarberTransactionActive = totalBarberRevenue > 0
+
     const created: any[] = []
     let barberTxId: number | null = null
     let cosmeticsTxId: number | null = null
-    if (hasBarber) {
+    if (isBarberTransactionActive) {
       const tx = await addTransaction({
         userId,
-        amount: Math.round(barberAmount),
+        amount: totalBarberRevenue,
+        discount: discount, // Apply full discount to barber transaction
         paymentMethod,
         serviceType: 'BARBER',
         shiftId: shift.id
@@ -175,6 +214,8 @@ export async function POST(req: Request) {
       const tx = await addTransaction({
         userId,
         amount: Math.round(cosmeticsTotal),
+        // If there's no barber transaction, apply the discount to cosmetics instead
+        discount: !hasBarber ? discount : 0,
         paymentMethod,
         serviceType: 'COSMETICS',
         shiftId: shift.id
@@ -186,37 +227,55 @@ export async function POST(req: Request) {
     const receiptRows = (await (prisma as any).$queryRawUnsafe(
       `
       INSERT INTO "CashierReceipt"
-        ("userId","shiftId","paymentMethod","barberAmount","cosmeticsAmount","totalAmount","barberTransactionId","cosmeticsTransactionId","createdAt")
+        ("userId","shiftId","paymentMethod","barberAmount","cosmeticsAmount","discount","totalAmount","barberTransactionId","cosmeticsTransactionId","createdAt")
       VALUES
-        ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+        ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())
       RETURNING "id"
       `,
       userId,
       shift.id,
       paymentMethod,
-      hasBarber ? Math.round(barberAmount) : 0,
+      totalBarberRevenue,
       cosmeticsTotal,
-      (hasBarber ? Math.round(barberAmount) : 0) + cosmeticsTotal,
+      discount,
+      Math.max(0, totalBarberRevenue + cosmeticsTotal - discount),
       barberTxId,
       cosmeticsTxId
     )) as Array<{ id: number }>
 
     const receiptId = receiptRows[0]?.id
-    if (receiptId && soldItems.length > 0) {
-      for (const item of soldItems) {
-        await (prisma as any).$executeRawUnsafe(
-          `
-          INSERT INTO "CashierReceiptItem"
-            ("receiptId","itemId","itemName","price","quantity","lineTotal")
-          VALUES ($1,$2,$3,$4,$5,$6)
-          `,
-          receiptId,
-          item.itemId,
-          item.itemName,
-          item.price,
-          item.quantity,
-          item.lineTotal
-        )
+    if (receiptId) {
+      if (serviceItems.length > 0) {
+        for (const svc of serviceItems) {
+          await (prisma as any).$executeRawUnsafe(
+            `
+            INSERT INTO "CashierReceiptItem"
+              ("receiptId","itemId","itemName","price","quantity","lineTotal")
+            VALUES ($1,null,$2,$3,1,$4)
+            `,
+            receiptId,
+            svc.name,
+            Math.round(svc.price),
+            Math.round(svc.price)
+          )
+        }
+      }
+      if (soldItems.length > 0) {
+        for (const item of soldItems) {
+          await (prisma as any).$executeRawUnsafe(
+            `
+            INSERT INTO "CashierReceiptItem"
+              ("receiptId","itemId","itemName","price","quantity","lineTotal")
+            VALUES ($1,$2,$3,$4,$5,$6)
+            `,
+            receiptId,
+            item.itemId,
+            item.itemName,
+            item.price,
+            item.quantity,
+            item.lineTotal
+          )
+        }
       }
     }
 
@@ -225,9 +284,10 @@ export async function POST(req: Request) {
       receiptId,
       created,
       summary: {
-        barberAmount: hasBarber ? Math.round(barberAmount) : 0,
+        barberAmount: totalBarberRevenue,
         cosmeticsTotal,
-        total: (hasBarber ? Math.round(barberAmount) : 0) + cosmeticsTotal
+        discount,
+        total: Math.max(0, totalBarberRevenue + cosmeticsTotal - discount)
       }
     })
 

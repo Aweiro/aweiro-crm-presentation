@@ -11,6 +11,7 @@ type DayTransaction = {
 	serviceType?: 'BARBER' | 'COSMETICS'
 	barberAmount?: number
 	cosmeticsAmount?: number
+	discount?: number
 	items?: Array<{
 		id?: number
 		itemId?: number
@@ -52,8 +53,11 @@ export async function GET() {
 				r."paymentMethod",
 				r."barberAmount",
 				r."cosmeticsAmount",
+				r."discount",
 				r."totalAmount",
 				r."createdAt",
+				r."barberTransactionId",
+				r."cosmeticsTransactionId",
 				u."name" AS "user_name",
 				u."login" AS "user_login"
 			FROM "CashierReceipt" r
@@ -103,6 +107,7 @@ export async function GET() {
 				paymentMethod: r.paymentMethod,
 				barberAmount: r.barberAmount,
 				cosmeticsAmount: r.cosmeticsAmount,
+				discount: r.discount || 0,
 				items: itemsByReceipt.get(r.id) ?? [],
 				createdAt: r.createdAt,
 				user: {
@@ -111,57 +116,61 @@ export async function GET() {
 					login: r.user_login
 				}
 			}))
-		} else {
-			try {
-				const rows = await (prisma as any).$queryRawUnsafe(
-					`SELECT
-						t."id",
-						t."amount",
-						t."paymentMethod",
-						COALESCE(CAST(t."serviceType" AS text), 'BARBER') AS "serviceType",
-						t."createdAt",
-						u."id" AS "user_id",
-						u."name" AS "user_name",
-						u."login" AS "user_login"
-					FROM "Transaction" t
-					LEFT JOIN "User" u ON u."id" = t."userId"
-					WHERE t."shiftId" = $1
-					ORDER BY t."createdAt" DESC`,
-					shift.id
-				)
+		}
 
-				transactions = (rows as any[]).map((r) => ({
-					id: r.id,
-					amount: r.amount,
-					paymentMethod: r.paymentMethod,
-					serviceType: r.serviceType,
-					createdAt: r.createdAt,
-					user: {
-						id: r.user_id,
-						name: r.user_name,
-						login: r.user_login
-					}
-				}))
-			} catch {
-				const fallbackTx = await prisma.transaction.findMany({
-					where: { shiftId: shift.id },
-					select: {
-						id: true,
-						amount: true,
-						paymentMethod: true,
-						createdAt: true,
-						user: {
-							select: {
-								id: true,
-								name: true,
-								login: true
-							}
-						}
-					},
-					orderBy: { createdAt: 'desc' }
-				})
-				transactions = fallbackTx.map((t) => ({ ...t, serviceType: 'BARBER' }))
+		// Always fetch standalone transactions (not linked to any receipt)
+		// This includes transactions from booking completion
+		try {
+			// Collect receipt-linked transaction IDs to exclude them
+			const linkedTxIds = receiptRows
+				.flatMap((r) => [r.barberTransactionId, r.cosmeticsTransactionId])
+				.filter((id: number | null) => id != null)
+
+			let standaloneWhere = `t."shiftId" = $1`
+			const standaloneParams: any[] = [shift.id]
+			if (linkedTxIds.length > 0) {
+				standaloneParams.push(linkedTxIds)
+				standaloneWhere += ` AND t."id" != ALL($2::int[])`
 			}
+
+			const standaloneRows = await (prisma as any).$queryRawUnsafe(
+				`SELECT
+					t."id",
+					t."amount",
+					t."discount",
+					t."paymentMethod",
+					COALESCE(CAST(t."serviceType" AS text), 'BARBER') AS "serviceType",
+					t."createdAt",
+					u."id" AS "user_id",
+					u."name" AS "user_name",
+					u."login" AS "user_login"
+				FROM "Transaction" t
+				LEFT JOIN "User" u ON u."id" = t."userId"
+				WHERE ${standaloneWhere}
+				ORDER BY t."createdAt" DESC`,
+				...standaloneParams
+			)
+
+			const standaloneTx = (standaloneRows as any[]).map((r) => ({
+				id: r.id,
+				amount: r.amount,
+				paymentMethod: r.paymentMethod,
+				serviceType: r.serviceType,
+				discount: r.discount || 0,
+				createdAt: r.createdAt,
+				user: {
+					id: r.user_id,
+					name: r.user_name,
+					login: r.user_login
+				}
+			}))
+
+			// Merge: receipts first, then standalone transactions
+			transactions = [...transactions, ...standaloneTx]
+			// Re-sort by createdAt DESC
+			transactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+		} catch (e) {
+			console.error('Error fetching standalone transactions:', e)
 		}
 
 		const expenses = await prisma.expense.findMany({

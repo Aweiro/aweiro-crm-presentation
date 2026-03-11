@@ -1,9 +1,52 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import {
+	ShieldCheck,
+	CalendarDays,
+	TrendingUp,
+	TrendingDown,
+	Coins,
+	CreditCard,
+	History,
+	Receipt,
+	PlusCircle,
+	LayoutDashboard,
+	Info,
+	Ban,
+	Scissors,
+	Package,
+	Gift,
+	Trash2,
+	Building2,
+	Zap,
+	ListChecks,
+	ChevronRight,
+	Loader2
+} from 'lucide-react'
+import {
+	BarChart,
+	Bar,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+	PieChart,
+	Pie,
+	Cell,
+	LineChart,
+	Line,
+	AreaChart,
+	Area
+} from 'recharts'
 import { formatCurrency } from '@/lib/currency'
 import ConfirmModal from '@/components/ConfirmModal'
+import PageSubTabs from '@/components/PageSubTabs'
+import PageLoader from '@/components/PageLoader'
 import { normalizeExpenseComment } from '@/lib/expenseComment'
+import RentEditModal from '@/components/RentEditModal'
 
 type Shift = {
 	id: number
@@ -22,6 +65,9 @@ type Transaction = {
 	userId: number
 	shiftId: number
 	user: { id: number; name: string; login: string }
+	discount?: number
+	barberAmount?: number
+	cosmeticsAmount?: number
 }
 
 type Expense = {
@@ -37,6 +83,8 @@ type Expense = {
 type ShiftsByMonth = {
 	[key: string]: Shift[]
 }
+
+const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 
 function getExpenseCategory(expense: Pick<Expense, 'category' | 'comment'>) {
 	if (
@@ -55,6 +103,8 @@ function getExpenseCategory(expense: Pick<Expense, 'category' | 'comment'>) {
 }
 
 export default function ShiftsArchivePage() {
+	const pathname = usePathname()
+	const router = useRouter()
 	const [shifts, setShifts] = useState<Shift[]>([])
 	const [transactions, setTransactions] = useState<Transaction[]>([])
 	const [expenses, setExpenses] = useState<Expense[]>([])
@@ -73,6 +123,20 @@ export default function ShiftsArchivePage() {
 	const [deletingExpense, setDeletingExpense] = useState(false)
 	const [formError, setFormError] = useState('')
 	const [monthlyRentAmount, setMonthlyRentAmount] = useState(0)
+	const [activeTab, setActiveTab] = useState<
+		'ARCHIVE' | 'EXPENSES' | 'ANALYTICS'
+	>(() => {
+		if (pathname.endsWith('/expenses')) return 'EXPENSES'
+		if (pathname.endsWith('/analytics')) return 'ANALYTICS'
+		return 'ARCHIVE'
+	})
+	const [isRentModalOpen, setIsRentModalOpen] = useState(false)
+
+	useEffect(() => {
+		if (pathname.endsWith('/expenses')) setActiveTab('EXPENSES')
+		else if (pathname.endsWith('/analytics')) setActiveTab('ANALYTICS')
+		else setActiveTab('ARCHIVE')
+	}, [pathname])
 
 	const loadArchiveData = () =>
 		Promise.all([
@@ -157,21 +221,7 @@ export default function ShiftsArchivePage() {
 		return cashEnd - cashStart
 	}
 
-	const getDaysCount = () => {
-		if (shifts.length === 0) return 0
-		const totalCash = shifts.reduce((sum, shift) => {
-			if (shift.cashEnd !== null) return sum + shift.cashEnd
-			return sum
-		}, 0)
-		return totalCash
-	}
-
-	const getAverageCash = () => {
-		if (shifts.length === 0) return 0
-		return getDaysCount() / shifts.length
-	}
-
-	const getMonthStats = () => {
+	const monthStats = useMemo(() => {
 		if (!selectedMonth) return null
 
 		const monthShifts = shiftsByMonth[selectedMonth] || []
@@ -186,63 +236,67 @@ export default function ShiftsArchivePage() {
 			isInSelectedMonth(e.createdAt)
 		)
 
-		const cashTransactions = monthTransactions.filter(
-			(t) => t.paymentMethod === 'CASH'
-		)
-		const cardTransactions = monthTransactions.filter(
-			(t) => t.paymentMethod === 'CARD'
-		)
+		const totalCashIncome = monthTransactions
+			.filter((t) => t.paymentMethod === 'CASH')
+			.reduce((sum, t) => sum + t.amount, 0)
+		const totalCardIncome = monthTransactions
+			.filter((t) => t.paymentMethod === 'CARD')
+			.reduce((sum, t) => sum + t.amount, 0)
 
-		const totalCashIncome = cashTransactions.reduce(
-			(sum, t) => sum + t.amount,
-			0
-		)
-		const totalCardIncome = cardTransactions.reduce(
-			(sum, t) => sum + t.amount,
-			0
-		)
 		const totalExpenses = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
-		const totalSalaryExpenses = monthExpenses
-			.filter((e) => getExpenseCategory(e) === 'SALARY')
-			.reduce((sum, e) => sum + e.amount, 0)
-		const totalOtherExpenses = monthExpenses
-			.filter((e) => getExpenseCategory(e) !== 'SALARY')
-			.reduce((sum, e) => sum + e.amount, 0)
 		const totalIncome = totalCashIncome + totalCardIncome
-		const totalBarberIncome = monthTransactions
-			.filter((t) => t.serviceType !== 'COSMETICS')
-			.reduce((sum, t) => sum + t.amount, 0)
-		const totalCosmeticsIncome = monthTransactions
-			.filter((t) => t.serviceType === 'COSMETICS')
-			.reduce((sum, t) => sum + t.amount, 0)
+
+		const totalBarberIncome = monthTransactions.reduce((sum, t) => {
+			const amount = typeof t.barberAmount === 'number' ? t.barberAmount : (t.serviceType !== 'COSMETICS' ? t.amount : 0)
+			return sum + amount
+		}, 0)
+		const totalCosmeticsIncome = monthTransactions.reduce((sum, t) => {
+			const amount = typeof t.cosmeticsAmount === 'number' ? t.cosmeticsAmount : (t.serviceType === 'COSMETICS' ? t.amount : 0)
+			return sum + amount
+		}, 0)
+
+		// Day by day data for charts
+		const dailyDataMap = new Map<string, { date: string, income: number, expenses: number }>()
+
+		// Income days
+		monthTransactions.forEach(t => {
+			const date = new Date(t.createdAt).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' })
+			const entry = dailyDataMap.get(date) || { date, income: 0, expenses: 0 }
+			entry.income += t.amount
+			dailyDataMap.set(date, entry)
+		})
+
+		// Expense days
+		monthExpenses.forEach(e => {
+			const date = new Date(e.createdAt).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' })
+			const entry = dailyDataMap.get(date) || { date, income: 0, expenses: 0 }
+			entry.expenses += e.amount
+			dailyDataMap.set(date, entry)
+		})
+
+		const dailyData = Array.from(dailyDataMap.values()).sort((a, b) => {
+			const [da, ma] = a.date.split('.')
+			const [db, mb] = b.date.split('.')
+			return (Number(ma) === Number(mb)) ? (Number(da) - Number(db)) : (Number(ma) - Number(mb))
+		})
 
 		// Статистика по працівниках
-		const userStats = new Map<
-			number,
-			{
-				name: string
-				transactions: number
-				amount: number
-				barber: number
-				cosmetics: number
-			}
-		>()
+		const userStatsMap = new Map<number, any>()
 		monthTransactions.forEach((t) => {
-			const existing = userStats.get(t.userId) || {
+			const existing = userStatsMap.get(t.userId) || {
+				id: t.userId,
 				name: t.user.name || t.user.login,
 				transactions: 0,
 				amount: 0,
 				barber: 0,
 				cosmetics: 0
 			}
-			userStats.set(t.userId, {
-				name: existing.name,
+			userStatsMap.set(t.userId, {
+				...existing,
 				transactions: existing.transactions + 1,
 				amount: existing.amount + t.amount,
-				barber:
-					existing.barber + (t.serviceType === 'COSMETICS' ? 0 : t.amount),
-				cosmetics:
-					existing.cosmetics + (t.serviceType === 'COSMETICS' ? t.amount : 0)
+				barber: existing.barber + (typeof t.barberAmount === 'number' ? t.barberAmount : (t.serviceType !== 'COSMETICS' ? t.amount : 0)),
+				cosmetics: existing.cosmetics + (typeof t.cosmeticsAmount === 'number' ? t.cosmeticsAmount : (t.serviceType === 'COSMETICS' ? t.amount : 0))
 			})
 		})
 
@@ -254,31 +308,22 @@ export default function ShiftsArchivePage() {
 			totalBarberIncome,
 			totalCosmeticsIncome,
 			totalExpenses,
-			totalSalaryExpenses,
-			totalOtherExpenses,
 			profit: totalIncome - totalExpenses,
-			transactions: monthTransactions.length,
-			userStats: Array.from(userStats.entries())
-				.map(([id, data]) => ({ id, ...data }))
-				.sort((a, b) => b.amount - a.amount)
+			transactionsCount: monthTransactions.length,
+			userStats: Array.from(userStatsMap.values()).sort((a, b) => b.amount - a.amount),
+			dailyData
 		}
-	}
+	}, [selectedMonth, shifts, transactions, expenses, shiftsByMonth])
 
-	const selectedMonthExpenses = expenses
-		.filter(
-			(expense) =>
-				Boolean(selectedMonth) &&
-				formatMonthKey(new Date(expense.createdAt)) === selectedMonth
-		)
-		.sort(
-			(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-		)
-	const visibleMonthExpenses =
-		expensesView === 'ALL'
-			? selectedMonthExpenses
-			: selectedMonthExpenses.filter(
-					(expense) => getExpenseCategory(expense) === expensesView
-				)
+	const selectedMonthExpenses = useMemo(() => {
+		if (!selectedMonth) return []
+		return expenses
+			.filter((e) => formatMonthKey(new Date(e.createdAt)) === selectedMonth)
+			.sort(
+				(a, b) =>
+					new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+			)
+	}, [selectedMonth, expenses])
 
 	async function addMonthExpense() {
 		setFormError('')
@@ -336,81 +381,102 @@ export default function ShiftsArchivePage() {
 	}
 
 	if (isLoading) {
-		return (
-			<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-				<div className="w-full">
-					<div className="flex items-center justify-center py-20">
-						<div className="text-center">
-							<div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
-							<p className="text-slate-600 text-lg">Завантаження архіву…</p>
-						</div>
-					</div>
-				</div>
-			</main>
-		)
+		return <PageLoader message="Завантаження архіву…" />
 	}
 
 	const hasData = shifts.length > 0
+	const selectedMonthShifts = selectedMonth ? shiftsByMonth[selectedMonth] : undefined
 
 	return (
-		<main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-0">
-			<div className="w-full">
-				<div className="mb-6 sm:mb-8">
-					<h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
-						📋 Архів змін
-					</h1>
-					<p className="text-slate-600 mt-2 text-base sm:text-lg">
-						Історія всіх закритих змін і звітів
-					</p>
+		<main className="min-h-screen bg-slate-50 relative overflow-hidden">
+			{/* Mesh Background Decorations */}
+			<div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+			<div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+			<div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
+				{/* ЗАГОЛОВОК */}
+				<div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+					<div className="space-y-3">
+						<div className="inline-flex items-center gap-2.5 px-3 py-1 bg-slate-900/5 backdrop-blur-md rounded-full border border-slate-200 shadow-sm">
+							<ShieldCheck size={14} className="text-slate-900" />
+							<span className="text-[10px] font-black uppercase tracking-widest text-slate-900">Архів та аналітика</span>
+						</div>
+						<h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight text-balance">
+							Історія та звіти
+						</h1>
+						<div className="flex items-center gap-2 text-slate-500 font-bold">
+							<CalendarDays size={18} className="text-slate-400" />
+							<p>Всі закриті зміни та фінансові показники</p>
+						</div>
+					</div>
+
+					<PageSubTabs
+						className="mb-0"
+						items={[
+							{ key: 'ARCHIVE', label: 'Список змін' },
+							{ key: 'EXPENSES', label: 'Витрати' },
+							{ key: 'ANALYTICS', label: 'Аналітика' }
+						]}
+						activeKey={activeTab}
+						onChange={(key) => {
+							const tab = key as 'ARCHIVE' | 'EXPENSES' | 'ANALYTICS'
+							const nextPath =
+								tab === 'EXPENSES'
+									? '/admin/shifts/expenses'
+									: tab === 'ANALYTICS'
+										? '/admin/shifts/analytics'
+										: '/admin/shifts/archive'
+							if (nextPath !== pathname) router.push(nextPath)
+						}}
+					/>
 				</div>
 
-				{!hasData && (
-					<div className="bg-white rounded-lg shadow-md p-12 text-center border border-slate-200">
-						<p className="text-3xl mb-4">📭</p>
-						<p className="text-slate-600 text-lg font-medium">
-							Поки що немає закритих змін
-						</p>
-						<p className="text-slate-500 mt-2">
-							Архив буде заповнюватися по мірі закриття змін
+				{!hasData ? (
+					<div className="relative overflow-hidden rounded-[3rem] bg-white p-12 sm:p-20 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-200/60 flex flex-col items-center justify-center text-center group">
+						<div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
+						<div className="relative mb-8">
+							<div className="w-24 h-24 bg-slate-900 rounded-[2rem] flex items-center justify-center shadow-2xl">
+								<Ban size={40} className="text-white" strokeWidth={2.5} />
+							</div>
+						</div>
+						<h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">
+							Архів порожній
+						</h3>
+						<p className="text-slate-500 text-lg max-w-md leading-relaxed font-bold">
+							Після закриття першої зміни тут з'являться всі записи та детальна аналітика.
 						</p>
 					</div>
-				)}
-
-				{hasData && (
-					<div className="space-y-6">
-						{/* Календар місяців */}
-						<div className="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-							<h2 className="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
-								<span className="text-2xl">🗓️</span>
-								Архів по місяцях
-							</h2>
-							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+				) : (
+					<div className="space-y-10">
+						{/* MONTH SELECTOR */}
+						<div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/60 shadow-sm">
+							<div className="flex items-center gap-3 mb-6 px-4">
+								<div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-900">
+									<ListChecks size={16} />
+								</div>
+								<h3 className="text-lg font-black text-slate-900">Оберіть період</h3>
+							</div>
+							<div className="flex flex-wrap gap-3">
 								{months.map((monthKey) => {
 									const count = shiftsByMonth[monthKey].length
+									const isActive = selectedMonth === monthKey
 									return (
 										<button
 											key={monthKey}
 											onClick={() => setSelectedMonth(monthKey)}
-											className={`px-4 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 ${
-												selectedMonth === monthKey
-													? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg ring-2 ring-blue-400'
-													: 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
-											}`}
+											className={`group relative flex flex-col items-center justify-center w-[150px] px-4 py-4 rounded-2xl border transition-all duration-300 ${isActive
+												? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
+												: 'bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-white'
+												}`}
 										>
-											<div className="text-2xl leading-tight">
+											<span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
 												{monthKey.split('-')[0]}
-											</div>
-											<div className="text-xs text-opacity-75 mt-0.5">
-												{new Date(
-													parseInt(monthKey.split('-')[0]),
-													parseInt(monthKey.split('-')[1]) - 1
-												).toLocaleDateString('uk-UA', { month: 'short' })}
-											</div>
-											<div
-												className={`text-sm font-bold mt-1 ${selectedMonth === monthKey ? 'text-blue-100' : 'text-slate-600'}`}
-											>
-												{count}{' '}
-												{count % 10 === 1 && count !== 11 ? 'зміна' : 'змін'}
+											</span>
+											<span className="text-lg font-black capitalize text-center">
+												{new Date(parseInt(monthKey.split('-')[0]), parseInt(monthKey.split('-')[1]) - 1).toLocaleDateString('uk-UA', { month: 'long' })}
+											</span>
+											<div className={`mt-2 px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-500'}`}>
+												{count} {count % 10 === 1 && count !== 11 ? 'зміна' : 'змін'}
 											</div>
 										</button>
 									)
@@ -418,117 +484,64 @@ export default function ShiftsArchivePage() {
 							</div>
 						</div>
 
-						{/* Таблиця змін для вибраного місяця */}
-						{selectedMonth && shiftsByMonth[selectedMonth] && (
-							<div className="space-y-6">
-								<div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-									<div className="bg-gradient-to-br from-blue-600 via-blue-650 to-blue-700 text-white px-8 py-6 flex items-center justify-between">
-										<div>
-											<h3 className="text-2xl font-bold">
-												📅 {getMonthName(selectedMonth)}
-											</h3>
-											<p className="text-blue-100 text-sm mt-2">
-												{shiftsByMonth[selectedMonth].length}{' '}
-												{shiftsByMonth[selectedMonth].length % 10 === 1 &&
-												shiftsByMonth[selectedMonth].length !== 11
-													? 'зміна'
-													: 'змін'}
-											</p>
+						{activeTab === 'ARCHIVE' && selectedMonth && (
+							<div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
+								<div className="flex items-center justify-between px-2">
+									<div className="flex items-center gap-3">
+										<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+											<History size={20} />
 										</div>
-										<div className="text-right">
-											<div className="text-3xl sm:text-4xl font-bold text-blue-100">
-												{shiftsByMonth[selectedMonth].length}
-											</div>
-										</div>
+										<h2 className="text-2xl font-black text-slate-900 tracking-tight">
+											Зміни за {getMonthName(selectedMonth)}
+										</h2>
 									</div>
+								</div>
 
+								<div className="bg-white rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-200/60 overflow-hidden">
 									<div className="overflow-x-auto">
 										<table className="w-full">
-											<thead className="bg-slate-50 border-b border-slate-200">
-												<tr>
-													<th className="px-6 py-4 text-left font-bold text-slate-900">
-														ID
-													</th>
-													<th className="px-6 py-4 text-left font-bold text-slate-900">
-														Відкрито
-													</th>
-													<th className="px-6 py-4 text-left font-bold text-slate-900">
-														Закрито
-													</th>
-													<th className="px-6 py-4 text-right font-bold text-slate-900">
-														Каса на старт
-													</th>
-													<th className="px-6 py-4 text-right font-bold text-slate-900">
-														Каса на закрит
-													</th>
-													<th className="px-6 py-4 text-right font-bold text-slate-900">
-														Різниця
-													</th>
-													<th className="px-6 py-4 text-center font-bold text-slate-900">
-														Деталі
-													</th>
+											<thead>
+												<tr className="bg-slate-800 border-b border-slate-700">
+													<th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-200">ID</th>
+													<th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-200">Період роботи</th>
+													<th className="px-6 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-200">Старт</th>
+													<th className="px-6 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-200">Кінець</th>
+													<th className="px-6 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-200">Різниця</th>
+													<th className="px-6 py-5 text-center text-[10px] font-black uppercase tracking-widest text-slate-200">Дія</th>
 												</tr>
 											</thead>
-											<tbody className="divide-y divide-slate-200">
-												{shiftsByMonth[selectedMonth].map((shift, index) => {
-													const difference = calculateDifference(
-														shift.cashStart,
-														shift.cashEnd
-													)
-													const isProfit = difference && difference > 0
-
+											<tbody className="divide-y divide-slate-50">
+												{selectedMonthShifts?.map((shift) => {
+													const diff = calculateDifference(shift.cashStart, shift.cashEnd)
+													const isPos = diff !== null && diff >= 0
 													return (
-														<tr
-															key={shift.id}
-															className={`transition-colors hover:bg-slate-50 ${
-																index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
-															}`}
-														>
-															<td className="px-6 py-4">
-																<span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-sm">
-																	{shift.id}
-																</span>
-															</td>
-															<td className="px-6 py-4 text-sm text-slate-700">
-																<div className="font-medium">
-																	{formatDate(shift.openedAt)}
+														<tr key={shift.id} className="group hover:bg-slate-50/50 transition-colors">
+															<td className="px-6 py-5 text-sm font-black text-slate-400">#{shift.id}</td>
+															<td className="px-6 py-5">
+																<div className="flex flex-col">
+																	<span className="text-sm font-black text-slate-900">{formatDate(shift.openedAt)}</span>
+																	<span className="text-xs font-bold text-slate-400">{formatDate(shift.closedAt)}</span>
 																</div>
 															</td>
-															<td className="px-6 py-4 text-sm text-slate-700">
-																<div className="font-medium">
-																	{formatDate(shift.closedAt)}
-																</div>
+															<td className="px-6 py-5 text-right">
+																<span className="text-sm font-bold text-slate-600">{formatMoney(shift.cashStart)}</span>
 															</td>
-															<td className="px-6 py-4 text-right text-sm">
-																<span className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-semibold">
-																	{formatMoney(shift.cashStart)}
-																</span>
+															<td className="px-6 py-5 text-right">
+																<span className="text-sm font-black text-slate-900">{formatMoney(shift.cashEnd)}</span>
 															</td>
-															<td className="px-6 py-4 text-right text-sm">
-																<span className="inline-block bg-slate-100 text-slate-700 px-3 py-1 rounded-lg font-semibold">
-																	{formatMoney(shift.cashEnd)}
-																</span>
-															</td>
-															<td className="px-6 py-4 text-right text-sm">
-																{difference !== null && (
-																	<span
-																		className={`inline-block px-3 py-1 rounded-lg font-bold ${
-																			isProfit
-																				? 'bg-green-100 text-green-700'
-																				: 'bg-red-100 text-red-700'
-																		}`}
-																	>
-																		{isProfit ? '+' : ''}
-																		{formatMoney(difference)}
+															<td className="px-6 py-5 text-right">
+																{diff !== null && (
+																	<span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-black ${isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+																		{isPos ? '+' : ''}{formatMoney(diff)}
 																	</span>
 																)}
 															</td>
-															<td className="px-6 py-4 text-center">
+															<td className="px-6 py-5 text-center">
 																<a
 																	href={`/admin/shifts/${shift.id}`}
-																	className="inline-block px-4 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 transition-colors"
+																	className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-900 hover:text-white rounded-xl text-xs font-black transition-all duration-300"
 																>
-																	Детальніше →
+																	Деталі <ChevronRight size={14} />
 																</a>
 															</td>
 														</tr>
@@ -537,404 +550,353 @@ export default function ShiftsArchivePage() {
 											</tbody>
 										</table>
 									</div>
-
-									<div className="bg-gradient-to-r from-slate-50 to-blue-50 px-8 py-4 border-t border-slate-200 flex items-center justify-between">
-										<p className="text-sm text-slate-700">
-											<span className="font-bold text-slate-900">
-												{shiftsByMonth[selectedMonth].length}
-											</span>{' '}
-											{shiftsByMonth[selectedMonth].length % 10 === 1 &&
-											shiftsByMonth[selectedMonth].length !== 11
-												? 'зміна'
-												: 'змін'}{' '}
-											у {getMonthName(selectedMonth).toLowerCase()}
-										</p>
-										<div className="text-right text-xs text-slate-500">
-											Прокрутіть для див. деталей →
-										</div>
-									</div>
 								</div>
-
-								{/* Статистика по місяцю */}
-								{getMonthStats() && (
-									<div className="space-y-6">
-										<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-											<h4 className="text-lg font-bold text-slate-900 mb-2">
-												🧾 Витрати місяця
-											</h4>
-											<p className="text-sm text-slate-600 mb-4">
-												Додавайте витрати за категоріями: оренда, комунальні послуги або інші.
-											</p>
-
-											<div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
-												<select
-													value={monthExpenseCategory}
-													onChange={(e) =>
-														setMonthExpenseCategory(
-															e.target.value as 'RENT' | 'UTILITIES' | 'OTHER'
-														)
-													}
-													className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-												>
-													<option value="OTHER">Інші витрати</option>
-													<option value="UTILITIES">Комунальні послуги</option>
-													<option value="RENT">Оренда</option>
-												</select>
-												<input
-													type="number"
-													placeholder={
-														monthExpenseCategory === 'RENT'
-															? `Фіксовано: ${formatMoney(monthlyRentAmount)}`
-															: 'Сума'
-													}
-													value={monthExpenseAmount}
-													onChange={(e) => setMonthExpenseAmount(e.target.value)}
-													disabled={monthExpenseCategory === 'RENT'}
-													className="rounded-lg border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
-												/>
-												<input
-													type="text"
-													placeholder={
-														monthExpenseCategory === 'RENT'
-															? 'Оренда додається фіксованою сумою раз на місяць'
-															: 'Коментар'
-													}
-													value={monthExpenseComment}
-													onChange={(e) => setMonthExpenseComment(e.target.value)}
-													disabled={monthExpenseCategory === 'RENT'}
-													className="sm:col-span-2 rounded-lg border border-slate-300 bg-white px-3 py-2 disabled:bg-slate-100 disabled:text-slate-500"
-												/>
-											</div>
-											<button
-												type="button"
-												onClick={addMonthExpense}
-												disabled={addingMonthExpense}
-												className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-slate-300"
-											>
-												{addingMonthExpense ? 'Додавання...' : 'Додати витрату'}
-											</button>
-											{formError && (
-												<p className="text-sm text-red-600 mt-3">{formError}</p>
-											)}
-
-											<div className="mt-4 space-y-2">
-												<div className="flex flex-wrap items-center gap-2 mb-2">
-													<button
-														type="button"
-														onClick={() => setExpensesView('ALL')}
-														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-															expensesView === 'ALL'
-																? 'bg-slate-900 text-white'
-																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-														}`}
-													>
-														Усі
-													</button>
-													<button
-														type="button"
-														onClick={() => setExpensesView('SALARY')}
-														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-															expensesView === 'SALARY'
-																? 'bg-slate-900 text-white'
-																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-														}`}
-													>
-														Зарплата
-													</button>
-													<button
-														type="button"
-														onClick={() => setExpensesView('RENT')}
-														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-															expensesView === 'RENT'
-																? 'bg-slate-900 text-white'
-																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-														}`}
-													>
-														Оренда
-													</button>
-													<button
-														type="button"
-														onClick={() => setExpensesView('UTILITIES')}
-														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-															expensesView === 'UTILITIES'
-																? 'bg-slate-900 text-white'
-																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-														}`}
-													>
-														Комунальні
-													</button>
-													<button
-														type="button"
-														onClick={() => setExpensesView('OTHER')}
-														className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-															expensesView === 'OTHER'
-																? 'bg-slate-900 text-white'
-																: 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-														}`}
-													>
-														Інші
-													</button>
-												</div>
-
-												{visibleMonthExpenses.length === 0 ? (
-													<p className="text-sm text-slate-500">
-														За вибраний місяць витрат у цьому фільтрі ще немає.
-													</p>
-												) : (
-													visibleMonthExpenses.map((expense) => {
-															const expenseCategory = getExpenseCategory(expense)
-															const categoryLabel =
-																expenseCategory === 'SALARY'
-																	? '💸 Зарплата'
-																	: expenseCategory === 'RENT'
-																		? '🏢 Оренда'
-																		: expenseCategory === 'UTILITIES'
-																			? '⚡ Комунальні'
-																			: '🧾 Інше'
-															return (
-																<div
-																	key={expense.id}
-																	className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3"
-																>
-																	<div className="min-w-0">
-																		<p className="font-semibold text-slate-900 break-words">
-																			-{formatMoney(expense.amount)}
-																		</p>
-																		<p className="text-sm text-slate-600 break-words mt-1">
-																			{normalizeExpenseComment(expense.comment) || 'Витрата'}
-																		</p>
-																		<p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
-																			<span
-																				className="rounded bg-slate-200 px-2 py-0.5 font-semibold text-slate-700"
-																			>
-																				{categoryLabel}
-																			</span>
-																			<span>
-																			{formatDate(expense.createdAt)}
-																			</span>
-																		</p>
-																	</div>
-																	<button
-																		type="button"
-																		onClick={() => setExpenseToDelete(expense)}
-																		className="ml-3 rounded-lg bg-slate-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-800"
-																	>
-																		🗑️
-																	</button>
-																</div>
-															)
-														})
-												)}
-											</div>
-										</div>
-
-										{/* Основні показники */}
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
-													Загальний дохід
-												</p>
-												<p className="text-xl sm:text-3xl font-bold text-green-600 mt-2 break-all leading-tight">
-													{formatMoney(getMonthStats()!.totalIncome)}
-												</p>
-												<p className="text-xs text-slate-400 mt-2">
-													{getMonthStats()!.transactions} операцій
-												</p>
-											</div>
-
-											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
-													Готівка
-												</p>
-												<p className="text-xl sm:text-3xl font-bold text-blue-600 mt-2 break-all leading-tight">
-													{formatMoney(getMonthStats()!.totalCashIncome)}
-												</p>
-												<p className="text-xs text-slate-400 mt-2">
-													{getMonthStats()!.totalCashIncome > 0 ? '💵' : ''}
-												</p>
-											</div>
-
-											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
-													Карта
-												</p>
-												<p className="text-xl sm:text-3xl font-bold text-purple-600 mt-2 break-all leading-tight">
-													{formatMoney(getMonthStats()!.totalCardIncome)}
-												</p>
-												<p className="text-xs text-slate-400 mt-2">
-													{getMonthStats()!.totalCardIncome > 0 ? '💳' : ''}
-												</p>
-											</div>
-
-											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
-													Витрати
-												</p>
-												<p className="text-xl sm:text-3xl font-bold text-red-600 mt-2 break-all leading-tight">
-													{formatMoney(getMonthStats()!.totalExpenses)}
-												</p>
-												<p className="text-xs text-slate-400 mt-2">
-													Усього видатків
-												</p>
-												<p className="text-xs text-slate-500 mt-1">
-													💸 {formatMoney(getMonthStats()!.totalSalaryExpenses)} • 🧾{' '}
-													{formatMoney(getMonthStats()!.totalOtherExpenses)}
-												</p>
-											</div>
-
-											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
-													Барбер послуги
-												</p>
-												<p className="text-xl sm:text-3xl font-bold text-emerald-600 mt-2 break-all leading-tight">
-													{formatMoney(getMonthStats()!.totalBarberIncome)}
-												</p>
-												<p className="text-xs text-slate-400 mt-2">✂️ По категорії барбер</p>
-											</div>
-
-											<div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-200">
-												<p className="text-slate-500 text-sm uppercase tracking-wider font-semibold">
-													Косметика
-												</p>
-												<p className="text-xl sm:text-3xl font-bold text-violet-600 mt-2 break-all leading-tight">
-													{formatMoney(getMonthStats()!.totalCosmeticsIncome)}
-												</p>
-												<p className="text-xs text-slate-400 mt-2">🧴 По категорії косметика</p>
-											</div>
-										</div>
-
-										{/* Прибуток */}
-										<div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-md p-5 sm:p-8 border border-green-200">
-											<h4 className="text-lg font-bold text-green-900 mb-2">
-												📈 Чистий прибуток
-											</h4>
-											<p className="text-3xl sm:text-5xl font-bold text-green-600 break-all leading-tight">
-												{formatMoney(getMonthStats()!.profit)}
-											</p>
-											<p className="text-sm text-green-700 mt-3">
-												Дохід: {formatMoney(getMonthStats()!.totalIncome)} -
-												Витрати: {formatMoney(getMonthStats()!.totalExpenses)}
-											</p>
-										</div>
-
-										{/* Особисті продажі касирів */}
-										{getMonthStats()!.userStats.length > 0 && (
-											<div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
-												<h4 className="text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
-													<span className="text-2xl">👥</span>
-													Особисті продажі касирів
-												</h4>
-												<div className="space-y-3">
-													{getMonthStats()!.userStats.map((user, index) => (
-														<div
-															key={user.id}
-															className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-blue-50 p-4 rounded-lg border border-slate-200"
-														>
-															<div className="flex items-center gap-4 flex-1">
-																<div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm">
-																	{index + 1}
-																</div>
-																<div>
-																	<p className="font-semibold text-slate-900">
-																		{user.name}
-																	</p>
-																	<p className="text-xs text-slate-500">
-																		{user.transactions} операцій
-																	</p>
-																</div>
-															</div>
-															<div className="text-right min-w-0">
-																<p className="font-bold text-sm sm:text-lg text-slate-900 break-all leading-tight">
-																	{formatMoney(user.amount)}
-																</p>
-																<p className="text-xs text-emerald-700 break-all mt-1">
-																	✂️ {formatMoney(user.barber)}
-																</p>
-																<p className="text-xs text-violet-700 break-all">
-																	🧴 {formatMoney(user.cosmetics)}
-																</p>
-															</div>
-														</div>
-													))}
-												</div>
-											</div>
-										)}
-									</div>
-								)}
 							</div>
 						)}
 
-						{/* Загальна статистика */}
-						<div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-lg p-5 sm:p-8 border border-slate-700 text-white">
-							<div className="flex items-start justify-between">
-								<div>
-									<h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-										<span className="text-3xl">📊</span>
-										Статистика архіву
-									</h3>
-									<p className="text-slate-300 text-sm">
-										Усього зберігається в системі
-									</p>
-								</div>
-								<div className="text-right">
-									<div className="text-3xl sm:text-5xl font-bold text-blue-400">
-										{shifts.length}
+						{activeTab === 'EXPENSES' && selectedMonth && (
+							<div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
+								<div className="space-y-6">
+									<div className="flex items-center justify-between px-2">
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+												<PlusCircle size={20} />
+											</div>
+											<h2 className="text-2xl font-black text-slate-900 tracking-tight">Нова витрата</h2>
+										</div>
+										<button
+											onClick={() => setIsRentModalOpen(true)}
+											className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black hover:bg-slate-50 transition-colors flex items-center gap-2"
+										>
+											<Building2 size={14} /> Налаштувати оренду
+										</button>
 									</div>
-									<p className="text-slate-400 text-sm mt-1 font-medium">
-										{shifts.length % 10 === 1 && shifts.length !== 11
-											? 'зміна'
-											: 'змін'}
-									</p>
-								</div>
-							</div>
 
-							{/* Додатково статистика */}
-							<div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-700">
-								<div className="text-center">
-									<p className="text-slate-400 text-xs uppercase tracking-wider mb-1">
-										Місяців
-									</p>
-									<p className="text-2xl font-bold text-blue-400">
-										{months.length}
-									</p>
+									<div className="bg-white rounded-[2.5rem] shadow-sm p-8 border border-slate-200/60">
+										<div className="space-y-4">
+											<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+												<div className="space-y-1.5">
+													<label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Категорія</label>
+													<select
+														value={monthExpenseCategory}
+														onChange={(e) => setMonthExpenseCategory(e.target.value as 'RENT' | 'UTILITIES' | 'OTHER')}
+														className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 focus:border-slate-900 focus:bg-white outline-none transition-all font-bold text-slate-900"
+													>
+														<option value="OTHER">Інші витрати</option>
+														<option value="UTILITIES">Комунальні</option>
+														<option value="RENT">Оренда</option>
+													</select>
+												</div>
+												<div className="space-y-1.5">
+													<label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Сума</label>
+													<input
+														type="number"
+														placeholder={monthExpenseCategory === 'RENT' ? formatCurrency(monthlyRentAmount) : '0'}
+														value={monthExpenseAmount}
+														onChange={(e) => setMonthExpenseAmount(e.target.value)}
+														disabled={monthExpenseCategory === 'RENT'}
+														className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 focus:border-slate-900 focus:bg-white outline-none transition-all font-bold text-slate-900 disabled:opacity-50"
+													/>
+												</div>
+											</div>
+											<div className="space-y-1.5">
+												<label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Коментар</label>
+												<input
+													type="text"
+													placeholder={monthExpenseCategory === 'RENT' ? 'Орендна плата' : 'Опис витрати'}
+													value={monthExpenseComment}
+													onChange={(e) => setMonthExpenseComment(e.target.value)}
+													disabled={monthExpenseCategory === 'RENT'}
+													className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 focus:border-slate-900 focus:bg-white outline-none transition-all font-bold text-slate-900 disabled:opacity-50"
+												/>
+											</div>
+											<button
+												onClick={addMonthExpense}
+												disabled={addingMonthExpense}
+												className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl py-4 font-black transition-all shadow-lg active:scale-[0.98] disabled:opacity-50"
+											>
+												{addingMonthExpense ? <Loader2 className="animate-spin" /> : <TrendingDown size={20} />}
+												Додати витрату за місяць
+											</button>
+											{formError && <p className="text-sm font-bold text-red-500 text-center">{formError}</p>}
+										</div>
+									</div>
 								</div>
-								<div className="text-center">
-									<p className="text-slate-400 text-xs uppercase tracking-wider mb-1">
-										Загальна сума кас
-									</p>
-									<p className="text-sm sm:text-lg font-bold text-green-400 break-all leading-tight">
-										{formatMoney(getDaysCount())}
-									</p>
-								</div>
-								<div className="text-center">
-									<p className="text-slate-400 text-xs uppercase tracking-wider mb-1">
-										Середня каса
-									</p>
-									<p className="text-sm sm:text-lg font-bold text-purple-400 break-all leading-tight">
-										{formatMoney(getAverageCash())}
-									</p>
+
+								<div className="space-y-6">
+									<div className="flex items-center gap-3 px-2">
+										<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+											<Receipt size={20} />
+										</div>
+										<h2 className="text-2xl font-black text-slate-900 tracking-tight">Історія витрат</h2>
+									</div>
+
+									<div className="bg-white rounded-[2.5rem] shadow-sm p-8 border border-slate-200/60 min-h-[400px]">
+										<div className="flex flex-wrap gap-2 mb-8">
+											{['ALL', 'SALARY', 'RENT', 'UTILITIES', 'OTHER'].map((v) => (
+												<button
+													key={v}
+													onClick={() => setExpensesView(v as any)}
+													className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${expensesView === v
+														? 'bg-slate-900 text-white shadow-md'
+														: 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+														}`}
+												>
+													{v === 'ALL' ? 'Усі' : v === 'SALARY' ? 'ЗП' : v === 'RENT' ? 'Оренда' : v === 'UTILITIES' ? 'Комунал' : 'Інше'}
+												</button>
+											))}
+										</div>
+
+										<div className="space-y-3">
+											{selectedMonthExpenses
+												.filter(e => expensesView === 'ALL' || getExpenseCategory(e) === expensesView)
+												.map((expense) => {
+													const cat = getExpenseCategory(expense)
+													return (
+														<div key={expense.id} className="group flex items-center justify-between p-4 bg-white border border-slate-100 rounded-[1.5rem] hover:border-slate-300 transition-all">
+															<div className="flex items-center gap-4">
+																<div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${cat === 'SALARY' ? 'bg-emerald-50 text-emerald-600' :
+																	cat === 'RENT' ? 'bg-blue-50 text-blue-600' :
+																		cat === 'UTILITIES' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-600'
+																	}`}>
+																	{cat === 'SALARY' ? <Coins size={20} /> :
+																		cat === 'RENT' ? <Building2 size={20} /> :
+																			cat === 'UTILITIES' ? <Zap size={20} /> : <Receipt size={20} />}
+																</div>
+																<div>
+																	<p className="font-black text-slate-900 leading-tight">-{formatMoney(expense.amount)}</p>
+																	<p className="text-xs font-bold text-slate-400 truncate max-w-[150px] sm:max-w-xs">{normalizeExpenseComment(expense.comment)}</p>
+																</div>
+															</div>
+															<button
+																onClick={() => setExpenseToDelete(expense)}
+																className="opacity-0 group-hover:opacity-100 p-2 text-slate-300 hover:text-red-500 transition-all"
+															>
+																<Trash2 size={18} />
+															</button>
+														</div>
+													)
+												})
+											}
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
+						)}
+
+						{activeTab === 'ANALYTICS' && monthStats && (
+							<div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
+								{/* STAT CARDS */}
+								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+									{[
+										{ label: 'Загальний дохід', value: monthStats.totalIncome, icon: TrendingUp, color: 'emerald' },
+										{ label: 'Усі витрати', value: monthStats.totalExpenses, icon: TrendingDown, color: 'red' },
+										{ label: 'Чистий прибуток', value: monthStats.profit, icon: Coins, color: 'blue' },
+										{ label: 'Транзакцій', value: monthStats.transactionsCount, icon: History, color: 'slate', isMoney: false },
+									].map((stat, i) => (
+										<div key={i} className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-sm relative overflow-hidden group">
+											<div className={`absolute top-0 right-0 w-24 h-24 bg-${stat.color}-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150`} />
+											<div className="relative">
+												<div className={`w-12 h-12 rounded-2xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 mb-6 shadow-sm border border-${stat.color}-100/50`}>
+													<stat.icon size={22} />
+												</div>
+												<p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{stat.label}</p>
+												<p className="text-3xl font-black text-slate-900 tracking-tight">
+													{stat.isMoney === false ? stat.value : formatMoney(stat.value)}
+												</p>
+											</div>
+										</div>
+									))}
+								</div>
+
+								{/* CHARTS GRID */}
+								<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+									{/* LINE CHART - DAILY INCOME */}
+									<div className="lg:col-span-2 bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
+										<div className="flex items-center justify-between mb-8 px-2">
+											<div className="flex items-center gap-3">
+												<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+													<TrendingUp size={20} />
+												</div>
+												<h3 className="text-xl font-black text-slate-900 tracking-tight">Динаміка доходу</h3>
+											</div>
+											<div className="flex items-center gap-4">
+												<div className="flex items-center gap-2">
+													<div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+													<span className="text-[10px] font-black uppercase text-slate-400">Дохід</span>
+												</div>
+												<div className="flex items-center gap-2">
+													<div className="w-3 h-3 rounded-full bg-rose-400"></div>
+													<span className="text-[10px] font-black uppercase text-slate-400">Витрати</span>
+												</div>
+											</div>
+										</div>
+										<div className="flex-1 min-h-0">
+											<ResponsiveContainer width="100%" height="100%">
+												<AreaChart data={monthStats.dailyData}>
+													<defs>
+														<linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+															<stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+															<stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+														</linearGradient>
+													</defs>
+													<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+													<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} dy={10} />
+													<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} tickFormatter={v => `${v / 1000}k`} />
+													<Tooltip
+														contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+														formatter={(v: any) => formatMoney(v)}
+													/>
+													<Area type="monotone" dataKey="income" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorIncome)" />
+													<Area type="monotone" dataKey="expenses" stroke="#fb7185" strokeWidth={2} fillOpacity={0} />
+												</AreaChart>
+											</ResponsiveContainer>
+										</div>
+									</div>
+
+									{/* PIE CHART - SERVICE TYPE BREAKDOWN */}
+									<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
+										<div className="flex items-center gap-3 mb-8 px-2">
+											<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+												<Package size={20} />
+											</div>
+											<h3 className="text-xl font-black text-slate-900 tracking-tight">Розподіл послуг</h3>
+										</div>
+										<div className="flex-1 min-h-0 flex flex-col">
+											<div className="min-h-[260px] flex-1">
+												<ResponsiveContainer width="100%" height="100%">
+													<PieChart>
+														<Pie
+															data={[
+																{ name: 'Барбер', value: monthStats.totalBarberIncome },
+																{ name: 'Косметика', value: monthStats.totalCosmeticsIncome }
+															]}
+															innerRadius={70}
+															outerRadius={100}
+															paddingAngle={10}
+															dataKey="value"
+															stroke="none"
+														>
+															<Cell fill="#6366f1" />
+															<Cell fill="#06b6d4" />
+														</Pie>
+														<Tooltip />
+													</PieChart>
+												</ResponsiveContainer>
+											</div>
+											<div className="pt-4 flex flex-col gap-3">
+												<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
+													<div className="flex items-center gap-2">
+														<div className="w-2.5 h-2.5 rounded-sm bg-indigo-500"></div>
+														<span className="text-xs font-black text-slate-600">Барбер</span>
+													</div>
+													<span className="text-xs font-black text-slate-900">{formatMoney(monthStats.totalBarberIncome)}</span>
+												</div>
+												<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
+													<div className="flex items-center gap-2">
+														<div className="w-2.5 h-2.5 rounded-sm bg-cyan-500"></div>
+														<span className="text-xs font-black text-slate-600">Косметика</span>
+													</div>
+													<span className="text-xs font-black text-slate-900">{formatMoney(monthStats.totalCosmeticsIncome)}</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* LINE CHART - DAILY PROFIT */}
+								<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
+									<div className="flex items-center justify-between mb-8 px-2">
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+												<Coins size={20} />
+											</div>
+											<h3 className="text-xl font-black text-slate-900 tracking-tight">Динаміка прибутку</h3>
+										</div>
+										<span className="text-[10px] font-black uppercase tracking-widest text-slate-400">День за днем</span>
+									</div>
+									<div className="flex-1 min-h-0">
+										<ResponsiveContainer width="100%" height="100%">
+											<LineChart
+												data={monthStats.dailyData.map((d: { date: string; income: number; expenses: number }) => ({
+													...d,
+													profit: d.income - d.expenses
+												}))}
+											>
+												<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+												<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} dy={10} />
+												<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} />
+												<Tooltip
+													contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+													formatter={(v: any) => formatMoney(Number(v) || 0)}
+												/>
+												<Line
+													type="monotone"
+													dataKey="profit"
+													stroke="#0f172a"
+													strokeWidth={3}
+													dot={{ r: 3, fill: '#0f172a' }}
+													activeDot={{ r: 5 }}
+												/>
+											</LineChart>
+										</ResponsiveContainer>
+									</div>
+								</div>
+
+								{/* STAFF PERFORMANCE BAR CHART */}
+								<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[500px]">
+									<div className="flex items-center gap-3 mb-10 px-2">
+										<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+											<LayoutDashboard size={20} />
+										</div>
+										<h3 className="text-xl font-black text-slate-900 tracking-tight">Топ продажів касирів</h3>
+									</div>
+									<div className="flex-1 min-h-0">
+										<ResponsiveContainer width="100%" height="100%">
+											<BarChart data={monthStats.userStats} layout="vertical" margin={{ left: 40, right: 40 }}>
+												<CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+												<XAxis type="number" hide />
+												<YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'black', fill: '#475569' }} />
+												<Tooltip
+													cursor={{ fill: '#f8fafc' }}
+													contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+													formatter={(v: any) => formatMoney(v)}
+												/>
+												<Bar dataKey="amount" radius={[0, 10, 10, 0]} barSize={24}>
+													{monthStats.userStats.map((entry: any, index: number) => (
+														<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+													))}
+												</Bar>
+											</BarChart>
+										</ResponsiveContainer>
+									</div>
+								</div>
+							</div>
+						)}
 					</div>
 				)}
-			</div>
 
-			<ConfirmModal
-				isOpen={Boolean(expenseToDelete)}
-				title="Підтвердьте видалення витрати"
-				description={
-					expenseToDelete
-						? `Витрата на ${formatMoney(expenseToDelete.amount)} буде видалена.`
-						: ''
-				}
-				confirmText="Видалити"
-				cancelText="Скасувати"
-				tone="danger"
-				isLoading={deletingExpense}
-				onClose={() => setExpenseToDelete(null)}
-				onConfirm={confirmDeleteExpense}
-			/>
+				<ConfirmModal
+					isOpen={!!expenseToDelete}
+					title="Видалити витрату?"
+					description="Цю дію неможливо скасувати. Витрата буде назавжди видалена з бази даних."
+					confirmText="Так, видалити"
+					tone="danger"
+					onConfirm={confirmDeleteExpense}
+					onClose={() => setExpenseToDelete(null)}
+					isLoading={deletingExpense}
+				/>
+
+				<RentEditModal
+					isOpen={isRentModalOpen}
+					onClose={() => setIsRentModalOpen(false)}
+					initialRentAmount={monthlyRentAmount}
+					onSaved={() => {
+						setIsRentModalOpen(false)
+						loadArchiveData()
+					}}
+				/>
+			</div>
 		</main>
 	)
 }

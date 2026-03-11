@@ -34,6 +34,7 @@ export async function GET(
 			r."paymentMethod",
 			r."barberAmount",
 			r."cosmeticsAmount",
+			r."discount",
 			r."totalAmount",
 			r."createdAt",
 			u."name" AS "user_name",
@@ -85,6 +86,7 @@ export async function GET(
 			paymentMethod: r.paymentMethod,
 			barberAmount: r.barberAmount,
 			cosmeticsAmount: r.cosmeticsAmount,
+			discount: r.discount || 0,
 			items: itemsByReceipt.get(r.id) ?? [],
 			createdAt: r.createdAt,
 			user: {

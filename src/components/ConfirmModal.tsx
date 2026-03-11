@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 type ConfirmModalProps = {
 	isOpen: boolean
@@ -25,6 +26,9 @@ export default function ConfirmModal({
 	onConfirm,
 	onClose
 }: ConfirmModalProps) {
+	const [mounted, setMounted] = useState(false)
+	useEffect(() => setMounted(true), [])
+
 	useEffect(() => {
 		if (!isOpen) return
 
@@ -38,14 +42,14 @@ export default function ConfirmModal({
 		return () => window.removeEventListener('keydown', onKeyDown)
 	}, [isOpen, isLoading, onClose])
 
-	if (!isOpen) return null
+	if (!isOpen || !mounted) return null
 
 	const confirmButtonClass =
 		tone === 'danger'
 			? 'bg-red-600 hover:bg-red-700 disabled:bg-red-400'
 			: 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400'
 
-	return (
+	return createPortal(
 		<div
 			className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[1px]"
 			onClick={() => {
@@ -75,6 +79,7 @@ export default function ConfirmModal({
 					</button>
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body
 	)
 }
