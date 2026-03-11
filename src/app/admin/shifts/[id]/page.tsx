@@ -306,7 +306,7 @@ export default function ShiftDetailsPage() {
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
 					{/* PIE CHART - SERVICE BREAKDOWN */}
 					<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
-						<div className="flex items-center gap-3 mb-8 px-2">
+						<div className="flex items-center gap-3 px-2">
 							<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
 								<Package size={20} />
 							</div>

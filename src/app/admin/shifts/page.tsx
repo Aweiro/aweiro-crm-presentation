@@ -119,6 +119,7 @@ export default function ShiftsArchivePage() {
 	const [expensesView, setExpensesView] = useState<
 		'ALL' | 'RENT' | 'UTILITIES' | 'OTHER' | 'SALARY'
 	>('ALL')
+	const [analyticsPeriod, setAnalyticsPeriod] = useState<'MONTH' | 'ALL_TIME'>('MONTH')
 	const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null)
 	const [deletingExpense, setDeletingExpense] = useState(false)
 	const [formError, setFormError] = useState('')
@@ -318,6 +319,90 @@ export default function ShiftsArchivePage() {
 		}
 	}, [selectedMonth, shifts, transactions, expenses, shiftsByMonth])
 
+	const allTimeStats = useMemo(() => {
+		if (transactions.length === 0 && expenses.length === 0) return null
+
+		const totalCashIncome = transactions
+			.filter((t) => t.paymentMethod === 'CASH')
+			.reduce((sum, t) => sum + t.amount, 0)
+		const totalCardIncome = transactions
+			.filter((t) => t.paymentMethod === 'CARD')
+			.reduce((sum, t) => sum + t.amount, 0)
+
+		const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0)
+		const totalIncome = totalCashIncome + totalCardIncome
+
+		const totalBarberIncome = transactions.reduce((sum, t) => {
+			const amount = typeof t.barberAmount === 'number' ? t.barberAmount : (t.serviceType !== 'COSMETICS' ? t.amount : 0)
+			return sum + amount
+		}, 0)
+		const totalCosmeticsIncome = transactions.reduce((sum, t) => {
+			const amount = typeof t.cosmeticsAmount === 'number' ? t.cosmeticsAmount : (t.serviceType === 'COSMETICS' ? t.amount : 0)
+			return sum + amount
+		}, 0)
+
+		// Month by month data for charts
+		const monthlyDataMap = new Map<string, { date: string, income: number, expenses: number }>()
+
+		// Income months
+		transactions.forEach(t => {
+			// e.g. "03.2024"
+			const date = new Date(t.createdAt).toLocaleDateString('uk-UA', { month: '2-digit', year: 'numeric' })
+			const entry = monthlyDataMap.get(date) || { date, income: 0, expenses: 0 }
+			entry.income += t.amount
+			monthlyDataMap.set(date, entry)
+		})
+
+		// Expense months
+		expenses.forEach(e => {
+			const date = new Date(e.createdAt).toLocaleDateString('uk-UA', { month: '2-digit', year: 'numeric' })
+			const entry = monthlyDataMap.get(date) || { date, income: 0, expenses: 0 }
+			entry.expenses += e.amount
+			monthlyDataMap.set(date, entry)
+		})
+
+		const monthlyData = Array.from(monthlyDataMap.values()).sort((a, b) => {
+			const [ma, ya] = a.date.split('.')
+			const [mb, yb] = b.date.split('.')
+			return (Number(ya) === Number(yb)) ? (Number(ma) - Number(mb)) : (Number(ya) - Number(yb))
+		})
+
+		const userStatsMap = new Map<number, { name: string; amount: number; barber: number; cosmetics: number; transactions: number }>()
+		transactions.forEach((t) => {
+			if (!t.user) return
+
+			const existing = userStatsMap.get(t.user.id) || {
+				name: t.user.name,
+				amount: 0,
+				transactions: 0,
+				barber: 0,
+				cosmetics: 0
+			}
+
+			userStatsMap.set(t.user.id, {
+				...existing,
+				transactions: existing.transactions + 1,
+				amount: existing.amount + t.amount,
+				barber: existing.barber + (typeof t.barberAmount === 'number' ? t.barberAmount : (t.serviceType !== 'COSMETICS' ? t.amount : 0)),
+				cosmetics: existing.cosmetics + (typeof t.cosmeticsAmount === 'number' ? t.cosmeticsAmount : (t.serviceType === 'COSMETICS' ? t.amount : 0))
+			})
+		})
+
+		return {
+			shifts: shifts.length,
+			totalIncome,
+			totalCashIncome,
+			totalCardIncome,
+			totalBarberIncome,
+			totalCosmeticsIncome,
+			totalExpenses,
+			profit: totalIncome - totalExpenses,
+			transactionsCount: transactions.length,
+			dailyData: monthlyData, // Reusing the same prop name for compatibility with charts
+			userStats: Array.from(userStatsMap.values()).sort((a, b) => b.amount - a.amount)
+		}
+	}, [shifts, transactions, expenses])
+
 	const selectedMonthExpenses = useMemo(() => {
 		if (!selectedMonth) return []
 		return expenses
@@ -451,40 +536,70 @@ export default function ShiftsArchivePage() {
 					</div>
 				) : (
 					<div className="space-y-10">
-						{/* MONTH SELECTOR */}
-						<div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/60 shadow-sm">
-							<div className="flex items-center gap-3 mb-6 px-4">
-								<div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-900">
-									<ListChecks size={16} />
+						{/* PERIOD SELECTOR / TOGGLE */}
+						<div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/60 shadow-sm animate-in fade-in slide-in-from-top-5 duration-500">
+							<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-4">
+								<div className="flex items-center gap-3">
+									<div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-900">
+										<ListChecks size={16} />
+									</div>
+									<h3 className="text-lg font-black text-slate-900">Оберіть період</h3>
 								</div>
-								<h3 className="text-lg font-black text-slate-900">Оберіть період</h3>
-							</div>
-							<div className="flex flex-wrap gap-3">
-								{months.map((monthKey) => {
-									const count = shiftsByMonth[monthKey].length
-									const isActive = selectedMonth === monthKey
-									return (
+
+								{/* VIEW TOGGLE (Only in Analytics tab) */}
+								{activeTab === 'ANALYTICS' && (
+									<div className="inline-flex bg-slate-200/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
 										<button
-											key={monthKey}
-											onClick={() => setSelectedMonth(monthKey)}
-											className={`group relative flex flex-col items-center justify-center w-[150px] px-4 py-4 rounded-2xl border transition-all duration-300 ${isActive
-												? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
-												: 'bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-white'
+											onClick={() => setAnalyticsPeriod('MONTH')}
+											className={`px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${analyticsPeriod === 'MONTH'
+													? 'bg-white text-slate-900 shadow-sm scale-105'
+													: 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
 												}`}
 										>
-											<span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
-												{monthKey.split('-')[0]}
-											</span>
-											<span className="text-lg font-black capitalize text-center">
-												{new Date(parseInt(monthKey.split('-')[0]), parseInt(monthKey.split('-')[1]) - 1).toLocaleDateString('uk-UA', { month: 'long' })}
-											</span>
-											<div className={`mt-2 px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-500'}`}>
-												{count} {count % 10 === 1 && count !== 11 ? 'зміна' : 'змін'}
-											</div>
+											По місяцях
 										</button>
-									)
-								})}
+										<button
+											onClick={() => setAnalyticsPeriod('ALL_TIME')}
+											className={`px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${analyticsPeriod === 'ALL_TIME'
+													? 'bg-slate-900 text-white shadow-md scale-105'
+													: 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+												}`}
+										>
+											За весь час
+										</button>
+									</div>
+								)}
 							</div>
+
+							{/* MONTH SELECTION GRID - Hidden when ALL_TIME is active in Analytics */}
+							{(!(activeTab === 'ANALYTICS' && analyticsPeriod === 'ALL_TIME')) && (
+								<div className="flex flex-wrap gap-3">
+									{months.map((monthKey) => {
+										const count = shiftsByMonth[monthKey].length
+										const isActive = selectedMonth === monthKey
+										return (
+											<button
+												key={monthKey}
+												onClick={() => setSelectedMonth(monthKey)}
+												className={`group relative flex flex-col items-center justify-center w-[150px] px-4 py-4 rounded-2xl border transition-all duration-300 ${isActive
+														? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
+														: 'bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-white'
+													}`}
+											>
+												<span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
+													{monthKey.split('-')[0]}
+												</span>
+												<span className="text-lg font-black capitalize text-center">
+													{new Date(parseInt(monthKey.split('-')[0]), parseInt(monthKey.split('-')[1]) - 1).toLocaleDateString('uk-UA', { month: 'long' })}
+												</span>
+												<div className={`mt-2 px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-500'}`}>
+													{count} {count % 10 === 1 && count !== 11 ? 'зміна' : 'змін'}
+												</div>
+											</button>
+										)
+									})}
+								</div>
+							)}
 						</div>
 
 						{activeTab === 'ARCHIVE' && selectedMonth && (
@@ -695,193 +810,206 @@ export default function ShiftsArchivePage() {
 							</div>
 						)}
 
-						{activeTab === 'ANALYTICS' && monthStats && (
+						{activeTab === 'ANALYTICS' && (
 							<div className="space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
-								{/* STAT CARDS */}
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-									{[
-										{ label: 'Загальний дохід', value: monthStats.totalIncome, icon: TrendingUp, color: 'emerald' },
-										{ label: 'Усі витрати', value: monthStats.totalExpenses, icon: TrendingDown, color: 'red' },
-										{ label: 'Чистий прибуток', value: monthStats.profit, icon: Coins, color: 'blue' },
-										{ label: 'Транзакцій', value: monthStats.transactionsCount, icon: History, color: 'slate', isMoney: false },
-									].map((stat, i) => (
-										<div key={i} className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-sm relative overflow-hidden group">
-											<div className={`absolute top-0 right-0 w-24 h-24 bg-${stat.color}-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150`} />
-											<div className="relative">
-												<div className={`w-12 h-12 rounded-2xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 mb-6 shadow-sm border border-${stat.color}-100/50`}>
-													<stat.icon size={22} />
-												</div>
-												<p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{stat.label}</p>
-												<p className="text-3xl font-black text-slate-900 tracking-tight">
-													{stat.isMoney === false ? stat.value : formatMoney(stat.value)}
-												</p>
-											</div>
-										</div>
-									))}
-								</div>
+								{/* RENDER STATS BASED ON PERIOD */}
+								{((analyticsPeriod === 'MONTH' && monthStats) || (analyticsPeriod === 'ALL_TIME' && allTimeStats)) && (() => {
+									const activeStats = (analyticsPeriod === 'MONTH' ? monthStats : allTimeStats)!
 
-								{/* CHARTS GRID */}
-								<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-									{/* LINE CHART - DAILY INCOME */}
-									<div className="lg:col-span-2 bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
-										<div className="flex items-center justify-between mb-8 px-2">
-											<div className="flex items-center gap-3">
-												<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
-													<TrendingUp size={20} />
-												</div>
-												<h3 className="text-xl font-black text-slate-900 tracking-tight">Динаміка доходу</h3>
+									return (
+										<>
+											{/* STAT CARDS */}
+											<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+												{[
+													{ label: 'Загальний дохід', value: activeStats.totalIncome, icon: TrendingUp, color: 'emerald' },
+													{ label: 'Усі витрати', value: activeStats.totalExpenses, icon: TrendingDown, color: 'red' },
+													{ label: 'Чистий прибуток', value: activeStats.profit, icon: Coins, color: 'blue' },
+													{ label: 'Транзакцій', value: activeStats.transactionsCount, icon: History, color: 'slate', isMoney: false },
+												].map((stat, i) => (
+													<div key={i} className="bg-white rounded-[2.5rem] p-8 border border-slate-200/60 shadow-sm relative overflow-hidden group">
+														<div className={`absolute top-0 right-0 w-24 h-24 bg-${stat.color}-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150`} />
+														<div className="relative">
+															<div className={`w-12 h-12 rounded-2xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 mb-6 shadow-sm border border-${stat.color}-100/50`}>
+																<stat.icon size={22} />
+															</div>
+															<p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{stat.label}</p>
+															<p className="text-3xl font-black text-slate-900 tracking-tight">
+																{stat.isMoney === false ? stat.value : formatMoney(stat.value)}
+															</p>
+														</div>
+													</div>
+												))}
 											</div>
-											<div className="flex items-center gap-4">
-												<div className="flex items-center gap-2">
-													<div className="w-3 h-3 rounded-full bg-indigo-500"></div>
-													<span className="text-[10px] font-black uppercase text-slate-400">Дохід</span>
-												</div>
-												<div className="flex items-center gap-2">
-													<div className="w-3 h-3 rounded-full bg-rose-400"></div>
-													<span className="text-[10px] font-black uppercase text-slate-400">Витрати</span>
-												</div>
-											</div>
-										</div>
-										<div className="flex-1 min-h-0">
-											<ResponsiveContainer width="100%" height="100%">
-												<AreaChart data={monthStats.dailyData}>
-													<defs>
-														<linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-															<stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-															<stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-														</linearGradient>
-													</defs>
-													<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-													<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} dy={10} />
-													<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} tickFormatter={v => `${v / 1000}k`} />
-													<Tooltip
-														contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-														formatter={(v: any) => formatMoney(v)}
-													/>
-													<Area type="monotone" dataKey="income" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorIncome)" />
-													<Area type="monotone" dataKey="expenses" stroke="#fb7185" strokeWidth={2} fillOpacity={0} />
-												</AreaChart>
-											</ResponsiveContainer>
-										</div>
-									</div>
 
-									{/* PIE CHART - SERVICE TYPE BREAKDOWN */}
-									<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
-										<div className="flex items-center gap-3 px-2">
-											<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
-												<Package size={20} />
+											{/* CHARTS GRID */}
+											<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+												{/* LINE CHART - DAILY/MONTHLY INCOME */}
+												<div className="lg:col-span-2 bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
+													<div className="flex items-center justify-between mb-8 px-2">
+														<div className="flex items-center gap-3">
+															<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+																<TrendingUp size={20} />
+															</div>
+															<h3 className="text-xl font-black text-slate-900 tracking-tight">Динаміка доходу</h3>
+														</div>
+														<div className="flex items-center gap-4">
+															<div className="flex items-center gap-2">
+																<div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+																<span className="text-[10px] font-black uppercase text-slate-400">Дохід</span>
+															</div>
+															<div className="flex items-center gap-2">
+																<div className="w-3 h-3 rounded-full bg-rose-400"></div>
+																<span className="text-[10px] font-black uppercase text-slate-400">Витрати</span>
+															</div>
+														</div>
+													</div>
+													<div className="flex-1 min-h-0">
+														<ResponsiveContainer width="100%" height="100%">
+															<AreaChart data={activeStats.dailyData}>
+																<defs>
+																	<linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+																		<stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+																		<stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+																	</linearGradient>
+																</defs>
+																<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+																<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} dy={10} />
+																<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} tickFormatter={v => `${v / 1000}k`} />
+																<Tooltip
+																	contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+																	formatter={(v: any) => formatMoney(v)}
+																/>
+																<Area type="monotone" dataKey="income" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorIncome)" />
+																<Area type="monotone" dataKey="expenses" stroke="#fb7185" strokeWidth={2} fillOpacity={0} />
+															</AreaChart>
+														</ResponsiveContainer>
+													</div>
+												</div>
+
+												{/* PIE CHART - SERVICE TYPE BREAKDOWN */}
+												<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
+													<div className="flex items-center gap-3 px-2">
+														<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+															<Package size={20} />
+														</div>
+														<h3 className="text-xl font-black text-slate-900 tracking-tight">Розподіл послуг</h3>
+													</div>
+													<div className="flex-1 min-h-0 flex flex-col">
+														<div className="min-h-[260px] flex-1">
+															<ResponsiveContainer width="100%" height="100%">
+																<PieChart>
+																	<Pie
+																		data={[
+																			{ name: 'Барбер', value: activeStats.totalBarberIncome },
+																			{ name: 'Косметика', value: activeStats.totalCosmeticsIncome }
+																		]}
+																		innerRadius={70}
+																		outerRadius={100}
+																		paddingAngle={10}
+																		dataKey="value"
+																		stroke="none"
+																	>
+																		<Cell fill="#6366f1" />
+																		<Cell fill="#06b6d4" />
+																	</Pie>
+																	<Tooltip />
+																</PieChart>
+															</ResponsiveContainer>
+														</div>
+														<div className="pt-4 flex flex-col gap-3">
+															<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
+																<div className="flex items-center gap-2">
+																	<div className="w-2.5 h-2.5 rounded-sm bg-indigo-500"></div>
+																	<span className="text-xs font-black text-slate-600">Барбер</span>
+																</div>
+																<span className="text-xs font-black text-slate-900">{formatMoney(activeStats.totalBarberIncome)}</span>
+															</div>
+															<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
+																<div className="flex items-center gap-2">
+																	<div className="w-2.5 h-2.5 rounded-sm bg-cyan-500"></div>
+																	<span className="text-xs font-black text-slate-600">Косметика</span>
+																</div>
+																<span className="text-xs font-black text-slate-900">{formatMoney(activeStats.totalCosmeticsIncome)}</span>
+															</div>
+														</div>
+													</div>
+												</div>
 											</div>
-											<h3 className="text-xl font-black text-slate-900 tracking-tight">Розподіл послуг</h3>
-										</div>
-										<div className="flex-1 min-h-0 flex flex-col">
-											<div className="min-h-[260px] flex-1">
-												<ResponsiveContainer width="100%" height="100%">
-													<PieChart>
-														<Pie
-															data={[
-																{ name: 'Барбер', value: monthStats.totalBarberIncome },
-																{ name: 'Косметика', value: monthStats.totalCosmeticsIncome }
-															]}
-															innerRadius={70}
-															outerRadius={100}
-															paddingAngle={10}
-															dataKey="value"
-															stroke="none"
+
+											{/* LINE CHART - DAILY/MONTHLY PROFIT */}
+											<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
+												<div className="flex items-center justify-between mb-8 px-2">
+													<div className="flex items-center gap-3">
+														<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+															<Coins size={20} />
+														</div>
+														<h3 className="text-xl font-black text-slate-900 tracking-tight">Динаміка прибутку</h3>
+													</div>
+													<span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+														{analyticsPeriod === 'ALL_TIME' ? 'Місяць до місяця' : 'День за днем'}
+													</span>
+												</div>
+												<div className="flex-1 min-h-0">
+													<ResponsiveContainer width="100%" height="100%">
+														<LineChart
+															data={activeStats.dailyData.map((d: { date: string; income: number; expenses: number }) => ({
+																...d,
+																profit: d.income - d.expenses
+															}))}
 														>
-															<Cell fill="#6366f1" />
-															<Cell fill="#06b6d4" />
-														</Pie>
-														<Tooltip />
-													</PieChart>
-												</ResponsiveContainer>
-											</div>
-											<div className="pt-4 flex flex-col gap-3">
-												<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
-													<div className="flex items-center gap-2">
-														<div className="w-2.5 h-2.5 rounded-sm bg-indigo-500"></div>
-														<span className="text-xs font-black text-slate-600">Барбер</span>
-													</div>
-													<span className="text-xs font-black text-slate-900">{formatMoney(monthStats.totalBarberIncome)}</span>
-												</div>
-												<div className="flex items-center justify-between px-4 py-2 bg-slate-50 rounded-2xl">
-													<div className="flex items-center gap-2">
-														<div className="w-2.5 h-2.5 rounded-sm bg-cyan-500"></div>
-														<span className="text-xs font-black text-slate-600">Косметика</span>
-													</div>
-													<span className="text-xs font-black text-slate-900">{formatMoney(monthStats.totalCosmeticsIncome)}</span>
+															<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+															<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} dy={10} />
+															<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} />
+															<Tooltip
+																contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+																formatter={(v: any) => formatMoney(Number(v) || 0)}
+															/>
+															<Line
+																type="monotone"
+																dataKey="profit"
+																stroke="#0f172a"
+																strokeWidth={3}
+																dot={{ r: 3, fill: '#0f172a' }}
+																activeDot={{ r: 5 }}
+															/>
+														</LineChart>
+													</ResponsiveContainer>
 												</div>
 											</div>
-										</div>
-									</div>
-								</div>
 
-								{/* LINE CHART - DAILY PROFIT */}
-								<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[460px]">
-									<div className="flex items-center justify-between mb-8 px-2">
-										<div className="flex items-center gap-3">
-											<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
-												<Coins size={20} />
-											</div>
-											<h3 className="text-xl font-black text-slate-900 tracking-tight">Динаміка прибутку</h3>
-										</div>
-										<span className="text-[10px] font-black uppercase tracking-widest text-slate-400">День за днем</span>
-									</div>
-									<div className="flex-1 min-h-0">
-										<ResponsiveContainer width="100%" height="100%">
-											<LineChart
-												data={monthStats.dailyData.map((d: { date: string; income: number; expenses: number }) => ({
-													...d,
-													profit: d.income - d.expenses
-												}))}
-											>
-												<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-												<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} dy={10} />
-												<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }} />
-												<Tooltip
-													contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-													formatter={(v: any) => formatMoney(Number(v) || 0)}
-												/>
-												<Line
-													type="monotone"
-													dataKey="profit"
-													stroke="#0f172a"
-													strokeWidth={3}
-													dot={{ r: 3, fill: '#0f172a' }}
-													activeDot={{ r: 5 }}
-												/>
-											</LineChart>
-										</ResponsiveContainer>
-									</div>
-								</div>
-
-								{/* STAFF PERFORMANCE BAR CHART */}
-								<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[500px]">
-									<div className="flex items-center gap-3 mb-10 px-2">
-										<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
-											<LayoutDashboard size={20} />
-										</div>
-										<h3 className="text-xl font-black text-slate-900 tracking-tight">Топ продажів касирів</h3>
-									</div>
-									<div className="flex-1 min-h-0">
-										<ResponsiveContainer width="100%" height="100%">
-											<BarChart data={monthStats.userStats} layout="vertical" margin={{ left: 40, right: 40 }}>
-												<CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-												<XAxis type="number" hide />
-												<YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'black', fill: '#475569' }} />
-												<Tooltip
-													cursor={{ fill: '#f8fafc' }}
-													contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-													formatter={(v: any) => formatMoney(v)}
-												/>
-												<Bar dataKey="amount" radius={[0, 10, 10, 0]} barSize={24}>
-													{monthStats.userStats.map((entry: any, index: number) => (
-														<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-													))}
-												</Bar>
-											</BarChart>
-										</ResponsiveContainer>
-									</div>
-								</div>
+											{/* STAFF PERFORMANCE BAR CHART */}
+											{(activeStats.userStats && activeStats.userStats.length > 0) && (
+												<div className="bg-white rounded-[3rem] p-8 border border-slate-200/60 shadow-sm flex flex-col h-[500px]">
+													<div className="flex items-center gap-3 mb-10 px-2">
+														<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
+															<LayoutDashboard size={20} />
+														</div>
+														<h3 className="text-xl font-black text-slate-900 tracking-tight">Топ продажів касирів</h3>
+													</div>
+													<div className="flex-1 min-h-0">
+														<ResponsiveContainer width="100%" height="100%">
+															<BarChart data={activeStats.userStats} layout="vertical" margin={{ left: 40, right: 40 }}>
+																<CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+																<XAxis type="number" hide />
+																<YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'black', fill: '#475569' }} />
+																<Tooltip
+																	cursor={{ fill: '#f8fafc' }}
+																	contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
+																	formatter={(v: any) => formatMoney(v)}
+																/>
+																<Bar dataKey="amount" radius={[0, 10, 10, 0]} barSize={24}>
+																	{activeStats.userStats.map((entry: any, index: number) => (
+																		<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+																	))}
+																</Bar>
+															</BarChart>
+														</ResponsiveContainer>
+													</div>
+												</div>
+											)}
+										</>
+									)
+								})()}
 							</div>
 						)}
 					</div>

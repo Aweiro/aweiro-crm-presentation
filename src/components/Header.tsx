@@ -44,7 +44,7 @@ const NAV_LINKS: NavLink[] = [
 		subLinks: [
 			{ href: '/admin/shifts/archive', label: 'Зміни по місяцях' },
 			{ href: '/admin/shifts/expenses', label: 'Місячні витрати' },
-			{ href: '/admin/shifts/analytics', label: 'Аналітика місяця' }
+			{ href: '/admin/shifts/analytics', label: 'Аналітика' }
 		]
 	},
 	{
