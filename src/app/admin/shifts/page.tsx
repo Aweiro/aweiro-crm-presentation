@@ -225,12 +225,15 @@ export default function ShiftsArchivePage() {
 		if (!selectedMonth) return null
 
 		const monthShifts = shiftsByMonth[selectedMonth] || []
-		const monthShiftIds = monthShifts.map((s) => s.id)
 		const isInSelectedMonth = (dateString: string) =>
 			formatMonthKey(new Date(dateString)) === selectedMonth
 
+		// IMPORTANT:
+		// Transactions are grouped by their own createdAt month (calendar month),
+		// not by shift closedAt month. Otherwise end-of-month shifts are counted
+		// into the next month and month analytics become inconsistent.
 		const monthTransactions = transactions.filter((t) =>
-			monthShiftIds.includes(t.shiftId)
+			isInSelectedMonth(t.createdAt)
 		)
 		const monthExpenses = expenses.filter((e) =>
 			isInSelectedMonth(e.createdAt)

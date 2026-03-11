@@ -99,19 +99,39 @@ export function getShiftTransactions(shiftId: number) {
 					}
 				}))
 			} catch {
-				const fallback = await prisma.transaction.findMany({
-					where: { shiftId },
-					orderBy: { createdAt: 'desc' },
-					include: {
-						user: {
-							select: {
-								id: true,
-								name: true
-							}
-						}
+				// Older databases may not have "discount"/"serviceType" columns yet.
+				// Use a legacy-safe raw query instead of Prisma model select.
+				const fallbackRows = await (prisma as any).$queryRawUnsafe(
+					`SELECT
+						t."id",
+						t."amount",
+						t."paymentMethod",
+						t."createdAt",
+						t."userId",
+						t."shiftId",
+						u."id" AS "user_id",
+						u."name" AS "user_name"
+					FROM "Transaction" t
+					LEFT JOIN "User" u ON u."id" = t."userId"
+					WHERE t."shiftId" = $1
+					ORDER BY t."createdAt" DESC`,
+					shiftId
+				)
+
+				return (fallbackRows as any[]).map((r) => ({
+					id: r.id,
+					amount: r.amount,
+					discount: 0,
+					paymentMethod: r.paymentMethod,
+					serviceType: 'BARBER',
+					createdAt: r.createdAt,
+					userId: r.userId,
+					shiftId: r.shiftId,
+					user: {
+						id: r.user_id ?? r.userId,
+						name: r.user_name ?? null
 					}
-				})
-				return fallback.map((t: any) => ({ ...t, serviceType: 'BARBER' }))
+				}))
 			}
 		})()
 	} catch (e) {
