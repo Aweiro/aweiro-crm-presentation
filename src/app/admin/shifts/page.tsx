@@ -546,14 +546,14 @@ export default function ShiftsArchivePage() {
 									<h3 className="text-lg font-black text-slate-900">Оберіть період</h3>
 								</div>
 
-								{/* VIEW TOGGLE (Only in Analytics tab) */}
-								{activeTab === 'ANALYTICS' && (
-									<div className="inline-flex bg-slate-200/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
+								{/* VIEW TOGGLE (Only in Analytics and Expenses tabs) */}
+								{(activeTab === 'ANALYTICS' || activeTab === 'EXPENSES') && (
+									<div className="inline-flex gap-1.5 bg-slate-200/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
 										<button
 											onClick={() => setAnalyticsPeriod('MONTH')}
 											className={`px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${analyticsPeriod === 'MONTH'
-													? 'bg-white text-slate-900 shadow-sm scale-105'
-													: 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+												? 'bg-white text-slate-900 shadow-sm scale-105'
+												: 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
 												}`}
 										>
 											По місяцях
@@ -561,8 +561,8 @@ export default function ShiftsArchivePage() {
 										<button
 											onClick={() => setAnalyticsPeriod('ALL_TIME')}
 											className={`px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${analyticsPeriod === 'ALL_TIME'
-													? 'bg-slate-900 text-white shadow-md scale-105'
-													: 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+												? 'bg-slate-900 text-white shadow-md scale-105'
+												: 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
 												}`}
 										>
 											За весь час
@@ -571,8 +571,8 @@ export default function ShiftsArchivePage() {
 								)}
 							</div>
 
-							{/* MONTH SELECTION GRID - Hidden when ALL_TIME is active in Analytics */}
-							{(!(activeTab === 'ANALYTICS' && analyticsPeriod === 'ALL_TIME')) && (
+							{/* MONTH SELECTION GRID - Hidden when ALL_TIME is active in Analytics or Expenses */}
+							{(!((activeTab === 'ANALYTICS' || activeTab === 'EXPENSES') && analyticsPeriod === 'ALL_TIME')) && (
 								<div className="flex flex-wrap gap-3">
 									{months.map((monthKey) => {
 										const count = shiftsByMonth[monthKey].length
@@ -582,8 +582,8 @@ export default function ShiftsArchivePage() {
 												key={monthKey}
 												onClick={() => setSelectedMonth(monthKey)}
 												className={`group relative flex flex-col items-center justify-center w-[150px] px-4 py-4 rounded-2xl border transition-all duration-300 ${isActive
-														? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
-														: 'bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-white'
+													? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
+													: 'bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-white'
 													}`}
 											>
 												<span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
@@ -672,7 +672,7 @@ export default function ShiftsArchivePage() {
 							</div>
 						)}
 
-						{activeTab === 'EXPENSES' && selectedMonth && (
+						{activeTab === 'EXPENSES' && (selectedMonth || analyticsPeriod === 'ALL_TIME') && (
 							<div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
 								<div className="space-y-6">
 									<div className="flex items-center justify-between px-2">
@@ -734,7 +734,7 @@ export default function ShiftsArchivePage() {
 												className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl py-4 font-black transition-all shadow-lg active:scale-[0.98] disabled:opacity-50"
 											>
 												{addingMonthExpense ? <Loader2 className="animate-spin" /> : <TrendingDown size={20} />}
-												Додати витрату за місяць
+												Додати витрату
 											</button>
 											{formError && <p className="text-sm font-bold text-red-500 text-center">{formError}</p>}
 										</div>
@@ -746,7 +746,9 @@ export default function ShiftsArchivePage() {
 										<div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-900">
 											<Receipt size={20} />
 										</div>
-										<h2 className="text-2xl font-black text-slate-900 tracking-tight">Історія витрат</h2>
+										<h2 className="text-2xl font-black text-slate-900 tracking-tight">
+											Історія витрат {analyticsPeriod === 'ALL_TIME' ? 'за весь час' : `за ${selectedMonth ? getMonthName(selectedMonth) : ''}`}
+										</h2>
 									</div>
 
 									<div className="bg-white rounded-[2.5rem] shadow-sm p-8 border border-slate-200/60 min-h-[400px]">
@@ -766,7 +768,9 @@ export default function ShiftsArchivePage() {
 										</div>
 
 										<div className="space-y-3">
-											{selectedMonthExpenses
+											{(analyticsPeriod === 'ALL_TIME'
+												? [...expenses].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+												: selectedMonthExpenses)
 												.filter(e => expensesView === 'ALL' || getExpenseCategory(e) === expensesView)
 												.map((expense) => {
 													const cat = getExpenseCategory(expense)
