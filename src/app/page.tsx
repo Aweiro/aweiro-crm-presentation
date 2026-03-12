@@ -76,7 +76,7 @@ const HOME_SECTIONS: HomeSection[] = [
 	{
 		href: '/admin/shifts/archive',
 		title: 'Архів і аналітика',
-		description: 'Закриті зміни, місячні витрати та фінансові графіки',
+		description: 'Закриті зміни, витрати та фінансові графіки',
 		icon: Archive,
 		accent: 'from-purple-500 to-pink-500',
 		badge: 'bg-purple-100 text-purple-700',

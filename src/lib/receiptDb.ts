@@ -46,6 +46,16 @@ export async function ensureReceiptTables() {
 
   await (prisma as any).$executeRawUnsafe(`
     ALTER TABLE "CashierReceipt"
+    ADD COLUMN IF NOT EXISTS "barberAmount" INTEGER NOT NULL DEFAULT 0
+  `)
+
+  await (prisma as any).$executeRawUnsafe(`
+    ALTER TABLE "CashierReceipt"
+    ADD COLUMN IF NOT EXISTS "cosmeticsAmount" INTEGER NOT NULL DEFAULT 0
+  `)
+
+  await (prisma as any).$executeRawUnsafe(`
+    ALTER TABLE "CashierReceipt"
     ADD COLUMN IF NOT EXISTS "totalAmount" INTEGER NOT NULL DEFAULT 0
   `)
 }

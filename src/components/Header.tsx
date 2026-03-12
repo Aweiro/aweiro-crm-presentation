@@ -43,7 +43,7 @@ const NAV_LINKS: NavLink[] = [
 		roles: ['ADMIN'],
 		subLinks: [
 			{ href: '/admin/shifts/archive', label: 'Зміни по місяцях' },
-			{ href: '/admin/shifts/expenses', label: 'Місячні витрати' },
+			{ href: '/admin/shifts/expenses', label: 'Витрати' },
 			{ href: '/admin/shifts/analytics', label: 'Аналітика' }
 		]
 	},
